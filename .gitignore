@@ -1,0 +1,64 @@
+### 核心构建目录 ###
+# CMake 构建目录（推荐使用 out-of-source 构建）
+[Bb]uild*/
+[Oo]utput*/
+[Cc]make-build-*/
+
+### Visual Studio 生成文件 ###
+# 解决方案/项目用户配置
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.suo
+*.opensdf
+
+# VS 缓存目录
+.vs/
+.vscode/
+*.VC.db
+*.VC.VC.opendb
+
+### CMake 生成文件 ###
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+Makefile
+
+### 编译输出 ###
+# 可执行文件和库
+*.exe
+*.dll
+*.lib
+*.exp
+*.ilk
+*.pdb
+
+# 静态库
+*.a
+
+# 中间编译文件
+*.obj
+*.o
+*.res
+
+### 目录结构 ###
+# 常见构建目录
+[Dd]ebug*/
+[Rr]elease*/
+[Xx]64/
+[Ww]in32/
+x86/
+x64/
+
+### 系统文件 ###
+# Windows 系统文件
+Thumbs.db
+[Dd]esktop.ini
+
+# 临时文件
+*~
+*.log
+*.tmp
