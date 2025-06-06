@@ -31,7 +31,7 @@ Makefile
 # 可执行文件和库
 *.exe
 *.dll
-*.lib
+#*.lib
 *.exp
 *.ilk
 *.pdb

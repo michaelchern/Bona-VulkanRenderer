@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base.h"
+#include "vulkanWrapper/instance.h"
 
 namespace FF
 {
@@ -17,17 +18,12 @@ namespace FF
 		void run();
 
 	private:
-
 		void initWindow();
-
 		void initVulkan();
-
 		void mainLoop();
-
 		void cleanUp();
 
-
-
-		GLFWwindow* m_Window = nullptr;
+		GLFWwindow* mWindow = nullptr;
+		Wrapper::Instance::Ptr mInstance;
 	};
 }
