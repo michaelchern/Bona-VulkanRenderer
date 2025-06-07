@@ -33,6 +33,7 @@ namespace FF
 	void Application::initVulkan()
 	{
 		mInstance = Wrapper::Instance::create(true);
+		mDevice = Wrapper::Device::create(mInstance);
 	}
 
 	void Application::mainLoop()
@@ -45,6 +46,9 @@ namespace FF
 
 	void Application::cleanUp()
 	{
+		mDevice.reset();
+		mInstance.reset();
+
 		if (mWindow)
 		{
 			glfwDestroyWindow(mWindow);

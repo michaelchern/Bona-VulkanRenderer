@@ -20,10 +20,12 @@ namespace FF::Wrapper
 		bool checkValidationLayerSupport();
 		void setupDebugger();
 
+		[[nodiscard]] VkInstance getInstance() const { return mInstance; }
+
 	private:
-		VkInstance mInstance;
+		VkInstance mInstance{ VK_NULL_HANDLE };
 		bool mEnableValidationLayer{ false };
 
-		VkDebugUtilsMessengerEXT mDebugger;
+		VkDebugUtilsMessengerEXT mDebugger{ VK_NULL_HANDLE };
 	};
 }

@@ -2,6 +2,7 @@
 
 #include "base.h"
 #include "vulkanWrapper/instance.h"
+#include "vulkanWrapper/device.h"
 
 namespace FF
 {
@@ -23,7 +24,8 @@ namespace FF
 		void mainLoop();
 		void cleanUp();
 
-		GLFWwindow* mWindow = nullptr;
-		Wrapper::Instance::Ptr mInstance;
+		GLFWwindow* mWindow{ NULL };
+		Wrapper::Instance::Ptr mInstance{ nullptr };
+		Wrapper::Device::Ptr mDevice{ nullptr };
 	};
 }
