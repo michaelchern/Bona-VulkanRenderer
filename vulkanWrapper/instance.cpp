@@ -1,13 +1,11 @@
+
+#include <iostream>
+
+#include "../base.h"
 #include "instance.h"
 
 namespace FF::Wrapper
 {
-	const std::vector<const char*> validationLayers =
-	{
-		"VK_LAYER_KHRONOS_validation"
-	};
-
-	
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT messageType,

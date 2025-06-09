@@ -1,5 +1,9 @@
-#include "device.h"
+
 #include <map>
+#include <stdexcept>
+
+#include "../base.h"
+#include "device.h"
 
 namespace FF::Wrapper
 {
@@ -7,10 +11,13 @@ namespace FF::Wrapper
 	{
 		mInstance = instance;
 		pickPhysicalDevice();
+		initQueueFamilies(mPhysicalDevice);
+		createLogicalDevice();
 	}
 
 	Device::~Device()
 	{
+		vkDestroyDevice(mDevice, nullptr);
 		mInstance.reset();
 	}
 
@@ -79,5 +86,73 @@ namespace FF::Wrapper
 		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
 		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+	}
+
+	void Device::initQueueFamilies(VkPhysicalDevice device)
+	{
+		uint32_t queueFamilyCount = 0;
+
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+		int i = 0;
+		for (const auto& queueFamily : queueFamilies)
+		{
+			if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT))
+			{
+				mGraphicsQueueFamily = i;
+			}
+			
+			if (mGraphicsQueueFamily.has_value())
+			{
+				break;
+			}
+
+			i++;
+		}
+	}
+
+	void Device::createLogicalDevice()
+	{
+		if (!mGraphicsQueueFamily.has_value())
+		{
+			throw std::runtime_error("No suitable graphics queue family found!");
+		}
+		VkDeviceQueueCreateInfo queueCreateInfo = {};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = mGraphicsQueueFamily.value();
+		queueCreateInfo.queueCount = 1;
+
+		float queuePriority = 1.0f;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+
+		VkPhysicalDeviceFeatures deviceFeatures = {};
+		//deviceFeatures.geometryShader = VK_TRUE;
+
+		VkDeviceCreateInfo deviceCreateInfo = {};
+		deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		deviceCreateInfo.queueCreateInfoCount = 1;
+		deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
+		deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+		deviceCreateInfo.enabledExtensionCount = 0;
+
+		if (mInstance->getEnableValidationLayer())
+		{
+			deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+			deviceCreateInfo.ppEnabledLayerNames = validationLayers.data();
+		}
+		else
+		{
+			deviceCreateInfo.enabledLayerCount = 0;
+		}
+
+		if (vkCreateDevice(mPhysicalDevice, &deviceCreateInfo, nullptr, &mDevice) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create logical device!");
+		}
+
+		vkGetDeviceQueue(mDevice, mGraphicsQueueFamily.value(), 0, &mGraphicsQueue);
 	}
 }

@@ -1,3 +1,6 @@
+
+#include <iostream>
+
 #include "application.h"
 
 namespace FF

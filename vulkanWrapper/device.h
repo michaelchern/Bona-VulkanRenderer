@@ -1,6 +1,7 @@
 #pragma once
 
 #include "instance.h"
+#include <optional>
 
 namespace FF::Wrapper
 {
@@ -20,8 +21,17 @@ namespace FF::Wrapper
 
 		bool isDeviceSuitable(VkPhysicalDevice device);
 
+		void initQueueFamilies(VkPhysicalDevice device);
+
+		void createLogicalDevice();
+
 	private:
 		VkPhysicalDevice mPhysicalDevice{ VK_NULL_HANDLE };
 		Instance::Ptr mInstance{ nullptr };
+
+		std::optional<uint32_t> mGraphicsQueueFamily;
+		VkQueue mGraphicsQueue{ VK_NULL_HANDLE };
+
+		VkDevice mDevice{ VK_NULL_HANDLE };
 	};
 }
