@@ -4,12 +4,14 @@
 
 #include "../base.h"
 #include "device.h"
+#include <set>
 
 namespace FF::Wrapper
 {
-	Device::Device(Instance::Ptr instance)
+	Device::Device(Instance::Ptr instance, WindowSurface::Ptr surface)
 	{
 		mInstance = instance;
+		mSurface = surface;
 		pickPhysicalDevice();
 		initQueueFamilies(mPhysicalDevice);
 		createLogicalDevice();
@@ -18,6 +20,7 @@ namespace FF::Wrapper
 	Device::~Device()
 	{
 		vkDestroyDevice(mDevice, nullptr);
+		mSurface.reset();
 		mInstance.reset();
 	}
 
@@ -104,8 +107,16 @@ namespace FF::Wrapper
 			{
 				mGraphicsQueueFamily = i;
 			}
+
+			VkBool32 presentSupport = VK_FALSE;
+			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, mSurface->getSurface(), &presentSupport);
+
+			if (presentSupport)
+			{
+				mPresentQueueFamily = i;
+			}
 			
-			if (mGraphicsQueueFamily.has_value())
+			if (isQueueFamilyComplete())
 			{
 				break;
 			}
@@ -116,10 +127,25 @@ namespace FF::Wrapper
 
 	void Device::createLogicalDevice()
 	{
-		if (!mGraphicsQueueFamily.has_value())
+		std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfos{};
+
+		std::set<uint32_t> queueFamilies = { mGraphicsQueueFamily.value(), mPresentQueueFamily.value() };
+
+		float queuePriority = 1.0;
+
+		for (uint32_t queueFamily : queueFamilies)
 		{
-			throw std::runtime_error("No suitable graphics queue family found!");
+			VkDeviceQueueCreateInfo deviceQueueCreateInfo = {};
+			deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			deviceQueueCreateInfo.queueFamilyIndex = queueFamily;
+			deviceQueueCreateInfo.queueCount = 1;
+			deviceQueueCreateInfo.pQueuePriorities = &queuePriority;
+
+			deviceQueueCreateInfos.push_back(deviceQueueCreateInfo);
 		}
+
+		VkPhysicalDeviceFeatures physicalDeviceFeatures = {};
+
 		VkDeviceQueueCreateInfo queueCreateInfo = {};
 		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		queueCreateInfo.queueFamilyIndex = mGraphicsQueueFamily.value();
@@ -154,5 +180,10 @@ namespace FF::Wrapper
 		}
 
 		vkGetDeviceQueue(mDevice, mGraphicsQueueFamily.value(), 0, &mGraphicsQueue);
+	}
+
+	bool Device::isQueueFamilyComplete()
+	{
+		return mGraphicsQueueFamily.has_value() && mPresentQueueFamily.has_value();
 	}
 }

@@ -18,44 +18,30 @@ namespace FF
 
 	void Application::initWindow()
 	{
-		glfwInit();
-
-		// 设置环境，关掉 OpenGL API 并禁止窗口改变大小
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-		mWindow = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan Window", nullptr, nullptr);
-
-		if (!mWindow)
-		{
-			glfwTerminate();
-			throw std::runtime_error("Failed to create GLFW window");
-		}
+		mWindow = Wrapper::Window::create(WIDTH, HEIGHT);
 	}
 
 	void Application::initVulkan()
 	{
 		mInstance = Wrapper::Instance::create(true);
-		mDevice = Wrapper::Device::create(mInstance);
+		mSurface = Wrapper::WindowSurface::create(mInstance, mWindow);
+
+		mDevice = Wrapper::Device::create(mInstance, mSurface);
 	}
 
 	void Application::mainLoop()
 	{
-		while (!glfwWindowShouldClose(mWindow))
+		while (mWindow->shouldClose())
 		{
-			glfwPollEvents();
+			mWindow->pollEvents();
 		}
 	}
 
 	void Application::cleanUp()
 	{
 		mDevice.reset();
+		mSurface.reset();
 		mInstance.reset();
-
-		if (mWindow)
-		{
-			glfwDestroyWindow(mWindow);
-			glfwTerminate();
-		}
+		mWindow.reset();
 	}
 }

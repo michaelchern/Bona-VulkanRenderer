@@ -3,6 +3,8 @@
 #include "base.h"
 #include "vulkanWrapper/instance.h"
 #include "vulkanWrapper/device.h"
+#include "vulkanWrapper/window.h"
+#include "vulkanWrapper/windowSurface.h"
 
 namespace FF
 {
@@ -24,8 +26,9 @@ namespace FF
 		void mainLoop();
 		void cleanUp();
 
-		GLFWwindow* mWindow{ NULL };
+		Wrapper::Window::Ptr mWindow{ nullptr };
 		Wrapper::Instance::Ptr mInstance{ nullptr };
 		Wrapper::Device::Ptr mDevice{ nullptr };
+		Wrapper::WindowSurface::Ptr mSurface{ nullptr };
 	};
 }
