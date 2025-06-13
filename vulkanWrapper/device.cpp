@@ -1,13 +1,8 @@
-
-#include <map>
-#include <stdexcept>
-
-#include "../base.h"
 #include "device.h"
-#include <set>
 
-namespace FF::Wrapper
+namespace LearnVulkan::Wrapper
 {
+
 	Device::Device(Instance::Ptr instance, WindowSurface::Ptr surface)
 	{
 		mInstance = instance;
@@ -24,54 +19,66 @@ namespace FF::Wrapper
 		mInstance.reset();
 	}
 
+	// 选择最佳物理设备
 	void Device::pickPhysicalDevice()
 	{
 		uint32_t deviceCount = 0;
+
+		// 1. 获取可用物理设备数量
 		vkEnumeratePhysicalDevices(mInstance->getInstance(), &deviceCount, nullptr);
-		
+
 		if (deviceCount == 0)
 		{
-			throw std::runtime_error("Failed to find GPUs with Vulkan support!");
+			throw std::runtime_error("Error:failed to enumeratePhysicalDevice");
 		}
 
+		// 2. 获取所有物理设备句柄
 		std::vector<VkPhysicalDevice> devices(deviceCount);
 		vkEnumeratePhysicalDevices(mInstance->getInstance(), &deviceCount, devices.data());
 
+		// 3. 使用multimap自动按评分排序设备
 		std::multimap<int, VkPhysicalDevice> candidates;
 		for (const auto& device : devices)
 		{
+			// 给设备评分
 			int score = rateDevice(device);
 			candidates.insert(std::make_pair(score, device));
 		}
 
+		// 4. 选择最高分且合适的设备
 		if (candidates.rbegin()->first > 0 && isDeviceSuitable(candidates.rbegin()->second))
 		{
 			mPhysicalDevice = candidates.rbegin()->second;
 		}
 
-		if (mPhysicalDevice == VK_NULL_HANDLE)
-		{
-			throw std::runtime_error("Failed to find a suitable GPU!");
+		if (mPhysicalDevice == VK_NULL_HANDLE) {
+			throw std::runtime_error("Error:failed to get physical device");
 		}
 	}
 
+	// 设备评分函数
 	int Device::rateDevice(VkPhysicalDevice device)
 	{
 		int score = 0;
 
-		VkPhysicalDeviceProperties deviceProperties;
-		vkGetPhysicalDeviceProperties(device, &deviceProperties);
+		// 1. 获取设备属性（名称、类型、版本等）
+		VkPhysicalDeviceProperties  deviceProp;
+		vkGetPhysicalDeviceProperties(device, &deviceProp);
 
+		// 2. 获取设备特性（支持的功能）
 		VkPhysicalDeviceFeatures deviceFeatures;
 		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-		if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+		// 3. 独立显卡加分（性能更好）
+		if (deviceProp.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
 		{
 			score += 1000;
 		}
 
-		score += deviceProperties.limits.maxImageDimension2D;
+		// 4. 支持更大纹理加分
+		score += deviceProp.limits.maxImageDimension2D;
 
+		// 5. 必须有几何着色器支持
 		if (!deviceFeatures.geometryShader)
 		{
 			return 0;
@@ -80,34 +87,46 @@ namespace FF::Wrapper
 		return score;
 	}
 
+	// 检查设备是否满足最低要求
 	bool Device::isDeviceSuitable(VkPhysicalDevice device)
 	{
-		VkPhysicalDeviceProperties deviceProperties;
-		vkGetPhysicalDeviceProperties(device, &deviceProperties);
+		// 1. 获取设备属性
+		VkPhysicalDeviceProperties  deviceProp;
+		vkGetPhysicalDeviceProperties(device, &deviceProp);
 
+		// 2. 获取设备特性
 		VkPhysicalDeviceFeatures deviceFeatures;
 		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+		// 3. 必须满足的条件：
+		return deviceProp.deviceType ==
+			VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&  // 独立显卡
+			deviceFeatures.geometryShader &&         // 支持几何着色器
+			deviceFeatures.samplerAnisotropy;        // 支持各向异性过滤
 	}
 
+	// 初始化队列族索引
 	void Device::initQueueFamilies(VkPhysicalDevice device)
 	{
 		uint32_t queueFamilyCount = 0;
 
+		// 1. 获取队列族数量
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
+		// 2. 获取队列族属性
 		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
 		int i = 0;
 		for (const auto& queueFamily : queueFamilies)
 		{
+			// 3. 查找支持图形操作的队列族
 			if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT))
 			{
-				mGraphicsQueueFamily = i;
+				mGraphicQueueFamily = i;
 			}
 
+			// 4. 查找支持表面呈现的队列族
 			VkBool32 presentSupport = VK_FALSE;
 			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, mSurface->getSurface(), &presentSupport);
 
@@ -115,55 +134,54 @@ namespace FF::Wrapper
 			{
 				mPresentQueueFamily = i;
 			}
-			
-			if (isQueueFamilyComplete())
-			{
+
+			// 5. 如果找到两种队列，提前结束
+			if (isQueueFamilyComplete()) {
 				break;
 			}
 
-			i++;
+			++i;
 		}
 	}
 
+	// 创建逻辑设备
 	void Device::createLogicalDevice()
 	{
-		std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfos{};
+		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
-		std::set<uint32_t> queueFamilies = { mGraphicsQueueFamily.value(), mPresentQueueFamily.value() };
+		// 1. 收集需要创建的队列族（去重）
+		std::set<uint32_t> queueFamilies = { mGraphicQueueFamily.value(), mPresentQueueFamily.value() };
 
-		float queuePriority = 1.0;
+		float queuePriority = 1.0;  // 队列优先级
 
+		// 2. 为每个队列族创建队列信息
 		for (uint32_t queueFamily : queueFamilies)
 		{
-			VkDeviceQueueCreateInfo deviceQueueCreateInfo = {};
-			deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			deviceQueueCreateInfo.queueFamilyIndex = queueFamily;
-			deviceQueueCreateInfo.queueCount = 1;
-			deviceQueueCreateInfo.pQueuePriorities = &queuePriority;
+			VkDeviceQueueCreateInfo queueCreateInfo = {};
+			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfo.queueFamilyIndex = queueFamily;
+			queueCreateInfo.queueCount = 1;
+			queueCreateInfo.pQueuePriorities = &queuePriority;
 
-			deviceQueueCreateInfos.push_back(deviceQueueCreateInfo);
+			queueCreateInfos.push_back(queueCreateInfo);
 		}
 
-		VkPhysicalDeviceFeatures physicalDeviceFeatures = {};
-
-		VkDeviceQueueCreateInfo queueCreateInfo = {};
-		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex = mGraphicsQueueFamily.value();
-		queueCreateInfo.queueCount = 1;
-
-		float queuePriority = 1.0f;
-		queueCreateInfo.pQueuePriorities = &queuePriority;
-
+		// 3. 启用设备特性（各向异性过滤）
 		VkPhysicalDeviceFeatures deviceFeatures = {};
-		//deviceFeatures.geometryShader = VK_TRUE;
+		deviceFeatures.samplerAnisotropy = VK_TRUE;
 
+		// 4. 填写逻辑设备创建信息
 		VkDeviceCreateInfo deviceCreateInfo = {};
 		deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		deviceCreateInfo.queueCreateInfoCount = 1;
-		deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
+		deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
+		deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 		deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
-		deviceCreateInfo.enabledExtensionCount = 0;
 
+		// 5. 启用设备扩展
+		deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceRequiredExtensions.size());
+		deviceCreateInfo.ppEnabledExtensionNames = deviceRequiredExtensions.data();
+
+		// 6. 启用验证层（如果实例启用了）
 		if (mInstance->getEnableValidationLayer())
 		{
 			deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
@@ -174,16 +192,20 @@ namespace FF::Wrapper
 			deviceCreateInfo.enabledLayerCount = 0;
 		}
 
+		// 7. 创建逻辑设备
 		if (vkCreateDevice(mPhysicalDevice, &deviceCreateInfo, nullptr, &mDevice) != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to create logical device!");
+			throw std::runtime_error("Error:failed to create logical device");
 		}
 
-		vkGetDeviceQueue(mDevice, mGraphicsQueueFamily.value(), 0, &mGraphicsQueue);
+		// 8. 获取队列句柄
+		vkGetDeviceQueue(mDevice, mGraphicQueueFamily.value(), 0, &mGraphicQueue);
+		vkGetDeviceQueue(mDevice, mPresentQueueFamily.value(), 0, &mPresentQueue);
 	}
 
+	// 检查队列族是否完整
 	bool Device::isQueueFamilyComplete()
 	{
-		return mGraphicsQueueFamily.has_value() && mPresentQueueFamily.has_value();
+		return mGraphicQueueFamily.has_value() && mPresentQueueFamily.has_value();
 	}
 }

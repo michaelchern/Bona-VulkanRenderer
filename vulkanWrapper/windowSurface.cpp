@@ -1,23 +1,20 @@
+#include"windowSurface.h"
 
-#include "windowSurface.h"
-#include <stdexcept>
-
-namespace FF::Wrapper
+namespace LearnVulkan::Wrapper
 {
 	WindowSurface::WindowSurface(Instance::Ptr instance, Window::Ptr window)
 	{
-		if (glfwCreateWindowSurface(instance->getInstance(), window->getWindow(),nullptr,&mSurface) != VK_SUCCESS)
+		mInstance = instance;
+		if (glfwCreateWindowSurface(instance->getInstance(), window->getWindow(), nullptr, &mSurface) != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to create window surface!");
+			throw std::runtime_error("Error: failed to create surface");
 		}
 	}
 
 	WindowSurface::~WindowSurface()
 	{
-		
-			vkDestroySurfaceKHR(mInstance->getInstance(), mSurface, nullptr);
-		
-
+		vkDestroySurfaceKHR(mInstance->getInstance(), mSurface, nullptr);
 		mInstance.reset();
 	}
+
 }

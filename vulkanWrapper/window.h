@@ -1,16 +1,18 @@
 #pragma once
 
-#include <memory>
+#include "base.h"
 
-#include "../base.h"
-
-namespace FF::Wrapper
+namespace LearnVulkan::Wrapper
 {
+
 	class Window
 	{
 	public:
 		using Ptr = std::shared_ptr<Window>;
-		static Ptr create(const int& width, const int& height) { return std::make_shared<Window>(width, height); }
+		static Ptr create(const int& width, const int& height)
+		{
+			return std::make_shared<Window>(width, height);
+		}
 
 		Window(const int& width, const int& height);
 
@@ -21,7 +23,10 @@ namespace FF::Wrapper
 		void pollEvents();
 
 		[[nodiscard]] auto getWindow() const { return mWindow; }
-			
+
+	public:
+		bool mWindowResized{ false };
+
 	private:
 		int mWidth{ 0 };
 		int mHeight{ 0 };

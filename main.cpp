@@ -5,7 +5,7 @@
 
 int main()
 {
-	FF::Application app;
+	LearnVulkan::Application app;
 
 	try
 	{

@@ -1,12 +1,13 @@
-
-
-#include <stdexcept>
-
 #include "window.h"
 
-
-namespace FF::Wrapper
+namespace LearnVulkan::Wrapper
 {
+
+	static void windowResized(GLFWwindow* window, int width, int height)
+	{
+		auto pUserData = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+		pUserData->mWindowResized = true;
+	}
 
 	Window::Window(const int& width, const int& height)
 	{
@@ -15,26 +16,24 @@ namespace FF::Wrapper
 
 		glfwInit();
 
-		// 设置环境，关掉 OpenGL API 并禁止窗口改变大小
+		//设置环境，关掉opengl API
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-		mWindow = glfwCreateWindow(mWidth, mHeight, "Vulkan Window", nullptr, nullptr);
-
+		mWindow = glfwCreateWindow(mWidth, mHeight, "vulkan window", nullptr, nullptr);
 		if (!mWindow)
 		{
-			glfwTerminate();
-			throw std::runtime_error("Failed to create GLFW window");
+			std::cerr << "Error: failed to create window" << std::endl;
 		}
+
+		glfwSetWindowUserPointer(mWindow, this);
+		glfwSetFramebufferSizeCallback(mWindow, windowResized);
 	}
 
 	Window::~Window()
 	{
-		if (mWindow)
-		{
-			glfwDestroyWindow(mWindow);
-			glfwTerminate();
-		}
+		glfwDestroyWindow(mWindow);
+		glfwTerminate();
 	}
 
 	bool Window::shouldClose()
