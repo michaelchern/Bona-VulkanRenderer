@@ -1,81 +1,104 @@
 #include "swapChain.h"
 
-namespace Fire3D {
+namespace LearnVulkan::Wrapper
+{
+	// 构造函数：创建交换链及相关资源
+	SwapChain::SwapChain(const Device::Ptr& device, const Window::Ptr& window, const WindowSurface::Ptr& surface)
+	{
+		mDevice = device;    // 保存逻辑设备引用
+		mWindow = window;    // 保存窗口引用
+		mSurface = surface;  // 保存表面引用
 
-	SwapChain::SwapChain(const Device::Ptr& device, const Window::Ptr& window, const WindowSurface::Ptr& surface) {
-		m_device = device;
-		m_window = window;
-		m_surface = surface;
-
+		// 1. 查询交换链支持信息
 		auto swapChainSupportInfo = querySwapChainSupportInfo();
 
+		// 2. 选择最佳表面格式（颜色格式+色彩空间）
 		VkSurfaceFormatKHR surfaceFormat = chooseSurfaceFormat(swapChainSupportInfo.mFormats);
 
+		// 3. 选择最佳呈现模式（垂直同步/三重缓冲等）
 		VkPresentModeKHR presentMode = chooseSurfacePresentMode(swapChainSupportInfo.mPresentModes);
 
+		// 4. 选择交换链图像尺寸（分辨率）
 		VkExtent2D extent = chooseExtent(swapChainSupportInfo.mCapabilities);
 
-		mImageCount = swapChainSupportInfo.mCapabilities.minImageCount + 1;
+		// 5. 确定图像缓冲数量（双缓冲/三缓冲）
+		mImageCount = swapChainSupportInfo.mCapabilities.minImageCount + 1;  // 多一个缓冲减少等待
 
-		if (swapChainSupportInfo.mCapabilities.maxImageCount > 0 && mImageCount > swapChainSupportInfo.mCapabilities.maxImageCount) {
+		// 6. 检查最大图像数量限制（0表示无限制）
+		if (swapChainSupportInfo.mCapabilities.maxImageCount > 0 && mImageCount > swapChainSupportInfo.mCapabilities.maxImageCount)
+		{
 			mImageCount = swapChainSupportInfo.mCapabilities.maxImageCount;
 		}
 
+		// 7. 填写交换链创建信息
 		VkSwapchainCreateInfoKHR createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = m_surface->getSurface();
-		createInfo.minImageCount = mImageCount;
-		createInfo.imageFormat = surfaceFormat.format;
-		createInfo.imageColorSpace = surfaceFormat.colorSpace;
-		createInfo.imageExtent = extent;
+		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;  
+		createInfo.surface = mSurface->getSurface();                     // 绑定窗口表面
+		createInfo.minImageCount = mImageCount;                          // 最小缓冲数量
+		createInfo.imageFormat = surfaceFormat.format;                   // 图像格式
+		createInfo.imageColorSpace = surfaceFormat.colorSpace;           // 色彩空间
+		createInfo.imageExtent = extent;                                 // 图像尺寸
+		createInfo.imageArrayLayers = 1;                                 // 图像层次数（非VR应用为1）
+		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;     // 图像用途（颜色附件）
 
-		createInfo.imageArrayLayers = 1;
+		// 8. 处理队列族共享模式
+		std::vector<uint32_t> queueFamilies = { mDevice->getGraphicQueueFamily().value() , mDevice->getPresentQueueFamily().value() };
 
-		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-
-		std::vector<uint32_t> queueFamilies = { m_device->getGraphicQueueFamily().value() , m_device->getPresentQueueFamily().value() };
-
-		if (m_device->getGraphicQueueFamily().value() == m_device->getPresentQueueFamily().value()) {
+		// 8.1 图形队列和呈现队列相同时 - 独占模式（性能更优）
+		if (mDevice->getGraphicQueueFamily().value() == mDevice->getPresentQueueFamily().value())
+		{
 			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			createInfo.queueFamilyIndexCount = 0;
+			createInfo.queueFamilyIndexCount = 0;                     // 不需要指定队列族
 			createInfo.pQueueFamilyIndices = nullptr;
 		}
-		else {
+		else  // 8.2 不同队列族 - 并发模式（需要共享）
+		{
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 			createInfo.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilies.size());
 			createInfo.pQueueFamilyIndices = queueFamilies.data();
 		}
 
-		createInfo.preTransform = swapChainSupportInfo.mCapabilities.currentTransform;
+		// 9. 设置其他参数
+		createInfo.preTransform = swapChainSupportInfo.mCapabilities.currentTransform;  // 图像变换
+		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;                  // 不混合Alpha通道
+		createInfo.presentMode = presentMode;                                           // 呈现模式
+		createInfo.clipped = VK_TRUE;                                                   // 裁剪被遮挡部分（提高性能）
 
-		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-
-		createInfo.presentMode = presentMode;
-
-		createInfo.clipped = VK_TRUE;
-
-		if (vkCreateSwapchainKHR(m_device->getDevice(), &createInfo, nullptr, &m_swapchain) != VK_SUCCESS) {
+		// 10. 创建交换链
+		if (vkCreateSwapchainKHR(mDevice->getDevice(), &createInfo, nullptr, &mSwapChain) != VK_SUCCESS)
+		{
 			throw std::runtime_error("Error: failed to create swapChain");
 		}
 
+		// 11. 保存关键参数
 		mSwapChainFormat = surfaceFormat.format;
 		mSwapChainExtent = extent;
 
-		vkGetSwapchainImagesKHR(m_device->getDevice(), m_swapchain, &mImageCount, nullptr);
+		// 12. 获取交换链实际创建的图像数量（可能多于请求）
+		vkGetSwapchainImagesKHR(mDevice->getDevice(), mSwapChain, &mImageCount, nullptr);
 		mSwapChainImages.resize(mImageCount);
+		vkGetSwapchainImagesKHR(mDevice->getDevice(), mSwapChain, &mImageCount, mSwapChainImages.data());
 
-		vkGetSwapchainImagesKHR(m_device->getDevice(), m_swapchain, &mImageCount, mSwapChainImages.data());
-
+		// 13. 为每个交换链图像创建图像视图
 		mSwapChainImageViews.resize(mImageCount);
-		for (int i = 0; i < mImageCount; ++i) {
-			mSwapChainImageViews[i] = createImageView(mSwapChainImages[i], mSwapChainFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+		for (int i = 0; i < mImageCount; ++i)
+		{
+			mSwapChainImageViews[i] = createImageView(
+				mSwapChainImages[i],
+				mSwapChainFormat,
+				VK_IMAGE_ASPECT_COLOR_BIT,  // 作为颜色附件
+				1                           // Mip层级数
+			);
 		}
 	}
 
+	// 创建帧缓冲区（需要渲染通道对象）
 	void SwapChain::createFrameBuffers(const RenderPass::Ptr& renderPass) {
+		//创建FrameBuffer
 		mSwapChainFrameBuffers.resize(mImageCount);
 		for (int i = 0; i < mImageCount; ++i) {
+			//FrameBuffer 里面为一帧的数据，比如有n个ColorAttachment 1个DepthStencilAttachment，
+			//这些东西的集合为一个FrameBuffer，送入管线，就会形成一个GPU的集合，由上方的Attachments构成
 			std::array<VkImageView, 1> attachments = { mSwapChainImageViews[i] };
 
 			VkFramebufferCreateInfo frameBufferCreateInfo{};
@@ -87,117 +110,149 @@ namespace Fire3D {
 			frameBufferCreateInfo.height = mSwapChainExtent.height;
 			frameBufferCreateInfo.layers = 1;
 
-			if (vkCreateFramebuffer(m_device->getDevice(), &frameBufferCreateInfo, nullptr, &mSwapChainFrameBuffers[i]) != VK_SUCCESS) {
+			if (vkCreateFramebuffer(mDevice->getDevice(), &frameBufferCreateInfo, nullptr, &mSwapChainFrameBuffers[i]) != VK_SUCCESS) {
 				throw std::runtime_error("Error:Failed to create frameBuffer");
 			}
 		}
 	}
 
-	SwapChain::~SwapChain() {
-		for (auto& imageView : mSwapChainImageViews) {
-			vkDestroyImageView(m_device->getDevice(), imageView, nullptr);
+	// 析构函数：清理交换链资源
+	SwapChain::~SwapChain()
+	{
+		for (auto& imageView : mSwapChainImageViews)
+		{
+			vkDestroyImageView(mDevice->getDevice(), imageView, nullptr);
 		}
 
 		for (auto& frameBuffer : mSwapChainFrameBuffers) {
-			vkDestroyFramebuffer(m_device->getDevice(), frameBuffer, nullptr);
+			vkDestroyFramebuffer(mDevice->getDevice(), frameBuffer, nullptr);
 		}
 
-		if (m_swapchain != VK_NULL_HANDLE) {
-			vkDestroySwapchainKHR(m_device->getDevice(), m_swapchain, nullptr);
+		// 3. 销毁交换链本身
+		if (mSwapChain != VK_NULL_HANDLE)
+		{
+			vkDestroySwapchainKHR(mDevice->getDevice(), mSwapChain, nullptr);
 		}
-		
-		m_window.reset();
-		m_surface.reset();
-		m_device.reset();
+
+		// 4. 释放智能指针管理资源
+		mWindow.reset();
+		mSurface.reset();
+		mDevice.reset();
 	}
 
-	SwapChainSupportInfo SwapChain::querySwapChainSupportInfo() {
+	// 查询物理设备的交换链支持信息
+	SwapChainSupportInfo SwapChain::querySwapChainSupportInfo()
+	{
 		SwapChainSupportInfo info;
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_device->getPhysicalDevice(), m_surface->getSurface(), &info.mCapabilities);
 
+		// 1. 获取表面基本能力
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mDevice->getPhysicalDevice(), mSurface->getSurface(), &info.mCapabilities);
+
+		// 2. 获取支持的表面格式
 		uint32_t formatCount = 0;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(m_device->getPhysicalDevice(), m_surface->getSurface(), &formatCount, nullptr);
-
-		if (formatCount != 0) {
+		vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->getPhysicalDevice(), mSurface->getSurface(), &formatCount, nullptr);
+		if (formatCount != 0)
+		{
 			info.mFormats.resize(formatCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(m_device->getPhysicalDevice(), m_surface->getSurface(), &formatCount, info.mFormats.data());
+			vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->getPhysicalDevice(), mSurface->getSurface(), &formatCount, info.mFormats.data());
 		}
 
+		// 3. 获取支持的呈现模式
 		uint32_t presentModeCount = 0;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(m_device->getPhysicalDevice(), m_surface->getSurface(), &presentModeCount, nullptr);
-
-		if (presentModeCount != 0) {
+		vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->getPhysicalDevice(), mSurface->getSurface(), &presentModeCount, nullptr);
+		if (presentModeCount != 0)
+		{
 			info.mPresentModes.resize(presentModeCount);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(m_device->getPhysicalDevice(), m_surface->getSurface(), &presentModeCount, info.mPresentModes.data());
+			vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->getPhysicalDevice(), mSurface->getSurface(), &presentModeCount, info.mPresentModes.data());
 		}
 
 		return info;
 	}
 
-	VkSurfaceFormatKHR SwapChain::chooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
-		if (availableFormats.size() == 1 && availableFormats[0].format == VK_FORMAT_UNDEFINED) {
-			return {VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+	// 选择最佳表面格式（优先选择SRGB格式）
+	VkSurfaceFormatKHR SwapChain::chooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+	{
+		// 情况1：只有一个未定义格式 -> 使用默认格式
+		if (availableFormats.size() == 1 && availableFormats[0].format == VK_FORMAT_UNDEFINED)
+		{
+			return { VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
 		}
 
-		for (const auto& availableFormat : availableFormats) {
-			if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
-				availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+		// 情况2：优先选择B8G8R8A8_SRGB格式
+		for (const auto& availableFormat : availableFormats)
+		{
+			if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+			{
 				return availableFormat;
 			}
 		}
 
+		// 情况3：没有理想格式 -> 返回第一个可用格式
 		return availableFormats[0];
 	}
 
-	VkPresentModeKHR SwapChain::chooseSurfacePresentMode(const std::vector<VkPresentModeKHR>& availablePresenstModes) {
+	// 选择最佳呈现模式（优先选择邮箱模式）
+	VkPresentModeKHR SwapChain::chooseSurfacePresentMode(const std::vector<VkPresentModeKHR>& availablePresenstModes)
+	{
+		// 默认使用FIFO（垂直同步，所有设备支持）
 		VkPresentModeKHR bestMode = VK_PRESENT_MODE_FIFO_KHR;
 
-		for (const auto& availablePresentMode : availablePresenstModes) {
-			if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+		// 优先选择邮箱模式（三重缓冲，无撕裂）
+		for (const auto& availablePresentMode : availablePresenstModes)
+		{
+			if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+			{
 				return availablePresentMode;
 			}
 		}
 
-		return bestMode;
+		return bestMode;  // 返回默认模式
 	}
 
-	VkExtent2D SwapChain::chooseExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
-		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+	// 选择交换链图像尺寸（分辨率）
+	VkExtent2D SwapChain::chooseExtent(const VkSurfaceCapabilitiesKHR& capabilities)
+	{
+		// 情况1：当前尺寸有效 -> 直接使用
+		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+		{
 			return capabilities.currentExtent;
 		}
 
+		// 情况2：需要手动确定尺寸
 		int width = 0, height = 0;
-		glfwGetFramebufferSize(m_window->getWindow(), &width, &height);
+		glfwGetFramebufferSize(mWindow->getWindow(), &width, &height);
 
-		VkExtent2D actualExtent = {
+		VkExtent2D actualExtent =
+		{
 			static_cast<uint32_t>(width),
 			static_cast<uint32_t>(height)
 		};
 
-		actualExtent.width = std::max(capabilities.minImageExtent.width,
-			std::min(capabilities.maxImageExtent.width, actualExtent.width));
-
-		actualExtent.height = std::max(capabilities.minImageExtent.height,
-			std::min(capabilities.maxImageExtent.height, actualExtent.height));
+		// 确保尺寸在允许范围内
+		actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
+		actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
 
 		return actualExtent;
 	}
 
-	VkImageView SwapChain::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels) {
+	// 创建图像视图
+	VkImageView SwapChain::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels)
+	{
 		VkImageViewCreateInfo viewInfo = {};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = image;
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = format;
+		viewInfo.image = image;                                     // 源图像
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;                  // 2D视图
+		viewInfo.format = format;                                   // 图像格式
 
-		viewInfo.subresourceRange.aspectMask = aspectFlags;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = mipLevels;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
+		viewInfo.subresourceRange.aspectMask = aspectFlags;         // 图像用途（颜色/深度）
+		viewInfo.subresourceRange.baseMipLevel = 0;                 // 起始Mip层级
+		viewInfo.subresourceRange.levelCount = mipLevels;           // Mip层级数
+		viewInfo.subresourceRange.baseArrayLayer = 0;               // 起始数组层
+		viewInfo.subresourceRange.layerCount = 1;                   // 数组层数
 
 		VkImageView imageView{ VK_NULL_HANDLE };
-		if (vkCreateImageView(m_device->getDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+		if (vkCreateImageView(mDevice->getDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+		{
 			throw std::runtime_error("Error: failed to create image view in swapchain");
 		}
 
