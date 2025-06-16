@@ -17,14 +17,14 @@ layout(location = 1) out vec2 outUV;      // 传递纹理坐标
 // 绑定点0：视图和投影矩阵（通常每帧更新一次）
 layout(binding = 0) uniform VPMatrices
 {
-	mat4 mViewMatrix;                     // 世界空间 -> 观察空间变换
-	mat4 mProjectionMatrix;               // 观察空间 -> 裁剪空间变换
+    mat4 mViewMatrix;                     // 世界空间 -> 观察空间变换
+    mat4 mProjectionMatrix;               // 观察空间 -> 裁剪空间变换
 }vpUBO;
 
 // 绑定点1：模型矩阵（通常每个物体更新一次）
 layout(binding = 1) uniform ObjectUniform
 {
-	mat4 mModelMatrix;                    // 模型空间 -> 世界空间变换
+    mat4 mModelMatrix;                    // 模型空间 -> 世界空间变换
 }objectUBO;
 
 //vec2 positions[3] = vec2[](vec2(0.0, -1.0), vec2(0.5, 0.0), vec2(-0.5, 0.0));
@@ -34,16 +34,16 @@ layout(binding = 1) uniform ObjectUniform
 // ===== 主函数 =====
 void main()
 {
-	// 硬编码方案（已注释）：
-	//gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);
+    // 硬编码方案（已注释）：
+    //gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);
 
-	// 顶点位置变换流水线：
+    // 顶点位置变换流水线：
     // 1. 模型空间 -> 世界空间 (mModelMatrix)
     // 2. 世界空间 -> 观察空间 (mViewMatrix)
     // 3. 观察空间 -> 裁剪空间 (mProjectionMatrix)
-	gl_Position = vpUBO.mProjectionMatrix * vpUBO.mViewMatrix * objectUBO.mModelMatrix * vec4(inPosition, 1.0);
+    gl_Position = vpUBO.mProjectionMatrix * vpUBO.mViewMatrix * objectUBO.mModelMatrix * vec4(inPosition, 1.0);
 
     // 传递颜色和纹理坐标到片段着色器
-	outColor = inColor;  // 输出原始顶点颜色
-	outUV = inUV;        // 输出原始UV坐标
+    outColor = inColor;  // 输出原始顶点颜色
+    outUV = inUV;        // 输出原始UV坐标
 }

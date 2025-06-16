@@ -1,51 +1,51 @@
-#pragma once
+ï»¿#pragma once
 
 #include "base.h"
 
 namespace LearnVulkan::Wrapper
 {
-	// ±íÊ¾Ò»¸öVulkanÊµÀıµÄ·â×°Àà
-	class Instance
-	{
-	public:
-		// ÖÇÄÜÖ¸Õë±ğÃû£¬¼ò»¯¹²ÏíÖ¸ÕëµÄÊ¹ÓÃ
-		using Ptr = std::shared_ptr<Instance>;
+    // è¡¨ç¤ºä¸€ä¸ªVulkanå®ä¾‹çš„å°è£…ç±»
+    class Instance
+    {
+    public:
+        // æ™ºèƒ½æŒ‡é’ˆåˆ«åï¼Œç®€åŒ–å…±äº«æŒ‡é’ˆçš„ä½¿ç”¨
+        using Ptr = std::shared_ptr<Instance>;
 
-		// ¾²Ì¬¹¤³§·½·¨£º´´½¨Instance¶ÔÏóµÄ¹²ÏíÖ¸Õë
-		// @param enableValidationLayer ÊÇ·ñÆôÓÃVulkanÑéÖ¤²ã£¨ÓÃÓÚµ÷ÊÔ£©
-		static Ptr create(bool enableValidationLayer) { return std::make_shared<Instance>(enableValidationLayer); }
+        // é™æ€å·¥å‚æ–¹æ³•ï¼šåˆ›å»ºInstanceå¯¹è±¡çš„å…±äº«æŒ‡é’ˆ
+        // @param enableValidationLayer æ˜¯å¦å¯ç”¨VulkanéªŒè¯å±‚ï¼ˆç”¨äºè°ƒè¯•ï¼‰
+        static Ptr create(bool enableValidationLayer) { return std::make_shared<Instance>(enableValidationLayer); }
 
-		// ¹¹Ôìº¯Êı£º´´½¨VulkanÊµÀı
-		// @param enableValidationLayer ¿ØÖÆÑéÖ¤²ã¿ª¹Ø
-		Instance(bool enableValidationLayer);
+        // æ„é€ å‡½æ•°ï¼šåˆ›å»ºVulkanå®ä¾‹
+        // @param enableValidationLayer æ§åˆ¶éªŒè¯å±‚å¼€å…³
+        Instance(bool enableValidationLayer);
 
-		// Îö¹¹º¯Êı£ºÏú»ÙVulkanÊµÀıºÍµ÷ÊÔ¹¤¾ß
-		~Instance();
+        // ææ„å‡½æ•°ï¼šé”€æ¯Vulkanå®ä¾‹å’Œè°ƒè¯•å·¥å…·
+        ~Instance();
 
-		// ´òÓ¡ËùÓĞ¿ÉÓÃµÄVulkanÀ©Õ¹ÁĞ±í£¨µ÷ÊÔÓÃ£©
-		void printAvailableExtensions();
+        // æ‰“å°æ‰€æœ‰å¯ç”¨çš„Vulkanæ‰©å±•åˆ—è¡¨ï¼ˆè°ƒè¯•ç”¨ï¼‰
+        void printAvailableExtensions();
 
-		// »ñÈ¡±ØĞèµÄVulkanÀ©Õ¹ÁĞ±í
-		// @return ·µ»Øconst char*Êı×é£¬°üº¬GLFWµÈ±ØÒªÀ©Õ¹Ãû
-		std::vector<const char*> getRequiredExtensions();
+        // è·å–å¿…éœ€çš„Vulkanæ‰©å±•åˆ—è¡¨
+        // @return è¿”å›const char*æ•°ç»„ï¼ŒåŒ…å«GLFWç­‰å¿…è¦æ‰©å±•å
+        std::vector<const char*> getRequiredExtensions();
 
-		// ¼ì²éÇëÇóµÄÑéÖ¤²ãÊÇ·ñ¿ÉÓÃ
-		// @return ÑéÖ¤²ãÖ§³Ö×´Ì¬
-		bool checkValidationLayerSupport();
+        // æ£€æŸ¥è¯·æ±‚çš„éªŒè¯å±‚æ˜¯å¦å¯ç”¨
+        // @return éªŒè¯å±‚æ”¯æŒçŠ¶æ€
+        bool checkValidationLayerSupport();
 
-		// ÉèÖÃVulkanµ÷ÊÔ»Øµ÷£¨½öÔÚÆôÓÃÑéÖ¤²ãÊ±ÓĞĞ§£©
-		void setupDebugger();
+        // è®¾ç½®Vulkanè°ƒè¯•å›è°ƒï¼ˆä»…åœ¨å¯ç”¨éªŒè¯å±‚æ—¶æœ‰æ•ˆï¼‰
+        void setupDebugger();
 
-		// »ñÈ¡µ×²ãVkInstance¶ÔÏó
-		// [[nodiscard]] ±ÜÃâµ÷ÓÃÕßºöÂÔ·µ»ØÖµ
-		[[nodiscard]] VkInstance getInstance() const { return mInstance; }
+        // è·å–åº•å±‚VkInstanceå¯¹è±¡
+        // [[nodiscard]] é¿å…è°ƒç”¨è€…å¿½ç•¥è¿”å›å€¼
+        [[nodiscard]] VkInstance getInstance() const { return mInstance; }
 
-		// »ñÈ¡ÑéÖ¤²ãÆôÓÃ×´Ì¬
-		[[nodiscard]] bool getEnableValidationLayer() const { return mEnableValidationLayer; }
+        // è·å–éªŒè¯å±‚å¯ç”¨çŠ¶æ€
+        [[nodiscard]] bool getEnableValidationLayer() const { return mEnableValidationLayer; }
 
-	private:
-		VkInstance mInstance{ VK_NULL_HANDLE };                // VulkanÊµÀı¾ä±ú
-		bool mEnableValidationLayer{ false };                  // ÑéÖ¤²ãÆôÓÃ±êÖ¾
-		VkDebugUtilsMessengerEXT mDebugger{ VK_NULL_HANDLE };  // Vulkanµ÷ÊÔĞÅÊ¹¾ä±ú
-	};
+    private:
+        VkInstance mInstance{ VK_NULL_HANDLE };                // Vulkanå®ä¾‹å¥æŸ„
+        bool mEnableValidationLayer{ false };                  // éªŒè¯å±‚å¯ç”¨æ ‡å¿—
+        VkDebugUtilsMessengerEXT mDebugger{ VK_NULL_HANDLE };  // Vulkanè°ƒè¯•ä¿¡ä½¿å¥æŸ„
+    };
 }

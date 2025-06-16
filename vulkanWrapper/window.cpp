@@ -1,48 +1,48 @@
-#include "window.h"
+ï»¿#include "window.h"
 
 namespace LearnVulkan::Wrapper
 {
 
-	static void windowResized(GLFWwindow* window, int width, int height)
-	{
-		auto pUserData = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-		pUserData->mWindowResized = true;
-	}
+    static void windowResized(GLFWwindow* window, int width, int height)
+    {
+        auto pUserData = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        pUserData->mWindowResized = true;
+    }
 
-	Window::Window(const int& width, const int& height)
-	{
-		mWidth = width;
-		mHeight = height;
+    Window::Window(const int& width, const int& height)
+    {
+        mWidth = width;
+        mHeight = height;
 
-		glfwInit();
+        glfwInit();
 
-		//ÉèÖÃ»·¾³£¬¹Øµôopengl API
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        //è®¾ç½®çŽ¯å¢ƒï¼Œå…³æŽ‰opengl API
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-		mWindow = glfwCreateWindow(mWidth, mHeight, "vulkan window", nullptr, nullptr);
-		if (!mWindow)
-		{
-			std::cerr << "Error: failed to create window" << std::endl;
-		}
+        mWindow = glfwCreateWindow(mWidth, mHeight, "vulkan window", nullptr, nullptr);
+        if (!mWindow)
+        {
+            std::cerr << "Error: failed to create window" << std::endl;
+        }
 
-		glfwSetWindowUserPointer(mWindow, this);
-		glfwSetFramebufferSizeCallback(mWindow, windowResized);
-	}
+        glfwSetWindowUserPointer(mWindow, this);
+        glfwSetFramebufferSizeCallback(mWindow, windowResized);
+    }
 
-	Window::~Window()
-	{
-		glfwDestroyWindow(mWindow);
-		glfwTerminate();
-	}
+    Window::~Window()
+    {
+        glfwDestroyWindow(mWindow);
+        glfwTerminate();
+    }
 
-	bool Window::shouldClose()
-	{
-		return glfwWindowShouldClose(mWindow);
-	}
+    bool Window::shouldClose()
+    {
+        return glfwWindowShouldClose(mWindow);
+    }
 
-	void Window::pollEvents()
-	{
-		glfwPollEvents();
-	}
+    void Window::pollEvents()
+    {
+        glfwPollEvents();
+    }
 }

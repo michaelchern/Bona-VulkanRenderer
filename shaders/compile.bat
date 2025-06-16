@@ -1,5 +1,5 @@
-D:\teaching\vulkanTeaching\VulkanLearning\thirdParty\vulkan\1.2.182.0\Bin\glslangValidator.exe  -V lessionShader.vert -o vs.spv
+C:\VulkanSDK\1.4.313.0\Bin\glslangValidator.exe  -V VertexShader.vert -o vs.spv
 
-D:\teaching\vulkanTeaching\VulkanLearning\thirdParty\vulkan\1.2.182.0\Bin\glslangValidator.exe  -V lessionShader.frag -o fs.spv
+C:\VulkanSDK\1.4.313.0\Bin\glslangValidator.exe  -V FragmentShader.frag -o fs.spv
 
 pause
