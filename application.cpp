@@ -3,70 +3,81 @@
 
 namespace LearnVulkan
 {
-
+	// 主运行函数：初始化 -> 主循环 -> 清理
 	void Application::run()
 	{
-		initWindow();
-		initVulkan();
-		mainLoop();
-		cleanUp();
+		initWindow();  // 初始化GLFW窗口
+		initVulkan();  // 初始化Vulkan组件
+		mainLoop();    // 进入渲染主循环
+		cleanUp();     // 清理资源
 	}
 
+	// 初始化GLFW窗口
 	void Application::initWindow()
 	{
 		mWindow = Wrapper::Window::create(mWidth, mHeight);
 	}
 
+	// 初始化Vulkan组件
 	void Application::initVulkan()
 	{
+		// 1. 创建Vulkan实例
 		mInstance = Wrapper::Instance::create(true);
+
+		// 2. 创建窗口表面
 		mSurface = Wrapper::WindowSurface::create(mInstance, mWindow);
 
+		// 3. 创建设备（物理设备和逻辑设备）
 		mDevice = Wrapper::Device::create(mInstance, mSurface);
 
+		// 4. 创建交换链（管理帧缓冲）
 		mSwapChain = Wrapper::SwapChain::create(mDevice, mWindow, mSurface);
-		mWidth = mSwapChain->getExtent().width;
-		mHeight = mSwapChain->getExtent().height;
+		mWidth = mSwapChain->getExtent().width;    // 更新实际宽度
+		mHeight = mSwapChain->getExtent().height;  // 更新实际高度
 
+		// 5. 创建渲染通道
 		mRenderPass = Wrapper::RenderPass::create(mDevice);
-		createRenderPass();
+		createRenderPass();  // 配置渲染通道
 
+		// 6. 为交换链创建帧缓冲区
 		mSwapChain->createFrameBuffers(mRenderPass);
 
+
+		// 7. 创建命令池（管理命令缓冲区）
 		mCommandPool = Wrapper::CommandPool::create(mDevice);
 
-		//descriptor ===========================
+		// 8. 初始化Uniform管理器（管理着色器常量）
 		mUniformManager = UniformManager::create();
 		mUniformManager->init(mDevice, mCommandPool, mSwapChain->getImageCount());
 
-		//创建模型
+		// 9. 创建模型（加载几何数据）
 		mModel = Model::create(mDevice);
 
+		// 10. 创建图形管线
 		mPipeline = Wrapper::Pipeline::create(mDevice, mRenderPass);
-		createPipeline();
+		createPipeline();  // 配置管线
 
-
-
+		// 11. 创建命令缓冲区（每个交换链图像一个）
 		mCommandBuffers.resize(mSwapChain->getImageCount());
+		createCommandBuffers();  // 记录渲染命令
 
-		createCommandBuffers();
-
+		// 12. 创建同步对象（帧同步）
 		createSyncObjects();
-
-
 	}
 
+	// 配置并创建图形管线
 	void Application::createPipeline()
 	{
-		//设置视口
+		// 设置视口（翻转Y轴使坐标原点在左上角）
 		VkViewport viewport = {};
 		viewport.x = 0.0f;
-		viewport.y = (float)mHeight;
+		viewport.y = (float)mHeight;        // 从底部开始
 		viewport.width = (float)mWidth;
-		viewport.height = -(float)mHeight;
+		viewport.height = -(float)mHeight;  // 负值表示翻转Y轴
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
 
+		// 设置裁剪区域（整个窗口）
 		VkRect2D scissor = {};
 		scissor.offset = { 0, 0 };
 		scissor.extent = { mWidth, mHeight };
@@ -74,8 +85,7 @@ namespace LearnVulkan
 		mPipeline->setViewports({ viewport });
 		mPipeline->setScissors({ scissor });
 
-
-		//设置shader
+		// 设置着色器
 		std::vector<Wrapper::Shader::Ptr> shaderGroup{};
 
 		auto shaderVertex = Wrapper::Shader::create(mDevice, "shaders/vs.spv", VK_SHADER_STAGE_VERTEX_BIT, "main");
