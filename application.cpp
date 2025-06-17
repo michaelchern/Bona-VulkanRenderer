@@ -3,69 +3,106 @@
 
 namespace LearnVulkan
 {
-    // 主运行函数：初始化 -> 主循环 -> 清理
+    /**
+    * @brief 应用程序主循环
+    *
+    * 执行顺序：
+    *  1. 初始化窗口
+    *  2. 初始化Vulkan
+    *  3. 进入渲染主循环
+    *  4. 清理资源
+    */
     void Application::run()
     {
-        initWindow();  // 初始化GLFW窗口
-        initVulkan();  // 初始化Vulkan组件
-        mainLoop();    // 进入渲染主循环
-        cleanUp();     // 清理资源
+        initWindow();  // 创建GLFW窗口
+        initVulkan();  // 初始化所有Vulkan资源
+        mainLoop();    // 主渲染循环
+        cleanUp();     // 清理所有资源
     }
 
-    // 初始化GLFW窗口
+    /**
+    * @brief 初始化Vulkan组件
+    *
+    * 步骤说明：
+    *  1. 创建Vulkan实例
+    *  2. 创建窗口表面
+    *  3. 创建设备（物理设备+逻辑设备）
+    *  4. 创建交换链
+    *  5. 创建渲染通道
+    *  6. 创建帧缓冲区
+    *  7. 创建命令池
+    *  8. 初始化Uniform管理器
+    *  9. 加载模型
+    * 10. 创建图形管线
+    * 11. 创建命令缓冲区
+    * 12. 创建同步对象
+    */
     void Application::initWindow()
     {
-        mWindow = Wrapper::Window::create(mWidth, mHeight);
+        mWindow = Wrapper::Window::create(mWidth, mHeight);  // 创建指定大小的窗口
     }
 
     // 初始化Vulkan组件
     void Application::initVulkan()
     {
-        // 1. 创建Vulkan实例
+        // 1. 创建Vulkan实例（启用验证层）
         mInstance = Wrapper::Instance::create(true);
 
-        // 2. 创建窗口表面
+        // 2. 创建窗口表面（连接GLFW窗口和Vulkan）
         mSurface = Wrapper::WindowSurface::create(mInstance, mWindow);
 
-        // 3. 创建设备（物理设备和逻辑设备）
+        // 3. 创建设备（选择物理设备并创建逻辑设备）
         mDevice = Wrapper::Device::create(mInstance, mSurface);
 
-        // 4. 创建交换链（管理帧缓冲）
+        // 4. 创建交换链（管理图像缓冲区）
         mSwapChain = Wrapper::SwapChain::create(mDevice, mWindow, mSurface);
-        mWidth = mSwapChain->getExtent().width;    // 更新实际宽度
-        mHeight = mSwapChain->getExtent().height;  // 更新实际高度
+        // 更新窗口实际尺寸（交换链可能调整了大小）
+        mWidth = mSwapChain->getExtent().width;
+        mHeight = mSwapChain->getExtent().height;
 
         // 5. 创建渲染通道
         mRenderPass = Wrapper::RenderPass::create(mDevice);
-        createRenderPass();  // 配置渲染通道
+        createRenderPass();  // 自定义函数配置渲染通道
 
         // 6. 为交换链创建帧缓冲区
         mSwapChain->createFrameBuffers(mRenderPass);
 
-
-        // 7. 创建命令池（管理命令缓冲区）
+        // 7. 创建命令池（用于分配命令缓冲区）
         mCommandPool = Wrapper::CommandPool::create(mDevice);
 
         // 8. 初始化Uniform管理器（管理着色器常量）
         mUniformManager = UniformManager::create();
         mUniformManager->init(mDevice, mCommandPool, mSwapChain->getImageCount());
 
-        // 9. 创建模型（加载几何数据）
+        // 9. 创建模型（加载顶点/索引数据）
         mModel = Model::create(mDevice);
 
         // 10. 创建图形管线
         mPipeline = Wrapper::Pipeline::create(mDevice, mRenderPass);
-        createPipeline();  // 配置管线
+        createPipeline();  // 自定义函数配置管线
 
         // 11. 创建命令缓冲区（每个交换链图像一个）
         mCommandBuffers.resize(mSwapChain->getImageCount());
-        createCommandBuffers();  // 记录渲染命令
+        createCommandBuffers();  // 自定义函数记录渲染命令
 
         // 12. 创建同步对象（帧同步）
         createSyncObjects();
     }
 
-    // 配置并创建图形管线
+    /**
+    * @brief 配置并创建图形管线
+    *
+    * 配置内容：
+    *  1. 视口设置（翻转Y轴）
+    *  2. 裁剪区域
+    *  3. 着色器
+    *  4. 顶点输入格式
+    *  5. 图元装配方式
+    *  6. 光栅化设置
+    *  7. 多重采样
+    *  8. 颜色混合
+    *  9. Uniform布局
+    */
     void Application::createPipeline()
     {
         // 设置视口（翻转Y轴使坐标原点在左上角）
@@ -82,21 +119,24 @@ namespace LearnVulkan
         scissor.offset = { 0, 0 };
         scissor.extent = { mWidth, mHeight };
 
+        // 应用视口和裁剪配置
         mPipeline->setViewports({ viewport });
         mPipeline->setScissors({ scissor });
 
         // 设置着色器
         std::vector<Wrapper::Shader::Ptr> shaderGroup{};
 
+        // 创建顶点着色器
         auto shaderVertex = Wrapper::Shader::create(mDevice, "shaders/vs.spv", VK_SHADER_STAGE_VERTEX_BIT, "main");
         shaderGroup.push_back(shaderVertex);
 
+        // 创建片段着色器
         auto shaderFragment = Wrapper::Shader::create(mDevice, "shaders/fs.spv", VK_SHADER_STAGE_FRAGMENT_BIT, "main");
         shaderGroup.push_back(shaderFragment);
 
         mPipeline->setShaderGroup(shaderGroup);
 
-        //顶点的排布模式
+        // 配置顶点输入格式
         auto vertexBindingDes = mModel->getVertexInputBindingDescriptions();
         auto attributeDes = mModel->getAttributeDescriptions();
 
@@ -105,42 +145,42 @@ namespace LearnVulkan
         mPipeline->mVertexInputState.vertexAttributeDescriptionCount = attributeDes.size();
         mPipeline->mVertexInputState.pVertexAttributeDescriptions = attributeDes.data();
 
-        //图元装配
+        // 配置图元装配方式
         mPipeline->mAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        mPipeline->mAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-        mPipeline->mAssemblyState.primitiveRestartEnable = VK_FALSE;
+        mPipeline->mAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;  // 三角形列表
+        mPipeline->mAssemblyState.primitiveRestartEnable = VK_FALSE;               // 禁用图元重启
 
-        //光栅化设置
+        // 配置光栅化
         mPipeline->mRasterState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-        mPipeline->mRasterState.polygonMode = VK_POLYGON_MODE_FILL;//其他模式需要开启gpu特性
-        mPipeline->mRasterState.lineWidth = 1.0f;//大于1需要开启gpu特性
-        mPipeline->mRasterState.cullMode = VK_CULL_MODE_BACK_BIT;
-        mPipeline->mRasterState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+        mPipeline->mRasterState.polygonMode = VK_POLYGON_MODE_FILL;           // 实心填充
+        mPipeline->mRasterState.lineWidth = 1.0f;                             // 线宽1像素
+        mPipeline->mRasterState.cullMode = VK_CULL_MODE_BACK_BIT;             // 背面剔除
+        mPipeline->mRasterState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;  // 逆时针为正面
 
+        // 禁用深度偏移
         mPipeline->mRasterState.depthBiasEnable = VK_FALSE;
         mPipeline->mRasterState.depthBiasConstantFactor = 0.0f;
         mPipeline->mRasterState.depthBiasClamp = 0.0f;
         mPipeline->mRasterState.depthBiasSlopeFactor = 0.0f;
 
-        //TODO:多重采样
+        // 配置多重采样（当前禁用）
         mPipeline->mSampleState.sampleShadingEnable = VK_FALSE;
         mPipeline->mSampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
         mPipeline->mSampleState.minSampleShading = 1.0f;
         mPipeline->mSampleState.pSampleMask = nullptr;
         mPipeline->mSampleState.alphaToCoverageEnable = VK_FALSE;
         mPipeline->mSampleState.alphaToOneEnable = VK_FALSE;
+        // 其他采样参数保持默认
 
-        //TODO:深度与模板测试
-
-        //颜色混合
-
-        //这个是颜色混合掩码，得到的混合结果，按照通道与掩码进行AND操作，输出
+         // 配置颜色混合状态
         VkPipelineColorBlendAttachmentState blendAttachment{};
-        blendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+        // 启用所有颜色通道
+        blendAttachment.colorWriteMask =
+            VK_COLOR_COMPONENT_R_BIT |
             VK_COLOR_COMPONENT_G_BIT |
             VK_COLOR_COMPONENT_B_BIT |
             VK_COLOR_COMPONENT_A_BIT;
-
+        // 禁用混合
         blendAttachment.blendEnable = VK_FALSE;
         blendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
         blendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
@@ -165,63 +205,77 @@ namespace LearnVulkan
         mPipeline->mBlendState.blendConstants[2] = 0.0f;
         mPipeline->mBlendState.blendConstants[3] = 0.0f;
 
-        //uniform的传递
+        // 配置Uniform布局
         mPipeline->mLayoutState.setLayoutCount = 1;
-
         auto layout = mUniformManager->getDescriptorLayout()->getLayout();
         mPipeline->mLayoutState.pSetLayouts = &layout;
+        // 无推送常量
         mPipeline->mLayoutState.pushConstantRangeCount = 0;
         mPipeline->mLayoutState.pPushConstantRanges = nullptr;
 
+        // 构建管线
         mPipeline->build();
     }
 
-    void Application::createRenderPass() {
-        //输入画布的描述
+    /**
+    * @brief 创建渲染通道
+    */
+    void Application::createRenderPass()
+    {
+        // 配置颜色附件描述
         VkAttachmentDescription attachmentDes{};
-        attachmentDes.format = mSwapChain->getFormat();
-        attachmentDes.samples = VK_SAMPLE_COUNT_1_BIT;
-        attachmentDes.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        attachmentDes.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        attachmentDes.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        attachmentDes.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        attachmentDes.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        attachmentDes.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        attachmentDes.format = mSwapChain->getFormat();                   // 使用交换链格式
+        attachmentDes.samples = VK_SAMPLE_COUNT_1_BIT;                    // 单采样
+        attachmentDes.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;               // 加载时清空
+        attachmentDes.storeOp = VK_ATTACHMENT_STORE_OP_STORE;             // 存储渲染结果
+        attachmentDes.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;    // 不关心模板
+        attachmentDes.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;  
+        attachmentDes.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;          // 初始布局
+        attachmentDes.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;      // 最终布局为显示源
 
         mRenderPass->addAttachment(attachmentDes);
 
-        //对于画布的索引设置以及格式要求
+        // 配置附件引用（指向第一个附件）
         VkAttachmentReference attachmentRef{};
         attachmentRef.attachment = 0;
         attachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        //创建子流程
+        // 创建子通道
         Wrapper::SubPass subPass{};
-        subPass.addColorAttachmentReference(attachmentRef);
-        subPass.buildSubPassDescription();
+        subPass.addColorAttachmentReference(attachmentRef);  // 添加颜色附件引用
+        subPass.buildSubPassDescription();                   // 构建子通道描述
 
-        mRenderPass->addSubPass(subPass);
+        mRenderPass->addSubPass(subPass);                   // 添加子通道到渲染通道
 
-        //子流程之间的依赖关系
+        // 配置子通道依赖关系
         VkSubpassDependency dependency{};
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        dependency.dstSubpass = 0;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;  // 外部依赖
+        dependency.dstSubpass = 0;                    // 依赖我们的子通道
+        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT; // 输出阶段
         dependency.srcAccessMask = 0;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;  // 相同阶段
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;// 读写访问权限
 
-        mRenderPass->addDependency(dependency);
+        mRenderPass->addDependency(dependency); // 添加依赖
 
-        mRenderPass->buildRenderPass();
+        mRenderPass->buildRenderPass(); // 构建渲染通道
     }
 
-    void Application::createCommandBuffers() {
-        for (int i = 0; i < mSwapChain->getImageCount(); ++i) {
+    /**
+    * @brief 创建命令缓冲区（记录渲染命令）
+    */
+    void Application::createCommandBuffers()
+    {
+        // 为每个交换链图像创建命令缓冲区
+        for (int i = 0; i < mSwapChain->getImageCount(); ++i)
+        {
+            // 创建命令缓冲区
             mCommandBuffers[i] = Wrapper::CommandBuffer::create(mDevice, mCommandPool);
 
+            // 开始记录命令
             mCommandBuffers[i]->begin();
 
+            // 配置渲染通道开始信息
             VkRenderPassBeginInfo renderBeginInfo{};
             renderBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             renderBeginInfo.renderPass = mRenderPass->getRenderPass();
@@ -229,15 +283,18 @@ namespace LearnVulkan
             renderBeginInfo.renderArea.offset = { 0, 0 };
             renderBeginInfo.renderArea.extent = mSwapChain->getExtent();
 
+            // 设置清屏颜色（黑色）
             VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
             renderBeginInfo.clearValueCount = 1;
             renderBeginInfo.pClearValues = &clearColor;
 
-
+            // 开始渲染通道
             mCommandBuffers[i]->beginRenderPass(renderBeginInfo);
 
+            // 绑定图形管线
             mCommandBuffers[i]->bindGraphicPipeline(mPipeline->getPipeline());
 
+            // 绑定Uniform描述符集
             mCommandBuffers[i]->bindDescriptorSet(mPipeline->getLayout(), mUniformManager->getDescriptorSet(mCurrentFrame));
 
             //mCommandBuffers[i]->bindVertexBuffer({ mModel->getVertexBuffer()->getBuffer() });
@@ -254,8 +311,10 @@ namespace LearnVulkan
         }
     }
 
-    void Application::createSyncObjects() {
-        for (int i = 0; i < mSwapChain->getImageCount(); ++i) {
+    void Application::createSyncObjects()
+    {
+        for (int i = 0; i < mSwapChain->getImageCount(); ++i)
+        {
             auto imageSemaphore = Wrapper::Semaphore::create(mDevice);
             mImageAvailableSemaphores.push_back(imageSemaphore);
 
@@ -267,10 +326,12 @@ namespace LearnVulkan
         }
     }
 
-    void Application::recreateSwapChain() {
+    void Application::recreateSwapChain()
+    {
         int width = 0, height = 0;
         glfwGetFramebufferSize(mWindow->getWindow(), &width, &height);
-        while (width == 0 || height == 0) {
+        while (width == 0 || height == 0)
+        {
             glfwWaitEvents();
             glfwGetFramebufferSize(mWindow->getWindow(), &width, &height);
         }
@@ -298,7 +359,8 @@ namespace LearnVulkan
         createSyncObjects();
     }
 
-    void Application::cleanupSwapChain() {
+    void Application::cleanupSwapChain()
+    {
         mSwapChain.reset();
         mCommandBuffers.clear();
         mPipeline.reset();
@@ -308,9 +370,10 @@ namespace LearnVulkan
         mFences.clear();
     }
 
-
-    void Application::mainLoop() {
-        while (!mWindow->shouldClose()) {
+    void Application::mainLoop()
+    {
+        while (!mWindow->shouldClose())
+        {
             mWindow->pollEvents();
 
             mModel->update();
@@ -323,7 +386,8 @@ namespace LearnVulkan
         vkDeviceWaitIdle(mDevice->getDevice());
     }
 
-    void Application::render() {
+    void Application::render()
+    {
         //等待当前要提交的CommandBuffer执行完毕
         mFences[mCurrentFrame]->block();
 
@@ -338,18 +402,19 @@ namespace LearnVulkan
             &imageIndex);
 
         //窗体发生了尺寸变化
-        if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        if (result == VK_ERROR_OUT_OF_DATE_KHR)
+        {
             recreateSwapChain();
             mWindow->mWindowResized = false;
         }//VK_SUBOPTIMAL_KHR得到了一张认为可用的图像，但是表面格式不一定匹配
-        else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+        {
             throw std::runtime_error("Error: failed to acquire next image");
         }
 
         //构建提交信息
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
 
         //同步信息，渲染对于显示图像的依赖，显示完毕后，才能输出颜色
         VkSemaphore waitSemaphores[] = { mImageAvailableSemaphores[mCurrentFrame]->getSemaphore() };
@@ -369,7 +434,8 @@ namespace LearnVulkan
         submitInfo.pSignalSemaphores = signalSemaphores;
 
         mFences[mCurrentFrame]->resetFence();
-        if (vkQueueSubmit(mDevice->getGraphicQueue(), 1, &submitInfo, mFences[mCurrentFrame]->getFence()) != VK_SUCCESS) {
+        if (vkQueueSubmit(mDevice->getGraphicQueue(), 1, &submitInfo, mFences[mCurrentFrame]->getFence()) != VK_SUCCESS)
+        {
             throw std::runtime_error("Error:failed to submit renderCommand");
         }
 

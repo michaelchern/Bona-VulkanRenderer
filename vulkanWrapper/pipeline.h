@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "base.h"
 #include "device.h"
@@ -7,65 +7,83 @@
 
 namespace LearnVulkan::Wrapper
 {
-    // Vulkan Í¼ĞÎ¹ÜÏß¹ÜÀíÀà
+    /**
+    * @class Pipeline
+    * @brief Vulkan å›¾å½¢ç®¡çº¿ç®¡ç†ç±»ï¼ˆå°è£…å®Œæ•´çš„å›¾å½¢ç®¡çº¿ç”Ÿå‘½å‘¨æœŸï¼‰
+    *
+    * æ ¸å¿ƒåŠŸèƒ½ï¼š
+    *  1. é…ç½®å’Œç®¡ç†å›¾å½¢ç®¡çº¿çš„æ‰€æœ‰çŠ¶æ€ï¼ˆé¡¶ç‚¹è¾“å…¥/å›¾å…ƒè£…é…/ç€è‰²å™¨ç­‰ï¼‰
+    *  2. ç®€åŒ–å¤æ‚ç®¡çº¿åˆ›å»ºæµç¨‹
+    *  3. è‡ªåŠ¨ç®¡ç†ç®¡çº¿å¯¹è±¡å’Œç®¡çº¿å¸ƒå±€çš„ç”Ÿå‘½å‘¨æœŸ
+    *  4. æ”¯æŒå¤šè§†å£ã€å¤šè£å‰ªåŒºåŸŸç­‰é«˜çº§ç‰¹æ€§
+    */
     class Pipeline
     {
     public:
         using Ptr = std::shared_ptr<Pipeline>;
+
+        /**
+        * @brief åˆ›å»ºPipelineå¯¹è±¡çš„å·¥å‚æ–¹æ³•
+        * @param device å…³è”çš„Vulkané€»è¾‘è®¾å¤‡
+        * @param renderPass ç®¡çº¿è¦ä½¿ç”¨çš„æ¸²æŸ“é€šé“
+        * @return æŒ‡å‘æ–°Pipelineå¯¹è±¡çš„å…±äº«æŒ‡é’ˆ
+        */
         static Ptr create(const Device::Ptr& device, const RenderPass::Ptr& renderPass)
         {
             return std::make_shared<Pipeline>(device, renderPass);
         }
 
-        // ¹¹Ôìº¯Êı£º³õÊ¼»¯¹ÜÏß
+        // æ„é€ å‡½æ•°ï¼šåˆå§‹åŒ–ç®¡çº¿åŸºç¡€çŠ¶æ€
         Pipeline(const Device::Ptr& device, const RenderPass::Ptr& renderPass);
 
-        // Îö¹¹º¯Êı£ºÏú»Ù¹ÜÏß×ÊÔ´
+        // ææ„å‡½æ•°ï¼šè‡ªåŠ¨é”€æ¯Vulkanèµ„æº
         ~Pipeline();
 
-        // ÉèÖÃ×ÅÉ«Æ÷×é£¨¶¥µã/Æ¬¶ÎµÈ£©
+        // è®¾ç½®ç€è‰²å™¨ç»„ï¼ˆé¡¶ç‚¹/ç‰‡æ®µç­‰ï¼‰
         void setShaderGroup(const std::vector<Shader::Ptr>& shaderGroup);
 
-        // ÉèÖÃÊÓ¿Ú²ÎÊı£¨¿ÉÉèÖÃ¶à¸öÊÓ¿Ú£©
+        // è®¾ç½®è§†å£å‚æ•°ï¼ˆæ”¯æŒå¤šè§†å£é…ç½®ï¼‰
         void setViewports(const std::vector<VkViewport>& viewports) { mViewports = viewports; }
 
-        // ÉèÖÃ²Ã¼ôÇøÓò£¨¿ÉÉèÖÃ¶à¸ö²Ã¼ôÇøÓò£©
+        // è®¾ç½®è£å‰ªåŒºåŸŸï¼ˆæ”¯æŒå¤šè£å‰ªåŒºåŸŸé…ç½®ï¼‰
         void setScissors(const std::vector<VkRect2D>& scissors) { mScissors = scissors; }
 
-        // Ìí¼Ó»ìºÏ¸½¼ş×´Ì¬£¨ÓÃÓÚÑÕÉ«»ìºÏ£©
+        // æ·»åŠ é¢œè‰²æ··åˆé™„ä»¶çŠ¶æ€ï¼ˆæ¯ä¸ªé™„ä»¶ä¸€ä¸ªæ··åˆé…ç½®ï¼‰
         void pushBlendAttachment(const VkPipelineColorBlendAttachmentState& blendAttachment)
         {
             mBlendAttachmentStates.push_back(blendAttachment);
         }
 
-        // ¹¹½¨Í¼ĞÎ¹ÜÏß£¨Íê³ÉËùÓĞÅäÖÃºóµ÷ÓÃ£©
+        // æ„å»ºå›¾å½¢ç®¡çº¿ï¼ˆå®Œæˆæ‰€æœ‰é…ç½®åè°ƒç”¨ï¼‰
         void build();
 
     public:
-        // === ¹ÜÏß×´Ì¬ÅäÖÃ ===
-        VkPipelineVertexInputStateCreateInfo mVertexInputState{};                   // ¶¥µãÊäÈë×´Ì¬
-        VkPipelineInputAssemblyStateCreateInfo mAssemblyState{};                    // Í¼Ôª×°Åä×´Ì¬
-        VkPipelineViewportStateCreateInfo mViewportState{};                         // ÊÓ¿Ú×´Ì¬
-        VkPipelineRasterizationStateCreateInfo mRasterState{};                      // ¹âÕ¤»¯×´Ì¬
-        VkPipelineMultisampleStateCreateInfo mSampleState{};                        // ¶àÖØ²ÉÑù×´Ì¬
-        std::vector<VkPipelineColorBlendAttachmentState> mBlendAttachmentStates{};  // ÑÕÉ«»ìºÏ¸½¼ş×´Ì¬
-        VkPipelineColorBlendStateCreateInfo mBlendState{};                          // È«¾Ö»ìºÏ×´Ì¬
-        VkPipelineDepthStencilStateCreateInfo mDepthStencilState{};                 // Éî¶È/Ä£°å²âÊÔ×´Ì¬
-        VkPipelineLayoutCreateInfo mLayoutState{};                                  // ¹ÜÏß²¼¾Ö×´Ì¬
+        // === å…¬å¼€çš„ç®¡çº¿çŠ¶æ€é…ç½®åŒºåŸŸ ===
+        // æ³¨æ„ï¼šä»¥ä¸‹çŠ¶æ€å¿…é¡»åœ¨è°ƒç”¨build()å‰é…ç½®
+
+        VkPipelineVertexInputStateCreateInfo mVertexInputState{};                   // é¡¶ç‚¹è¾“å…¥çŠ¶æ€ï¼ˆç»‘å®šå’Œå±æ€§æè¿°ï¼‰
+        VkPipelineInputAssemblyStateCreateInfo mAssemblyState{};                    // å›¾å…ƒè£…é…çŠ¶æ€ï¼ˆæ‹“æ‰‘ç»“æ„ç­‰ï¼‰
+        VkPipelineViewportStateCreateInfo mViewportState{};                         // è§†å£çŠ¶æ€ï¼ˆé…ç½®è§†å£å’Œè£å‰ªåŒºï¼‰
+        VkPipelineRasterizationStateCreateInfo mRasterState{};                      // å…‰æ …åŒ–çŠ¶æ€ï¼ˆå¤šè¾¹å½¢æ¨¡å¼/å‰”é™¤ç­‰ï¼‰
+        VkPipelineMultisampleStateCreateInfo mSampleState{};                        // å¤šé‡é‡‡æ ·çŠ¶æ€ï¼ˆæŠ—é”¯é½¿è®¾ç½®ï¼‰
+        std::vector<VkPipelineColorBlendAttachmentState> mBlendAttachmentStates{};  // æ¯ä¸ªé¢œè‰²é™„ä»¶çš„æ··åˆçŠ¶æ€
+        VkPipelineColorBlendStateCreateInfo mBlendState{};                          // å…¨å±€é¢œè‰²æ··åˆçŠ¶æ€
+        VkPipelineDepthStencilStateCreateInfo mDepthStencilState{};                 // æ·±åº¦/æ¨¡æ¿æµ‹è¯•çŠ¶æ€
+        VkPipelineLayoutCreateInfo mLayoutState{};                                  // ç®¡çº¿å¸ƒå±€é…ç½®ï¼ˆæè¿°ç¬¦é›†/æ¨é€å¸¸é‡ï¼‰
 
     public:
-        // === ·ÃÎÊ·½·¨ ===
-        [[nodiscard]] auto getPipeline() const { return mPipeline; }                // »ñÈ¡¹ÜÏß¶ÔÏó
-        [[nodiscard]] auto getLayout() const { return mLayout; }                    // »ñÈ¡¹ÜÏß²¼¾Ö
+        // === è®¿é—®æ–¹æ³• ===
+        [[nodiscard]] auto getPipeline() const { return mPipeline; }                // è·å–VkPipelineç®¡çº¿å¯¹è±¡
+        [[nodiscard]] auto getLayout() const { return mLayout; }                    // è·å–VkPipelineLayoutå¸ƒå±€å¯¹è±¡
 
     private:
-        VkPipeline mPipeline{ VK_NULL_HANDLE };      // Vulkan ¹ÜÏß¶ÔÏó¾ä±ú
-        VkPipelineLayout mLayout{ VK_NULL_HANDLE };  // Vulkan ¹ÜÏß²¼¾Ö¾ä±ú
-        Device::Ptr mDevice{ nullptr };              // Âß¼­Éè±¸ÒıÓÃ
-        RenderPass::Ptr mRenderPass{ nullptr };      // äÖÈ¾Í¨µÀÒıÓÃ
+        VkPipeline mPipeline{ VK_NULL_HANDLE };      // Vulkan ç®¡çº¿å¯¹è±¡å¥æŸ„
+        VkPipelineLayout mLayout{ VK_NULL_HANDLE };  // Vulkan ç®¡çº¿å¸ƒå±€å¥æŸ„
+        Device::Ptr mDevice{ nullptr };              // é€»è¾‘è®¾å¤‡å¼•ç”¨
+        RenderPass::Ptr mRenderPass{ nullptr };      // æ¸²æŸ“é€šé“å¼•ç”¨
 
-        std::vector<Shader::Ptr> mShaders{};         // ×ÅÉ«Æ÷¶ÔÏó¼¯ºÏ
-        std::vector<VkViewport> mViewports{};        // ÊÓ¿ÚÅäÖÃÁĞ±í
-        std::vector<VkRect2D> mScissors{};           // ²Ã¼ôÇøÓòÁĞ±í
+        std::vector<Shader::Ptr> mShaders{};         // ç€è‰²å™¨å¯¹è±¡é›†åˆ
+        std::vector<VkViewport> mViewports{};        // è§†å£é…ç½®åˆ—è¡¨
+        std::vector<VkRect2D> mScissors{};           // è£å‰ªåŒºåŸŸåˆ—è¡¨
     };
 }

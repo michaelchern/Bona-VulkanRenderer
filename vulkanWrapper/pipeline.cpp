@@ -1,14 +1,20 @@
-#include "pipeline.h"
+ï»¿#include "pipeline.h"
 
 namespace LearnVulkan::Wrapper
 {
-    // ¹¹Ôìº¯Êı£º³õÊ¼»¯¹ÜÏß×´Ì¬½á¹¹Ìå
+    /**
+    * @brief ç®¡çº¿æ„é€ å‡½æ•°
+    *
+    * åˆå§‹åŒ–ï¼š
+    *  1. ä¿å­˜å…³è”çš„é€»è¾‘è®¾å¤‡å’Œæ¸²æŸ“é€šé“
+    *  2. è®¾ç½®æ‰€æœ‰çŠ¶æ€ç»“æ„ä½“çš„ sType å­—æ®µï¼ˆVulkan API è¦æ±‚ï¼‰
+    */
     Pipeline::Pipeline(const Device::Ptr& device, const RenderPass::Ptr& renderPass)
     {
-        mDevice = device;                                                                       // ±£´æÂß¼­Éè±¸ÒıÓÃ
-        mRenderPass = renderPass;                                                               // ±£´æäÖÈ¾Í¨µÀÒıÓÃ
+        mDevice = device;                                                                       // ä¿å­˜é€»è¾‘è®¾å¤‡ï¼ˆæ™ºèƒ½æŒ‡é’ˆï¼‰
+        mRenderPass = renderPass;                                                               // ä¿å­˜æ¸²æŸ“é€šé“ï¼ˆæ™ºèƒ½æŒ‡é’ˆï¼‰
 
-        // ³õÊ¼»¯ËùÓĞ×´Ì¬½á¹¹ÌåµÄÀàĞÍ×Ö¶Î
+        // ä¸ºæ‰€æœ‰ç®¡çº¿çŠ¶æ€ç»“æ„ä½“è®¾ç½®æ ‡å‡†ç±»å‹æ ‡è¯†ç¬¦
         mVertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;    
         mAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;     
         mViewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;           
@@ -19,105 +25,135 @@ namespace LearnVulkan::Wrapper
         mLayoutState.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;                     
     }
 
-    // Îö¹¹º¯Êı£ºÏú»Ù¹ÜÏß×ÊÔ´
+    /**
+    * @brief ç®¡çº¿ææ„å‡½æ•°
+    *
+    * éµå¾ª RAII åŸåˆ™é‡Šæ”¾èµ„æºï¼š
+    *  1. é”€æ¯ç®¡çº¿å¸ƒå±€ï¼ˆå¦‚æœå­˜åœ¨ï¼‰
+    *  2. é”€æ¯ç®¡çº¿å¯¹è±¡ï¼ˆå¦‚æœå­˜åœ¨ï¼‰
+    */
     Pipeline::~Pipeline()
     {
-        // 1. Ïú»Ù¹ÜÏß²¼¾Ö
+        // é”€æ¯ç®¡çº¿å¸ƒå±€ï¼ˆæè¿°ç¬¦é›†å¸ƒå±€/æ¨é€å¸¸é‡çš„å®¹å™¨ï¼‰
         if (mLayout != VK_NULL_HANDLE)
         {
             vkDestroyPipelineLayout(mDevice->getDevice(), mLayout, nullptr);
         }
 
-        // 2. Ïú»Ù¹ÜÏß¶ÔÏó
+        // é”€æ¯å›¾å½¢ç®¡çº¿å¯¹è±¡
         if (mPipeline != VK_NULL_HANDLE)
         {
             vkDestroyPipeline(mDevice->getDevice(), mPipeline, nullptr);
         }
     }
 
-    // ÉèÖÃ×ÅÉ«Æ÷×é
+    /**
+    * @brief è®¾ç½®ç€è‰²å™¨ç»„
+    *
+    * @param shaderGroup åŒ…å«æ‰€æœ‰é˜¶æ®µç€è‰²å™¨çš„å‘é‡ï¼ˆé¡¶ç‚¹/ç‰‡æ®µ/å‡ ä½•ç­‰ï¼‰
+    */
     void Pipeline::setShaderGroup(const std::vector<Shader::Ptr>& shaderGroup)
     {
-        mShaders = shaderGroup;
+        mShaders = shaderGroup;  // ä¿å­˜ç€è‰²å™¨å¯¹è±¡åˆ—è¡¨
     }
 
-    // ¹¹½¨Í¼ĞÎ¹ÜÏß
+    /**
+    * @brief æ„å»ºå›¾å½¢ç®¡çº¿ï¼ˆæ ¸å¿ƒå‡½æ•°ï¼‰
+    *
+    * æ‰§è¡Œæ­¥éª¤ï¼š
+    *  1. å‡†å¤‡ç€è‰²å™¨é˜¶æ®µä¿¡æ¯
+    *  2. é…ç½®è§†å£å’Œè£å‰ªåŒºåŸŸ
+    *  3. è®¾ç½®é¢œè‰²æ··åˆçŠ¶æ€
+    *  4. åˆ›å»º/é‡å»ºç®¡çº¿å¸ƒå±€
+    *  5. å¡«å†™ç®¡çº¿åˆ›å»ºä¿¡æ¯
+    *  6. åˆ›å»ºå›¾å½¢ç®¡çº¿å¯¹è±¡
+    *
+    * @throws std::runtime_error åˆ›å»ºå¤±è´¥æ—¶æŠ›å‡ºå¼‚å¸¸
+    */
     void Pipeline::build()
     {
-        // 1. ×¼±¸×ÅÉ«Æ÷½×¶Î´´½¨ĞÅÏ¢
+        // ===== 1. å‡†å¤‡ç€è‰²å™¨é˜¶æ®µåˆ›å»ºä¿¡æ¯ =====
         std::vector<VkPipelineShaderStageCreateInfo> shaderCreateInfos{};
         for (const auto& shader : mShaders)
         {
             VkPipelineShaderStageCreateInfo shaderCreateInfo{};
             shaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-            shaderCreateInfo.stage = shader->getShaderStage();                             // ×ÅÉ«Æ÷½×¶Î£¨¶¥µã/Æ¬¶ÎµÈ£©
-            shaderCreateInfo.pName = shader->getShaderEntryPoint().c_str();                // Èë¿Úº¯ÊıÃû
-            shaderCreateInfo.module = shader->getShaderModule();                           // ×ÅÉ«Æ÷Ä£¿é
+            shaderCreateInfo.stage = shader->getShaderStage();                             // ç€è‰²å™¨é˜¶æ®µæ ‡å¿—
+            shaderCreateInfo.pName = shader->getShaderEntryPoint().c_str();                // å…¥å£å‡½æ•°å
+            shaderCreateInfo.module = shader->getShaderModule();                           // ç€è‰²å™¨æ¨¡å—å¥æŸ„
 
             shaderCreateInfos.push_back(shaderCreateInfo);
         }
 
-        // 2. ÅäÖÃÊÓ¿ÚºÍ²Ã¼ô×´Ì¬
+        // ===== 2. é…ç½®è§†å£å’Œè£å‰ªçŠ¶æ€ =====
+        // è®¾ç½®è§†å£å‚æ•°ï¼ˆåº”æå‰é€šè¿‡ setViewports() è®¾ç½®ï¼‰
         mViewportState.viewportCount = static_cast<uint32_t>(mViewports.size());
-        mViewportState.pViewports = mViewports.data();                            // ÊÓ¿ÚÅäÖÃ
+        mViewportState.pViewports = mViewports.data();                            // æŒ‡å‘è§†å£é…ç½®æ•°ç»„
+        // è®¾ç½®è£å‰ªåŒºåŸŸï¼ˆåº”æå‰é€šè¿‡ setScissors() è®¾ç½®ï¼‰
         mViewportState.scissorCount = static_cast<uint32_t>(mScissors.size());
-        mViewportState.pScissors = mScissors.data();                              // ²Ã¼ôÇøÓòÅäÖÃ
+        mViewportState.pScissors = mScissors.data();                              // æŒ‡å‘è£å‰ªåŒºåŸŸæ•°ç»„
 
-        // 3. ÅäÖÃÑÕÉ«»ìºÏ×´Ì¬
+        // ===== 3. é…ç½®é¢œè‰²æ··åˆçŠ¶æ€ =====
+        // è®¾ç½®æ¯ä¸ªé¢œè‰²é™„ä»¶çš„æ··åˆçŠ¶æ€ï¼ˆåº”æå‰é€šè¿‡ addBlendAttachment() æ·»åŠ ï¼‰
         mBlendState.attachmentCount = static_cast<uint32_t>(mBlendAttachmentStates.size());  
-        mBlendState.pAttachments = mBlendAttachmentStates.data();                            // Ã¿¸ö¸½¼şµÄ»ìºÏÉèÖÃ
+        mBlendState.pAttachments = mBlendAttachmentStates.data();                            // é™„ä»¶æ··åˆçŠ¶æ€æ•°ç»„
 
-        // 4. ´´½¨¹ÜÏß²¼¾Ö£¨Èç¹ûÒÑ´æÔÚÔòÏÈÏú»Ù£©
+        // ===== 4. åˆ›å»ºç®¡çº¿å¸ƒå±€ =====
+        // å…ˆé”€æ¯æ—§å¸ƒå±€ï¼ˆå¦‚æœé‡å»ºç®¡çº¿ï¼‰
         if (mLayout != VK_NULL_HANDLE)
         {
             vkDestroyPipelineLayout(mDevice->getDevice(), mLayout, nullptr);
         }
 
-        // ´´½¨ĞÂµÄ¹ÜÏß²¼¾Ö£¨¹ÜÀíÃèÊö·ûºÍÍÆËÍ³£Á¿£©
+        // åˆ›å»ºæ–°çš„ç®¡çº¿å¸ƒå±€ï¼ˆåŒ…å«æè¿°ç¬¦é›†å¸ƒå±€å’Œæ¨é€å¸¸é‡ä¿¡æ¯ï¼‰
         if (vkCreatePipelineLayout(mDevice->getDevice(), &mLayoutState, nullptr, &mLayout) != VK_SUCCESS)
         {
             throw std::runtime_error("Error: failed to create pipeline layout");
         }
 
-        // 5. ÌîĞ´¹ÜÏß´´½¨ĞÅÏ¢
+        // ===== 5. å¡«å†™ç®¡çº¿åˆ›å»ºä¿¡æ¯ç»“æ„ä½“ =====
         VkGraphicsPipelineCreateInfo pipelineCreateInfo{};
         pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 
-        // 5.1 ×ÅÉ«Æ÷½×¶Î
+        // -- ç€è‰²å™¨é˜¶æ®µ --
         pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderCreateInfos.size());
         pipelineCreateInfo.pStages = shaderCreateInfos.data();
 
-        // 5.2 ¹Ì¶¨¹¦ÄÜ×´Ì¬
-        pipelineCreateInfo.pVertexInputState = &mVertexInputState;     // ¶¥µãÊäÈë
-        pipelineCreateInfo.pInputAssemblyState = &mAssemblyState;      // Í¼Ôª×°Åä
-        pipelineCreateInfo.pViewportState = &mViewportState;           // ÊÓ¿Ú²Ã¼ô
-        pipelineCreateInfo.pRasterizationState = &mRasterState;        // ¹âÕ¤»¯
-        pipelineCreateInfo.pMultisampleState = &mSampleState;          // ¶àÖØ²ÉÑù
-        pipelineCreateInfo.pDepthStencilState = nullptr;               // Éî¶È/Ä£°å£¨ÔİÎ´ÊµÏÖ£©
-        pipelineCreateInfo.pColorBlendState = &mBlendState;            // ÑÕÉ«»ìºÏ
-        pipelineCreateInfo.layout = mLayout;                           // ¹ÜÏß²¼¾Ö
+        // -- å›ºå®šåŠŸèƒ½çŠ¶æ€ --
+        pipelineCreateInfo.pVertexInputState = &mVertexInputState;     // é¡¶ç‚¹è¾“å…¥æ ¼å¼
+        pipelineCreateInfo.pInputAssemblyState = &mAssemblyState;      // å›¾å…ƒç±»å‹ï¼ˆä¸‰è§’å½¢/çº¿ç­‰ï¼‰
+        pipelineCreateInfo.pViewportState = &mViewportState;           // è§†å£å’Œè£å‰ªåŒº
+        pipelineCreateInfo.pRasterizationState = &mRasterState;        // å…‰æ …åŒ–è®¾ç½®
+        pipelineCreateInfo.pMultisampleState = &mSampleState;          // å¤šé‡é‡‡æ ·è®¾ç½®
+        pipelineCreateInfo.pDepthStencilState = nullptr;               // æ·±åº¦æ¨¡æ¿ï¼ˆå½“å‰æœªå®ç°ï¼‰
+        pipelineCreateInfo.pColorBlendState = &mBlendState;            // é¢œè‰²æ··åˆçŠ¶æ€
+        pipelineCreateInfo.pDynamicState = nullptr;                    // åŠ¨æ€çŠ¶æ€ï¼ˆå½“å‰æœªå®ç°ï¼‰
 
-        // 5.3 äÖÈ¾Í¨µÀºÍ×ÓÍ¨µÀ
-        pipelineCreateInfo.renderPass = mRenderPass->getRenderPass();  // ¹ØÁªäÖÈ¾Í¨µÀ
-        pipelineCreateInfo.subpass = 0;                                // Ê¹ÓÃµÚÒ»¸ö×ÓÍ¨µÀ
+        // -- ç®¡çº¿å¸ƒå±€ --
+        pipelineCreateInfo.layout = mLayout;                           // å…³è”ç®¡çº¿å¸ƒå±€
 
-        // 5.4 ¹ÜÏß¼Ì³Ğ£¨ÓÃÓÚÓÅ»¯£©
-        pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;        // ÎŞ»ù´¡¹ÜÏß
-        pipelineCreateInfo.basePipelineIndex = -1;                     // ÎŞ»ù´¡¹ÜÏßË÷Òı
+        // -- æ¸²æŸ“é€šé“ --
+        pipelineCreateInfo.renderPass = mRenderPass->getRenderPass();  // å…³è”æ¸²æŸ“é€šé“
+        pipelineCreateInfo.subpass = 0;                                // ä½¿ç”¨æ¸²æŸ“é€šé“çš„ç¬¬ä¸€ä¸ªå­é€šé“
 
-        // 6. Ïú»Ù¾É¹ÜÏß£¨Èç¹û´æÔÚ£©
+        // -- ç®¡çº¿ç»§æ‰¿ï¼ˆä¼˜åŒ–ï¼‰--
+        pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;        // æ— åŸºç¡€ç®¡çº¿
+        pipelineCreateInfo.basePipelineIndex = -1;                     // æ— åŸºç¡€ç®¡çº¿ç´¢å¼•
+
+        // ===== 6. é”€æ¯æ—§ç®¡çº¿ï¼ˆå¦‚æœé‡å»ºï¼‰=====
         if (mPipeline != VK_NULL_HANDLE)
         {
             vkDestroyPipeline(mDevice->getDevice(), mPipeline, nullptr);
         }
 
-        // 7. ´´½¨Í¼ĞÎ¹ÜÏß
-        // ²ÎÊıËµÃ÷£º
-        // - VK_NULL_HANDLE: ²»Ê¹ÓÃ¹ÜÏß»º´æ
-        // - 1: ´´½¨1¸ö¹ÜÏß
-        // - &pipelineCreateInfo: ´´½¨ĞÅÏ¢
-        // - nullptr: ²»Ê¹ÓÃ·ÖÅä»Øµ÷
-        // - &mPipeline: Êä³ö¹ÜÏß¾ä±ú
+        // ===== 7. åˆ›å»ºå›¾å½¢ç®¡çº¿ =====
+        // å‚æ•°è¯´æ˜ï¼š
+        // device - ä½¿ç”¨çš„é€»è¾‘è®¾å¤‡
+        // VK_NULL_HANDLE - ä¸ä½¿ç”¨ç®¡çº¿ç¼“å­˜
+        // 1 - åˆ›å»ºçš„ç®¡çº¿æ•°é‡
+        // &pipelineCreateInfo - åˆ›å»ºä¿¡æ¯æ•°ç»„
+        // nullptr - è‡ªå®šä¹‰åˆ†é…å™¨
+        // &mPipeline - è¾“å‡ºçš„ç®¡çº¿å¥æŸ„
         if (vkCreateGraphicsPipelines(mDevice->getDevice(), VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &mPipeline) != VK_SUCCESS)
         {
             throw std::runtime_error("Error:failed to create pipeline");
