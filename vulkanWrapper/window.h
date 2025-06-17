@@ -1,35 +1,35 @@
-#pragma once
+﻿#pragma once
 
 #include "base.h"
 
 namespace LearnVulkan::Wrapper
 {
 
-	class Window
-	{
-	public:
-		using Ptr = std::shared_ptr<Window>;
-		static Ptr create(const int& width, const int& height)
-		{
-			return std::make_shared<Window>(width, height);
-		}
+    class Window
+    {
+    public:
+        using Ptr = std::shared_ptr<Window>;
+        static Ptr create(const int& width, const int& height)
+        {
+            return std::make_shared<Window>(width, height);
+        }
 
-		Window(const int& width, const int& height);
+        Window(const int& width, const int& height);
 
-		~Window();
+        ~Window();
 
-		bool shouldClose();
+        bool shouldClose();
 
-		void pollEvents();
+        void pollEvents();
 
-		[[nodiscard]] auto getWindow() const { return mWindow; }
+        [[nodiscard]] auto getWindow() const { return mWindow; }
 
-	public:
-		bool mWindowResized{ false };
+    public:
+        bool mWindowResized{ false };
 
-	private:
-		int mWidth{ 0 };
-		int mHeight{ 0 };
-		GLFWwindow* mWindow{ NULL };
-	};
+    private:
+        int mWidth{ 0 };
+        int mHeight{ 0 };
+        GLFWwindow* mWindow{ NULL };
+    };
 }

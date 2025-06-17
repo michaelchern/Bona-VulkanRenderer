@@ -17,13 +17,13 @@ endif()
 message(STATUS "Using Vulkan SDK at: ${VULKAN_SDK_DIR}")
 
 include_directories(
-	SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/Include
-	SYSTEM ${VULKAN_SDK_DIR}/Include
+    SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/Include
+    SYSTEM ${VULKAN_SDK_DIR}/Include
 )
 
 link_directories(
-	SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/Lib
-	SYSTEM ${VULKAN_SDK_DIR}/Lib
+    SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/Lib
+    SYSTEM ${VULKAN_SDK_DIR}/Lib
 )
 
 aux_source_directory (. DIRSRCS)

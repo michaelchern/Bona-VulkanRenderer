@@ -465,10 +465,14 @@ namespace LearnVulkan
         mCurrentFrame = (mCurrentFrame + 1) % mSwapChain->getImageCount();
     }
 
-    // 清理所有资源
+    /**
+    * @brief 清理所有资源
+    *
+    * 注意：按创建顺序逆序销毁
+    */
     void Application::cleanUp()
     {
-        // 按创建顺序逆序销毁
+        // 销毁Vulkan对象
         mPipeline.reset();    // 销毁管线
         mRenderPass.reset();  // 销毁渲染通道
         mSwapChain.reset();   // 销毁交换链

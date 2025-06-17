@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "base.h"
 #include "instance.h"
@@ -6,70 +6,70 @@
 
 namespace LearnVulkan::Wrapper
 {
-	// ±ØĞèµÄÉè±¸À©Õ¹ÁĞ±í (½»»»Á´ + Î¬»¤À©Õ¹)
-	const std::vector<const char*> deviceRequiredExtensions =
-	{
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME,    // Ö§³Ö½»»»Á´¹¦ÄÜ£¨Ö¡»º³å¹ÜÀí£©
-		VK_KHR_MAINTENANCE1_EXTENSION_NAME  // Ìá¹©API¸Ä½øºÍ¼æÈİĞÔÖ§³Ö
-	};
+    // å¿…éœ€çš„è®¾å¤‡æ‰©å±•åˆ—è¡¨ (äº¤æ¢é“¾ + ç»´æŠ¤æ‰©å±•)
+    const std::vector<const char*> deviceRequiredExtensions =
+    {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,    // æ”¯æŒäº¤æ¢é“¾åŠŸèƒ½ï¼ˆå¸§ç¼“å†²ç®¡ç†ï¼‰
+        VK_KHR_MAINTENANCE1_EXTENSION_NAME  // æä¾›APIæ”¹è¿›å’Œå…¼å®¹æ€§æ”¯æŒ
+    };
 
-	// Vulkan Éè±¸¹ÜÀíÀà£¨·â×°ÎïÀíÉè±¸ºÍÂß¼­Éè±¸£©
-	class Device
-	{
-	public:
-		using Ptr = std::shared_ptr<Device>;
+    // Vulkan è®¾å¤‡ç®¡ç†ç±»ï¼ˆå°è£…ç‰©ç†è®¾å¤‡å’Œé€»è¾‘è®¾å¤‡ï¼‰
+    class Device
+    {
+    public:
+        using Ptr = std::shared_ptr<Device>;
 
-		static Ptr create(Instance::Ptr instance, WindowSurface::Ptr surface)
-		{
-			return std::make_shared<Device>(instance, surface);
-		}
+        static Ptr create(Instance::Ptr instance, WindowSurface::Ptr surface)
+        {
+            return std::make_shared<Device>(instance, surface);
+        }
 
-		// ¹¹Ôìº¯Êı£º³õÊ¼»¯Éè±¸Ñ¡Ôñ¹ı³Ì
-		Device(Instance::Ptr instance, WindowSurface::Ptr surface);
+        // æ„é€ å‡½æ•°ï¼šåˆå§‹åŒ–è®¾å¤‡é€‰æ‹©è¿‡ç¨‹
+        Device(Instance::Ptr instance, WindowSurface::Ptr surface);
 
-		// Îö¹¹º¯Êı£ºÏú»ÙÂß¼­Éè±¸
-		~Device();
+        // ææ„å‡½æ•°ï¼šé”€æ¯é€»è¾‘è®¾å¤‡
+        ~Device();
 
-		// Ñ¡Ôñ¿ÉÓÃµÄÎïÀíÉè±¸£¨GPU£©
-		void pickPhysicalDevice();
+        // é€‰æ‹©å¯ç”¨çš„ç‰©ç†è®¾å¤‡ï¼ˆGPUï¼‰
+        void pickPhysicalDevice();
 
-		// ¸øÎïÀíÉè±¸ÆÀ·Ö£¨ÓÃÓÚÑ¡Ôñ×î¼ÑGPU£©
-		int rateDevice(VkPhysicalDevice device);
+        // ç»™ç‰©ç†è®¾å¤‡è¯„åˆ†ï¼ˆç”¨äºé€‰æ‹©æœ€ä½³GPUï¼‰
+        int rateDevice(VkPhysicalDevice device);
 
-		// ¼ì²éÉè±¸ÊÇ·ñÂú×ã»ù±¾ÒªÇó
-		bool isDeviceSuitable(VkPhysicalDevice device);
+        // æ£€æŸ¥è®¾å¤‡æ˜¯å¦æ»¡è¶³åŸºæœ¬è¦æ±‚
+        bool isDeviceSuitable(VkPhysicalDevice device);
 
-		// ³õÊ¼»¯Éè±¸µÄ¶ÓÁĞ×å£¨Í¼ĞÎ¶ÓÁĞ + ³ÊÏÖ¶ÓÁĞ£©
-		void initQueueFamilies(VkPhysicalDevice device);
+        // åˆå§‹åŒ–è®¾å¤‡çš„é˜Ÿåˆ—æ—ï¼ˆå›¾å½¢é˜Ÿåˆ— + å‘ˆç°é˜Ÿåˆ—ï¼‰
+        void initQueueFamilies(VkPhysicalDevice device);
 
-		// ´´½¨Âß¼­Éè±¸£¨VkDevice£©
-		void createLogicalDevice();
+        // åˆ›å»ºé€»è¾‘è®¾å¤‡ï¼ˆVkDeviceï¼‰
+        void createLogicalDevice();
 
-		// ¼ì²é¶ÓÁĞ×åÊÇ·ñÍêÕû£¨Í¼ĞÎ+³ÊÏÖ£©
-		bool isQueueFamilyComplete();
+        // æ£€æŸ¥é˜Ÿåˆ—æ—æ˜¯å¦å®Œæ•´ï¼ˆå›¾å½¢+å‘ˆç°ï¼‰
+        bool isQueueFamilyComplete();
 
-		// === ·ÃÎÊ·½·¨ ===
-		[[nodiscard]] auto getDevice() const { return mDevice; }                          // »ñÈ¡Âß¼­Éè±¸
-		[[nodiscard]] auto getPhysicalDevice() const { return mPhysicalDevice; }          // »ñÈ¡ÎïÀíÉè±¸
+        // === è®¿é—®æ–¹æ³• ===
+        [[nodiscard]] auto getDevice() const { return mDevice; }                          // è·å–é€»è¾‘è®¾å¤‡
+        [[nodiscard]] auto getPhysicalDevice() const { return mPhysicalDevice; }          // è·å–ç‰©ç†è®¾å¤‡
 
-		[[nodiscard]] auto getGraphicQueueFamily() const { return mGraphicQueueFamily; }  // Í¼ĞÎ¶ÓÁĞ×åË÷Òı
-		[[nodiscard]] auto getPresentQueueFamily() const { return mPresentQueueFamily; }  // ³ÊÏÖ¶ÓÁĞ×åË÷Òı
+        [[nodiscard]] auto getGraphicQueueFamily() const { return mGraphicQueueFamily; }  // å›¾å½¢é˜Ÿåˆ—æ—ç´¢å¼•
+        [[nodiscard]] auto getPresentQueueFamily() const { return mPresentQueueFamily; }  // å‘ˆç°é˜Ÿåˆ—æ—ç´¢å¼•
 
-		[[nodiscard]] auto getGraphicQueue() const { return mGraphicQueue; }              // Í¼ĞÎ¶ÓÁĞ¾ä±ú
-		[[nodiscard]] auto getPresentQueue() const { return mPresentQueue; }              // ³ÊÏÖ¶ÓÁĞ¾ä±ú
-	private:
-		VkPhysicalDevice mPhysicalDevice{ VK_NULL_HANDLE };  // ÎïÀíÉè±¸¾ä±ú (GPU)
-		Instance::Ptr mInstance{ nullptr };                  // Vulkan ÊµÀıÒıÓÃ
-		WindowSurface::Ptr mSurface{ nullptr };              // ´°¿Ú±íÃæÒıÓÃ
+        [[nodiscard]] auto getGraphicQueue() const { return mGraphicQueue; }              // å›¾å½¢é˜Ÿåˆ—å¥æŸ„
+        [[nodiscard]] auto getPresentQueue() const { return mPresentQueue; }              // å‘ˆç°é˜Ÿåˆ—å¥æŸ„
+    private:
+        VkPhysicalDevice mPhysicalDevice{ VK_NULL_HANDLE };  // ç‰©ç†è®¾å¤‡å¥æŸ„ (GPU)
+        Instance::Ptr mInstance{ nullptr };                  // Vulkan å®ä¾‹å¼•ç”¨
+        WindowSurface::Ptr mSurface{ nullptr };              // çª—å£è¡¨é¢å¼•ç”¨
 
-		// ¶ÓÁĞ×å¹ÜÀí
-		std::optional<uint32_t> mGraphicQueueFamily;         // Í¼ĞÎ¶ÓÁĞ×åË÷Òı£¨¿ÉÄÜÎ´ÉèÖÃ£©
-		VkQueue	mGraphicQueue{ VK_NULL_HANDLE };             // Í¼ĞÎ¶ÓÁĞ¾ä±ú
+        // é˜Ÿåˆ—æ—ç®¡ç†
+        std::optional<uint32_t> mGraphicQueueFamily;         // å›¾å½¢é˜Ÿåˆ—æ—ç´¢å¼•ï¼ˆå¯èƒ½æœªè®¾ç½®ï¼‰
+        VkQueue	mGraphicQueue{ VK_NULL_HANDLE };             // å›¾å½¢é˜Ÿåˆ—å¥æŸ„
 
-		std::optional<uint32_t> mPresentQueueFamily;         // ³ÊÏÖ¶ÓÁĞ×åË÷Òı£¨¿ÉÄÜÎ´ÉèÖÃ£©
-		VkQueue mPresentQueue{ VK_NULL_HANDLE };             // ³ÊÏÖ¶ÓÁĞ¾ä±ú
+        std::optional<uint32_t> mPresentQueueFamily;         // å‘ˆç°é˜Ÿåˆ—æ—ç´¢å¼•ï¼ˆå¯èƒ½æœªè®¾ç½®ï¼‰
+        VkQueue mPresentQueue{ VK_NULL_HANDLE };             // å‘ˆç°é˜Ÿåˆ—å¥æŸ„
 
-		//Âß¼­Éè±¸
-		VkDevice mDevice{ VK_NULL_HANDLE };                  // Âß¼­Éè±¸¾ä±ú
-	};
+        //é€»è¾‘è®¾å¤‡
+        VkDevice mDevice{ VK_NULL_HANDLE };                  // é€»è¾‘è®¾å¤‡å¥æŸ„
+    };
 }

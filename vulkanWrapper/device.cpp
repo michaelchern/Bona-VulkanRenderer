@@ -1,211 +1,211 @@
-#include "device.h"
+ï»¿#include "device.h"
 
 namespace LearnVulkan::Wrapper
 {
 
-	Device::Device(Instance::Ptr instance, WindowSurface::Ptr surface)
-	{
-		mInstance = instance;
-		mSurface = surface;
-		pickPhysicalDevice();
-		initQueueFamilies(mPhysicalDevice);
-		createLogicalDevice();
-	}
+    Device::Device(Instance::Ptr instance, WindowSurface::Ptr surface)
+    {
+        mInstance = instance;
+        mSurface = surface;
+        pickPhysicalDevice();
+        initQueueFamilies(mPhysicalDevice);
+        createLogicalDevice();
+    }
 
-	Device::~Device()
-	{
-		vkDestroyDevice(mDevice, nullptr);
-		mSurface.reset();
-		mInstance.reset();
-	}
+    Device::~Device()
+    {
+        vkDestroyDevice(mDevice, nullptr);
+        mSurface.reset();
+        mInstance.reset();
+    }
 
-	// Ñ¡Ôñ×î¼ÑÎïÀíÉè±¸
-	void Device::pickPhysicalDevice()
-	{
-		uint32_t deviceCount = 0;
+    // é€‰æ‹©æœ€ä½³ç‰©ç†è®¾å¤‡
+    void Device::pickPhysicalDevice()
+    {
+        uint32_t deviceCount = 0;
 
-		// 1. »ñÈ¡¿ÉÓÃÎïÀíÉè±¸ÊıÁ¿
-		vkEnumeratePhysicalDevices(mInstance->getInstance(), &deviceCount, nullptr);
+        // 1. è·å–å¯ç”¨ç‰©ç†è®¾å¤‡æ•°é‡
+        vkEnumeratePhysicalDevices(mInstance->getInstance(), &deviceCount, nullptr);
 
-		if (deviceCount == 0)
-		{
-			throw std::runtime_error("Error:failed to enumeratePhysicalDevice");
-		}
+        if (deviceCount == 0)
+        {
+            throw std::runtime_error("Error:failed to enumeratePhysicalDevice");
+        }
 
-		// 2. »ñÈ¡ËùÓĞÎïÀíÉè±¸¾ä±ú
-		std::vector<VkPhysicalDevice> devices(deviceCount);
-		vkEnumeratePhysicalDevices(mInstance->getInstance(), &deviceCount, devices.data());
+        // 2. è·å–æ‰€æœ‰ç‰©ç†è®¾å¤‡å¥æŸ„
+        std::vector<VkPhysicalDevice> devices(deviceCount);
+        vkEnumeratePhysicalDevices(mInstance->getInstance(), &deviceCount, devices.data());
 
-		// 3. Ê¹ÓÃmultimap×Ô¶¯°´ÆÀ·ÖÅÅĞòÉè±¸
-		std::multimap<int, VkPhysicalDevice> candidates;
-		for (const auto& device : devices)
-		{
-			// ¸øÉè±¸ÆÀ·Ö
-			int score = rateDevice(device);
-			candidates.insert(std::make_pair(score, device));
-		}
+        // 3. ä½¿ç”¨multimapè‡ªåŠ¨æŒ‰è¯„åˆ†æ’åºè®¾å¤‡
+        std::multimap<int, VkPhysicalDevice> candidates;
+        for (const auto& device : devices)
+        {
+            // ç»™è®¾å¤‡è¯„åˆ†
+            int score = rateDevice(device);
+            candidates.insert(std::make_pair(score, device));
+        }
 
-		// 4. Ñ¡Ôñ×î¸ß·ÖÇÒºÏÊÊµÄÉè±¸
-		if (candidates.rbegin()->first > 0 && isDeviceSuitable(candidates.rbegin()->second))
-		{
-			mPhysicalDevice = candidates.rbegin()->second;
-		}
+        // 4. é€‰æ‹©æœ€é«˜åˆ†ä¸”åˆé€‚çš„è®¾å¤‡
+        if (candidates.rbegin()->first > 0 && isDeviceSuitable(candidates.rbegin()->second))
+        {
+            mPhysicalDevice = candidates.rbegin()->second;
+        }
 
-		if (mPhysicalDevice == VK_NULL_HANDLE) {
-			throw std::runtime_error("Error:failed to get physical device");
-		}
-	}
+        if (mPhysicalDevice == VK_NULL_HANDLE) {
+            throw std::runtime_error("Error:failed to get physical device");
+        }
+    }
 
-	// Éè±¸ÆÀ·Öº¯Êı
-	int Device::rateDevice(VkPhysicalDevice device)
-	{
-		int score = 0;
+    // è®¾å¤‡è¯„åˆ†å‡½æ•°
+    int Device::rateDevice(VkPhysicalDevice device)
+    {
+        int score = 0;
 
-		// 1. »ñÈ¡Éè±¸ÊôĞÔ£¨Ãû³Æ¡¢ÀàĞÍ¡¢°æ±¾µÈ£©
-		VkPhysicalDeviceProperties  deviceProp;
-		vkGetPhysicalDeviceProperties(device, &deviceProp);
+        // 1. è·å–è®¾å¤‡å±æ€§ï¼ˆåç§°ã€ç±»å‹ã€ç‰ˆæœ¬ç­‰ï¼‰
+        VkPhysicalDeviceProperties  deviceProp;
+        vkGetPhysicalDeviceProperties(device, &deviceProp);
 
-		// 2. »ñÈ¡Éè±¸ÌØĞÔ£¨Ö§³ÖµÄ¹¦ÄÜ£©
-		VkPhysicalDeviceFeatures deviceFeatures;
-		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+        // 2. è·å–è®¾å¤‡ç‰¹æ€§ï¼ˆæ”¯æŒçš„åŠŸèƒ½ï¼‰
+        VkPhysicalDeviceFeatures deviceFeatures;
+        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-		// 3. ¶ÀÁ¢ÏÔ¿¨¼Ó·Ö£¨ĞÔÄÜ¸üºÃ£©
-		if (deviceProp.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
-		{
-			score += 1000;
-		}
+        // 3. ç‹¬ç«‹æ˜¾å¡åŠ åˆ†ï¼ˆæ€§èƒ½æ›´å¥½ï¼‰
+        if (deviceProp.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+        {
+            score += 1000;
+        }
 
-		// 4. Ö§³Ö¸ü´óÎÆÀí¼Ó·Ö
-		score += deviceProp.limits.maxImageDimension2D;
+        // 4. æ”¯æŒæ›´å¤§çº¹ç†åŠ åˆ†
+        score += deviceProp.limits.maxImageDimension2D;
 
-		// 5. ±ØĞëÓĞ¼¸ºÎ×ÅÉ«Æ÷Ö§³Ö
-		if (!deviceFeatures.geometryShader)
-		{
-			return 0;
-		}
+        // 5. å¿…é¡»æœ‰å‡ ä½•ç€è‰²å™¨æ”¯æŒ
+        if (!deviceFeatures.geometryShader)
+        {
+            return 0;
+        }
 
-		return score;
-	}
+        return score;
+    }
 
-	// ¼ì²éÉè±¸ÊÇ·ñÂú×ã×îµÍÒªÇó
-	bool Device::isDeviceSuitable(VkPhysicalDevice device)
-	{
-		// 1. »ñÈ¡Éè±¸ÊôĞÔ
-		VkPhysicalDeviceProperties  deviceProp;
-		vkGetPhysicalDeviceProperties(device, &deviceProp);
+    // æ£€æŸ¥è®¾å¤‡æ˜¯å¦æ»¡è¶³æœ€ä½è¦æ±‚
+    bool Device::isDeviceSuitable(VkPhysicalDevice device)
+    {
+        // 1. è·å–è®¾å¤‡å±æ€§
+        VkPhysicalDeviceProperties  deviceProp;
+        vkGetPhysicalDeviceProperties(device, &deviceProp);
 
-		// 2. »ñÈ¡Éè±¸ÌØĞÔ
-		VkPhysicalDeviceFeatures deviceFeatures;
-		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+        // 2. è·å–è®¾å¤‡ç‰¹æ€§
+        VkPhysicalDeviceFeatures deviceFeatures;
+        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-		// 3. ±ØĞëÂú×ãµÄÌõ¼ş£º
-		return deviceProp.deviceType ==
-			VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&  // ¶ÀÁ¢ÏÔ¿¨
-			deviceFeatures.geometryShader &&         // Ö§³Ö¼¸ºÎ×ÅÉ«Æ÷
-			deviceFeatures.samplerAnisotropy;        // Ö§³Ö¸÷ÏòÒìĞÔ¹ıÂË
-	}
+        // 3. å¿…é¡»æ»¡è¶³çš„æ¡ä»¶ï¼š
+        return deviceProp.deviceType ==
+            VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&  // ç‹¬ç«‹æ˜¾å¡
+            deviceFeatures.geometryShader &&         // æ”¯æŒå‡ ä½•ç€è‰²å™¨
+            deviceFeatures.samplerAnisotropy;        // æ”¯æŒå„å‘å¼‚æ€§è¿‡æ»¤
+    }
 
-	// ³õÊ¼»¯¶ÓÁĞ×åË÷Òı
-	void Device::initQueueFamilies(VkPhysicalDevice device)
-	{
-		uint32_t queueFamilyCount = 0;
+    // åˆå§‹åŒ–é˜Ÿåˆ—æ—ç´¢å¼•
+    void Device::initQueueFamilies(VkPhysicalDevice device)
+    {
+        uint32_t queueFamilyCount = 0;
 
-		// 1. »ñÈ¡¶ÓÁĞ×åÊıÁ¿
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+        // 1. è·å–é˜Ÿåˆ—æ—æ•°é‡
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
-		// 2. »ñÈ¡¶ÓÁĞ×åÊôĞÔ
-		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+        // 2. è·å–é˜Ÿåˆ—æ—å±æ€§
+        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-		int i = 0;
-		for (const auto& queueFamily : queueFamilies)
-		{
-			// 3. ²éÕÒÖ§³ÖÍ¼ĞÎ²Ù×÷µÄ¶ÓÁĞ×å
-			if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT))
-			{
-				mGraphicQueueFamily = i;
-			}
+        int i = 0;
+        for (const auto& queueFamily : queueFamilies)
+        {
+            // 3. æŸ¥æ‰¾æ”¯æŒå›¾å½¢æ“ä½œçš„é˜Ÿåˆ—æ—
+            if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT))
+            {
+                mGraphicQueueFamily = i;
+            }
 
-			// 4. ²éÕÒÖ§³Ö±íÃæ³ÊÏÖµÄ¶ÓÁĞ×å
-			VkBool32 presentSupport = VK_FALSE;
-			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, mSurface->getSurface(), &presentSupport);
+            // 4. æŸ¥æ‰¾æ”¯æŒè¡¨é¢å‘ˆç°çš„é˜Ÿåˆ—æ—
+            VkBool32 presentSupport = VK_FALSE;
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, mSurface->getSurface(), &presentSupport);
 
-			if (presentSupport)
-			{
-				mPresentQueueFamily = i;
-			}
+            if (presentSupport)
+            {
+                mPresentQueueFamily = i;
+            }
 
-			// 5. Èç¹ûÕÒµ½Á½ÖÖ¶ÓÁĞ£¬ÌáÇ°½áÊø
-			if (isQueueFamilyComplete()) {
-				break;
-			}
+            // 5. å¦‚æœæ‰¾åˆ°ä¸¤ç§é˜Ÿåˆ—ï¼Œæå‰ç»“æŸ
+            if (isQueueFamilyComplete()) {
+                break;
+            }
 
-			++i;
-		}
-	}
+            ++i;
+        }
+    }
 
-	// ´´½¨Âß¼­Éè±¸
-	void Device::createLogicalDevice()
-	{
-		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+    // åˆ›å»ºé€»è¾‘è®¾å¤‡
+    void Device::createLogicalDevice()
+    {
+        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
-		// 1. ÊÕ¼¯ĞèÒª´´½¨µÄ¶ÓÁĞ×å£¨È¥ÖØ£©
-		std::set<uint32_t> queueFamilies = { mGraphicQueueFamily.value(), mPresentQueueFamily.value() };
+        // 1. æ”¶é›†éœ€è¦åˆ›å»ºçš„é˜Ÿåˆ—æ—ï¼ˆå»é‡ï¼‰
+        std::set<uint32_t> queueFamilies = { mGraphicQueueFamily.value(), mPresentQueueFamily.value() };
 
-		float queuePriority = 1.0;  // ¶ÓÁĞÓÅÏÈ¼¶
+        float queuePriority = 1.0;  // é˜Ÿåˆ—ä¼˜å…ˆçº§
 
-		// 2. ÎªÃ¿¸ö¶ÓÁĞ×å´´½¨¶ÓÁĞĞÅÏ¢
-		for (uint32_t queueFamily : queueFamilies)
-		{
-			VkDeviceQueueCreateInfo queueCreateInfo = {};
-			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queueCreateInfo.queueFamilyIndex = queueFamily;
-			queueCreateInfo.queueCount = 1;
-			queueCreateInfo.pQueuePriorities = &queuePriority;
+        // 2. ä¸ºæ¯ä¸ªé˜Ÿåˆ—æ—åˆ›å»ºé˜Ÿåˆ—ä¿¡æ¯
+        for (uint32_t queueFamily : queueFamilies)
+        {
+            VkDeviceQueueCreateInfo queueCreateInfo = {};
+            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            queueCreateInfo.queueFamilyIndex = queueFamily;
+            queueCreateInfo.queueCount = 1;
+            queueCreateInfo.pQueuePriorities = &queuePriority;
 
-			queueCreateInfos.push_back(queueCreateInfo);
-		}
+            queueCreateInfos.push_back(queueCreateInfo);
+        }
 
-		// 3. ÆôÓÃÉè±¸ÌØĞÔ£¨¸÷ÏòÒìĞÔ¹ıÂË£©
-		VkPhysicalDeviceFeatures deviceFeatures = {};
-		deviceFeatures.samplerAnisotropy = VK_TRUE;
+        // 3. å¯ç”¨è®¾å¤‡ç‰¹æ€§ï¼ˆå„å‘å¼‚æ€§è¿‡æ»¤ï¼‰
+        VkPhysicalDeviceFeatures deviceFeatures = {};
+        deviceFeatures.samplerAnisotropy = VK_TRUE;
 
-		// 4. ÌîĞ´Âß¼­Éè±¸´´½¨ĞÅÏ¢
-		VkDeviceCreateInfo deviceCreateInfo = {};
-		deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
-		deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-		deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+        // 4. å¡«å†™é€»è¾‘è®¾å¤‡åˆ›å»ºä¿¡æ¯
+        VkDeviceCreateInfo deviceCreateInfo = {};
+        deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
+        deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+        deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 
-		// 5. ÆôÓÃÉè±¸À©Õ¹
-		deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceRequiredExtensions.size());
-		deviceCreateInfo.ppEnabledExtensionNames = deviceRequiredExtensions.data();
+        // 5. å¯ç”¨è®¾å¤‡æ‰©å±•
+        deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceRequiredExtensions.size());
+        deviceCreateInfo.ppEnabledExtensionNames = deviceRequiredExtensions.data();
 
-		// 6. ÆôÓÃÑéÖ¤²ã£¨Èç¹ûÊµÀıÆôÓÃÁË£©
-		if (mInstance->getEnableValidationLayer())
-		{
-			deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-			deviceCreateInfo.ppEnabledLayerNames = validationLayers.data();
-		}
-		else
-		{
-			deviceCreateInfo.enabledLayerCount = 0;
-		}
+        // 6. å¯ç”¨éªŒè¯å±‚ï¼ˆå¦‚æœå®ä¾‹å¯ç”¨äº†ï¼‰
+        if (mInstance->getEnableValidationLayer())
+        {
+            deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+            deviceCreateInfo.ppEnabledLayerNames = validationLayers.data();
+        }
+        else
+        {
+            deviceCreateInfo.enabledLayerCount = 0;
+        }
 
-		// 7. ´´½¨Âß¼­Éè±¸
-		if (vkCreateDevice(mPhysicalDevice, &deviceCreateInfo, nullptr, &mDevice) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Error:failed to create logical device");
-		}
+        // 7. åˆ›å»ºé€»è¾‘è®¾å¤‡
+        if (vkCreateDevice(mPhysicalDevice, &deviceCreateInfo, nullptr, &mDevice) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Error:failed to create logical device");
+        }
 
-		// 8. »ñÈ¡¶ÓÁĞ¾ä±ú
-		vkGetDeviceQueue(mDevice, mGraphicQueueFamily.value(), 0, &mGraphicQueue);
-		vkGetDeviceQueue(mDevice, mPresentQueueFamily.value(), 0, &mPresentQueue);
-	}
+        // 8. è·å–é˜Ÿåˆ—å¥æŸ„
+        vkGetDeviceQueue(mDevice, mGraphicQueueFamily.value(), 0, &mGraphicQueue);
+        vkGetDeviceQueue(mDevice, mPresentQueueFamily.value(), 0, &mPresentQueue);
+    }
 
-	// ¼ì²é¶ÓÁĞ×åÊÇ·ñÍêÕû
-	bool Device::isQueueFamilyComplete()
-	{
-		return mGraphicQueueFamily.has_value() && mPresentQueueFamily.has_value();
-	}
+    // æ£€æŸ¥é˜Ÿåˆ—æ—æ˜¯å¦å®Œæ•´
+    bool Device::isQueueFamilyComplete()
+    {
+        return mGraphicQueueFamily.has_value() && mPresentQueueFamily.has_value();
+    }
 }

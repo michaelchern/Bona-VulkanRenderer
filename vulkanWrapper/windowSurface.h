@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "base.h"
 #include "instance.h"
@@ -6,23 +6,23 @@
 
 namespace LearnVulkan::Wrapper
 {
-	class WindowSurface
-	{
-	public:
-		using Ptr = std::shared_ptr<WindowSurface>;
-		static Ptr create(Instance::Ptr instance, Window::Ptr window)
-		{
-			return std::make_shared<WindowSurface>(instance, window);
-		}
+    class WindowSurface
+    {
+    public:
+        using Ptr = std::shared_ptr<WindowSurface>;
+        static Ptr create(Instance::Ptr instance, Window::Ptr window)
+        {
+            return std::make_shared<WindowSurface>(instance, window);
+        }
 
-		WindowSurface(Instance::Ptr instance, Window::Ptr window);
+        WindowSurface(Instance::Ptr instance, Window::Ptr window);
 
-		~WindowSurface();
+        ~WindowSurface();
 
-		[[nodiscard]] auto getSurface() const { return mSurface; }
+        [[nodiscard]] auto getSurface() const { return mSurface; }
 
-	private:
-		VkSurfaceKHR mSurface{ VK_NULL_HANDLE };
-		Instance::Ptr mInstance{ nullptr };
-	};
+    private:
+        VkSurfaceKHR mSurface{ VK_NULL_HANDLE };
+        Instance::Ptr mInstance{ nullptr };
+    };
 }

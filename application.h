@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "vulkanWrapper/base.h"
 #include "vulkanWrapper/instance.h"
@@ -27,53 +27,53 @@
 
 namespace LearnVulkan
 {
-	class Application {
-	public:
-		Application() = default;
+    class Application {
+    public:
+        Application() = default;
 
-		~Application() = default;
+        ~Application() = default;
 
-		void run();
+        void run();
 
-	private:
-		void initWindow();
-		void initVulkan();
-		void mainLoop();
-		void render();
-		void cleanUp();
+    private:
+        void initWindow();
+        void initVulkan();
+        void mainLoop();
+        void render();
+        void cleanUp();
 
-	private:
-		void createPipeline();
-		void createRenderPass();
-		void createCommandBuffers();
-		void createSyncObjects();
-		void recreateSwapChain();
-		void cleanupSwapChain();
+    private:
+        void createPipeline();
+        void createRenderPass();
+        void createCommandBuffers();
+        void createSyncObjects();
+        void recreateSwapChain();
+        void cleanupSwapChain();
 
-	private:
-		unsigned int mWidth{ 800 };
-		unsigned int mHeight{ 600 };
+    private:
+        unsigned int mWidth{ 800 };
+        unsigned int mHeight{ 600 };
 
-	private:
-		int mCurrentFrame{ 0 };
-		Wrapper::Window::Ptr mWindow{ nullptr };
-		Wrapper::Instance::Ptr mInstance{ nullptr };
-		Wrapper::Device::Ptr mDevice{ nullptr };
-		Wrapper::WindowSurface::Ptr mSurface{ nullptr };
-		Wrapper::SwapChain::Ptr mSwapChain{ nullptr };
-		Wrapper::Pipeline::Ptr mPipeline{ nullptr };
-		Wrapper::RenderPass::Ptr mRenderPass{ nullptr };
-		Wrapper::CommandPool::Ptr mCommandPool{ nullptr };
+    private:
+        int mCurrentFrame{ 0 };
+        Wrapper::Window::Ptr mWindow{ nullptr };
+        Wrapper::Instance::Ptr mInstance{ nullptr };
+        Wrapper::Device::Ptr mDevice{ nullptr };
+        Wrapper::WindowSurface::Ptr mSurface{ nullptr };
+        Wrapper::SwapChain::Ptr mSwapChain{ nullptr };
+        Wrapper::Pipeline::Ptr mPipeline{ nullptr };
+        Wrapper::RenderPass::Ptr mRenderPass{ nullptr };
+        Wrapper::CommandPool::Ptr mCommandPool{ nullptr };
 
-		std::vector<Wrapper::CommandBuffer::Ptr> mCommandBuffers{};
+        std::vector<Wrapper::CommandBuffer::Ptr> mCommandBuffers{};
 
-		std::vector<Wrapper::Semaphore::Ptr> mImageAvailableSemaphores{};
-		std::vector<Wrapper::Semaphore::Ptr> mRenderFinishedSemaphores{};
-		std::vector<Wrapper::Fence::Ptr> mFences{};
+        std::vector<Wrapper::Semaphore::Ptr> mImageAvailableSemaphores{};
+        std::vector<Wrapper::Semaphore::Ptr> mRenderFinishedSemaphores{};
+        std::vector<Wrapper::Fence::Ptr> mFences{};
 
-		UniformManager::Ptr mUniformManager{ nullptr };
+        UniformManager::Ptr mUniformManager{ nullptr };
 
-		Model::Ptr	mModel{ nullptr };
-		VPMatrices	mVPMatrices;
-	};
+        Model::Ptr	mModel{ nullptr };
+        VPMatrices	mVPMatrices;
+    };
 }
