@@ -49,6 +49,7 @@ namespace LearnVulkan::Wrapper
 
 	public:
 		// === 访问方法 ===
+
 		[[nodiscard]] auto getFormat() const { return mSwapChainFormat; }                                   // 获取交换链图像格式
 
 		[[nodiscard]] auto getImageCount() const { return mImageCount; }                                    // 获取交换链图像数量

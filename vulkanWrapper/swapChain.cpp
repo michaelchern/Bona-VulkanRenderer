@@ -1,4 +1,5 @@
-﻿#include "swapChain.h"
+﻿
+#include "swapChain.h"
 
 namespace LearnVulkan::Wrapper
 {
@@ -87,57 +88,65 @@ namespace LearnVulkan::Wrapper
                 mSwapChainImages[i],
                 mSwapChainFormat,
                 VK_IMAGE_ASPECT_COLOR_BIT,  // 作为颜色附件
-                1                           // Mip层级数
+                1                           // Mip层级数（1表示无Mipmapping）
             );
         }
     }
 
     // 创建帧缓冲区（需要渲染通道对象）
-    void SwapChain::createFrameBuffers(const RenderPass::Ptr& renderPass) {
-        //创建FrameBuffer
+    void SwapChain::createFrameBuffers(const RenderPass::Ptr& renderPass)
+    {
+        // 初始化帧缓冲区容器
         mSwapChainFrameBuffers.resize(mImageCount);
-        for (int i = 0; i < mImageCount; ++i) {
+
+        // 为每个交换链图像创建帧缓冲区
+        for (int i = 0; i < mImageCount; ++i)
+        {
             //FrameBuffer 里面为一帧的数据，比如有n个ColorAttachment 1个DepthStencilAttachment，
             //这些东西的集合为一个FrameBuffer，送入管线，就会形成一个GPU的集合，由上方的Attachments构成
             std::array<VkImageView, 1> attachments = { mSwapChainImageViews[i] };
 
             VkFramebufferCreateInfo frameBufferCreateInfo{};
             frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            frameBufferCreateInfo.renderPass = renderPass->getRenderPass();
-            frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-            frameBufferCreateInfo.pAttachments = attachments.data();
-            frameBufferCreateInfo.width = mSwapChainExtent.width;
-            frameBufferCreateInfo.height = mSwapChainExtent.height;
-            frameBufferCreateInfo.layers = 1;
+            frameBufferCreateInfo.renderPass = renderPass->getRenderPass();                     // 绑定渲染通道
+            frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());  
+            frameBufferCreateInfo.pAttachments = attachments.data();                            // 附件列表
+            frameBufferCreateInfo.width = mSwapChainExtent.width;                               // 宽度
+            frameBufferCreateInfo.height = mSwapChainExtent.height;                             // 高度
+            frameBufferCreateInfo.layers = 1;                                                   // 层数
 
+            // 创建帧缓冲区
             if (vkCreateFramebuffer(mDevice->getDevice(), &frameBufferCreateInfo, nullptr, &mSwapChainFrameBuffers[i]) != VK_SUCCESS) {
                 throw std::runtime_error("Error:Failed to create frameBuffer");
             }
         }
     }
 
-    // 析构函数：清理交换链资源
+    // 析构函数：按正确顺序清理所有资源
     SwapChain::~SwapChain()
     {
+        // 1. 销毁所有图像视图
         for (auto& imageView : mSwapChainImageViews)
         {
             vkDestroyImageView(mDevice->getDevice(), imageView, nullptr);
         }
 
-        for (auto& frameBuffer : mSwapChainFrameBuffers) {
+        // 2. 销毁所有帧缓冲区
+        for (auto& frameBuffer : mSwapChainFrameBuffers)
+        {
             vkDestroyFramebuffer(mDevice->getDevice(), frameBuffer, nullptr);
         }
 
-        // 3. 销毁交换链本身
+        // 3. 销毁交换链本体
         if (mSwapChain != VK_NULL_HANDLE)
         {
             vkDestroySwapchainKHR(mDevice->getDevice(), mSwapChain, nullptr);
         }
 
-        // 4. 释放智能指针管理资源
+        // 4. 释放智能指针管理资源（按依赖顺序）
         mWindow.reset();
-        mSurface.reset();
-        mDevice.reset();
+        mSurface.reset();  // 表面依赖于设备
+        mDevice.reset();   // 设备最后释放
     }
 
     // 查询物理设备的交换链支持信息
@@ -148,7 +157,7 @@ namespace LearnVulkan::Wrapper
         // 1. 获取表面基本能力
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mDevice->getPhysicalDevice(), mSurface->getSurface(), &info.mCapabilities);
 
-        // 2. 获取支持的表面格式
+        // 2. 查询支持的表面格式
         uint32_t formatCount = 0;
         vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->getPhysicalDevice(), mSurface->getSurface(), &formatCount, nullptr);
         if (formatCount != 0)
@@ -157,7 +166,7 @@ namespace LearnVulkan::Wrapper
             vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->getPhysicalDevice(), mSurface->getSurface(), &formatCount, info.mFormats.data());
         }
 
-        // 3. 获取支持的呈现模式
+        // 3. 查询支持的呈现模式
         uint32_t presentModeCount = 0;
         vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->getPhysicalDevice(), mSurface->getSurface(), &presentModeCount, nullptr);
         if (presentModeCount != 0)
@@ -172,13 +181,13 @@ namespace LearnVulkan::Wrapper
     // 选择最佳表面格式（优先选择SRGB格式）
     VkSurfaceFormatKHR SwapChain::chooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
     {
-        // 情况1：只有一个未定义格式 -> 使用默认格式
+        // 情况1: 只有一个格式且未定义 -> 使用默认设置
         if (availableFormats.size() == 1 && availableFormats[0].format == VK_FORMAT_UNDEFINED)
         {
             return { VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
         }
 
-        // 情况2：优先选择B8G8R8A8_SRGB格式
+        // 情况2: 寻找最佳格式：B8G8R8A8_SRGB + SRGB非线性色彩空间
         for (const auto& availableFormat : availableFormats)
         {
             if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
@@ -187,7 +196,7 @@ namespace LearnVulkan::Wrapper
             }
         }
 
-        // 情况3：没有理想格式 -> 返回第一个可用格式
+        // 情况3: 没有理想格式 -> 返回第一个可用格式
         return availableFormats[0];
     }
 
@@ -244,6 +253,7 @@ namespace LearnVulkan::Wrapper
         viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;                  // 2D视图
         viewInfo.format = format;                                   // 图像格式
 
+        // 配置子资源范围
         viewInfo.subresourceRange.aspectMask = aspectFlags;         // 图像用途（颜色/深度）
         viewInfo.subresourceRange.baseMipLevel = 0;                 // 起始Mip层级
         viewInfo.subresourceRange.levelCount = mipLevels;           // Mip层级数

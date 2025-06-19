@@ -228,8 +228,8 @@ namespace LearnVulkan
         attachmentDes.samples = VK_SAMPLE_COUNT_1_BIT;                    // 单采样
         attachmentDes.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;               // 加载时清空
         attachmentDes.storeOp = VK_ATTACHMENT_STORE_OP_STORE;             // 存储渲染结果
-        attachmentDes.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;    // 不关心模板
-        attachmentDes.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;  
+        attachmentDes.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;    // 不关心模板加载
+		attachmentDes.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;  // 不关心模板存储
         attachmentDes.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;          // 初始布局
         attachmentDes.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;      // 最终布局为显示源
 
@@ -245,20 +245,22 @@ namespace LearnVulkan
         subPass.addColorAttachmentReference(attachmentRef);  // 添加颜色附件引用
         subPass.buildSubPassDescription();                   // 构建子通道描述
 
-        mRenderPass->addSubPass(subPass);                   // 添加子通道到渲染通道
+        mRenderPass->addSubPass(subPass);                    // 添加子通道到渲染通道
 
         // 配置子通道依赖关系
         VkSubpassDependency dependency{};
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;  // 外部依赖
-        dependency.dstSubpass = 0;                    // 依赖我们的子通道
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT; // 输出阶段
+        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;                              // 外部依赖
+        dependency.dstSubpass = 0;                                                // 依赖我们的子通道
+        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;  // 输出阶段
         dependency.srcAccessMask = 0;
         dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;  // 相同阶段
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;// 读写访问权限
+        dependency.dstAccessMask =                                                // 读写访问权限
+            VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-        mRenderPass->addDependency(dependency); // 添加依赖
+        mRenderPass->addDependency(dependency);  // 添加依赖
 
-        mRenderPass->buildRenderPass(); // 构建渲染通道
+        mRenderPass->buildRenderPass();          // 构建渲染通道
     }
 
     /**
