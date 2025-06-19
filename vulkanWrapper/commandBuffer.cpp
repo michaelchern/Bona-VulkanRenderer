@@ -58,7 +58,7 @@ namespace LearnVulkan::Wrapper
     void CommandBuffer::begin(VkCommandBufferUsageFlags flag, const VkCommandBufferInheritanceInfo& inheritance)
     {
         VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;  
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = flag;                                         // 设置使用标志
         beginInfo.pInheritanceInfo = &inheritance;                      // 继承信息（二级缓冲区）
 
@@ -76,10 +76,7 @@ namespace LearnVulkan::Wrapper
      *   - VK_SUBPASS_CONTENTS_INLINE: 主缓冲区直接记录命令
      *   - VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS: 使用二级缓冲区
      */
-    void CommandBuffer::beginRenderPass(
-        const VkRenderPassBeginInfo& renderPassBeginInfo, 
-        const VkSubpassContents& subPassContents
-    )
+    void CommandBuffer::beginRenderPass(const VkRenderPassBeginInfo& renderPassBeginInfo, const VkSubpassContents& subPassContents)
     {
         vkCmdBeginRenderPass(mCommandBuffer, &renderPassBeginInfo, subPassContents);
     }
@@ -122,13 +119,26 @@ namespace LearnVulkan::Wrapper
     /// @brief 绘制非索引几何体（直接绘制顶点）
     void CommandBuffer::draw(size_t vertexCount)
     {
-        vkCmdDraw(mCommandBuffer, vertexCount, 1, 0, 0);
+        vkCmdDraw(
+            mCommandBuffer,
+            vertexCount,     // 顶点数量
+            1,               // 实例数量
+            0,               // 首个顶点索引
+            0                // 首个实例索引
+        );
     }
 
     /// @brief 索引绘制（使用绑定的索引缓冲区）
     void CommandBuffer::drawIndex(size_t indexCount)
     {
-        vkCmdDrawIndexed(mCommandBuffer, indexCount, 1, 0, 0, 0);
+        vkCmdDrawIndexed(
+            mCommandBuffer,
+            indexCount,      // 索引数量
+            1,               // 实例数量
+            0,               // 首个索引偏移
+            0,               // 顶点偏移
+            0                // 首个实例索引
+        );
     }
 
     /// @brief 结束渲染通道

@@ -38,48 +38,27 @@ namespace LearnVulkan::Wrapper
 
         // ================================================
         // 命令记录接口（必须按顺序调用）
+        //begin -> xxx -> beginRenderPass -> xxxx 绑定各类实际数据 -> endRenderPass -> end
         // ================================================
-
-        //begin  
-        //xxx 
-        //beginRenderPass 
-        //xxxx 绑定各类实际数据  
-        /*while (n < objectNumber) {
-            objects[i]->recordCommand()
-        }*/
-        //endRenderPass 
-        //end
-        
-        //VkCommandBufferUsageFlags
-        //VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT：这个命令，只会被使用提交一次
-        //VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT：这个命令缓冲，是一个二级缓冲，位于一个renderPass当中
-        //VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT:命令已经被提交了，执行期间，可以再次提交
-
-        //VkCommandBufferInheritanceInfo:如果本命令缓冲是二级缓冲，那么这个结构体，记录了他所属的主命令信息/继承信息
 
         /**
          * @brief 开始记录命令
          *
          * @param flag 使用标志（控制命令缓冲区行为）：
-         *   - VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT: 一次性提交
-         *   - VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT: 二级命令缓冲区
-         *   - VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT: 允许多次提交
-         * @param inheritance 二级命令缓冲区继承信息（仅当是二级缓冲时有效）
+         *   - VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT: 这个命令，只会被使用提交一次
+         *   - VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT: 这个命令缓冲，是一个二级缓冲，位于一个renderPass当中
+         *   - VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT: 命令已经被提交了，执行期间，可以再次提交
+         * @param inheritance 如果本命令缓冲是二级缓冲，那么这个结构体，记录了他所属的主命令信息/继承信息
          */
         void begin(VkCommandBufferUsageFlags flag = 0, const VkCommandBufferInheritanceInfo& inheritance = {});
-
-        //VkSubpassContents:
-        //VK_SUBPASS_CONTENTS_INLINE:渲染指令会被记录在命令缓冲，本命令缓冲肯定就是主命令缓冲
-        //VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS:渲染指令放在了二级指令缓冲当中,适用于主命令缓冲调用
-        //beginRenderPass的时候&&使用了二级命令缓冲的情况下，使用
 
         /**
          * @brief 开始渲染通道
          *
          * @param renderPassBeginInfo 渲染通道起始信息
          * @param subPassContents 子通道内容类型：
-         *   - VK_SUBPASS_CONTENTS_INLINE: 主命令缓冲区直接记录命令
-         *   - VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS: 使用二级命令缓冲区
+         *   - VK_SUBPASS_CONTENTS_INLINE: 渲染指令会被记录在命令缓冲，本命令缓冲肯定就是主命令缓冲
+         *   - VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS: 渲染指令放在了二级指令缓冲当中,适用于主命令缓冲调用 beginRenderPass 的时候且使用了二级命令缓冲的情况下，使用
          */
         void beginRenderPass(const VkRenderPassBeginInfo &renderPassBeginInfo, const VkSubpassContents &subPassContents = VK_SUBPASS_CONTENTS_INLINE);
 
