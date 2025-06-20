@@ -130,7 +130,7 @@ namespace LearnVulkan::Wrapper
 
         // 配置缓冲区创建信息
         VkBufferCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;  
+        createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         createInfo.size = size;                                   // 缓冲区大小
         createInfo.usage = usage;                                 // 用途标志
         createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;       // 独占访问模式
@@ -155,7 +155,8 @@ namespace LearnVulkan::Wrapper
         allocInfo.memoryTypeIndex = findMemoryType(memReq.memoryTypeBits, properties);
 
         // 分配设备内存
-        if (vkAllocateMemory(mDevice->getDevice(), &allocInfo, nullptr, &mBufferMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(mDevice->getDevice(), &allocInfo, nullptr, &mBufferMemory) != VK_SUCCESS)
+        {
             throw std::runtime_error("Error: failed to allocate memory");
         }
 

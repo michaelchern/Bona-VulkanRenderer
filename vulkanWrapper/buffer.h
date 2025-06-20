@@ -32,9 +32,6 @@ namespace LearnVulkan::Wrapper
             return std::make_shared<Buffer>(device, size, usage, properties); 
         }
 
-        // ========================================
-        // 专用缓冲区工厂方法
-        // ========================================
     public:
 
         /**
@@ -73,9 +70,6 @@ namespace LearnVulkan::Wrapper
         */
         static Ptr createStageBuffer(const Device::Ptr& device, VkDeviceSize size, void* pData = nullptr);
 
-        // ========================================
-        // 核心接口
-        // ========================================
     public:
 
         /**
@@ -96,10 +90,8 @@ namespace LearnVulkan::Wrapper
         /// 析构函数 - 自动释放缓冲区资源
         ~Buffer();
 
-        /*
-        * 1 通过内存Mapping的形式，直接对内存进行更改，适用于HostVisible类型的内存
-        * 2 如果本内存是LocalOptimal， 那么就必须创建中间的StageBuffer，先复制到StageBuffer，再拷贝入目标Buffer
-        */
+        // 1 通过内存Mapping的形式，直接对内存进行更改，适用于HostVisible类型的内存
+        // 2 如果本内存是LocalOptimal，那么就必须创建中间的StageBuffer，先复制到StageBuffer，再拷贝入目标Buffer
 
         /**
         * @brief 通过内存映射更新缓冲区数据
