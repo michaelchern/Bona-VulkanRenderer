@@ -89,8 +89,8 @@ namespace LearnVulkan
         std::vector<Wrapper::CommandBuffer::Ptr> mCommandBuffers{};  // 每帧命令缓冲区
 
         // 同步对象（多帧并发）
-        std::vector<Wrapper::Semaphore::Ptr> mImageAvailableSemaphores{};  // 图像可用信号量
-        std::vector<Wrapper::Semaphore::Ptr> mRenderFinishedSemaphores{};  // 渲染完成信号量
+		std::vector<Wrapper::Semaphore::Ptr> mImageAvailableSemaphores{};  // 图像可用信号量，图片显示完毕后才允许渲染
+		std::vector<Wrapper::Semaphore::Ptr> mRenderFinishedSemaphores{};  // 渲染完成信号量，渲染完成后才允许交换链更新
         std::vector<Wrapper::Fence::Ptr> mFences{};                        // 帧同步栅栏
 
         // 资源管理
