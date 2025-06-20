@@ -301,109 +301,148 @@ namespace LearnVulkan
 
             //mCommandBuffers[i]->bindVertexBuffer({ mModel->getVertexBuffer()->getBuffer() });
 
+            // 绑定顶点缓冲区
             mCommandBuffers[i]->bindVertexBuffer(mModel->getVertexBuffers());
 
+            // 绑定索引缓冲区
             mCommandBuffers[i]->bindIndexBuffer(mModel->getIndexBuffer()->getBuffer());
 
+            // 绘制索引模型
             mCommandBuffers[i]->drawIndex(mModel->getIndexCount());
 
+            // 结束渲染通道
             mCommandBuffers[i]->endRenderPass();
 
+            // 结束命令记录
             mCommandBuffers[i]->end();
         }
     }
 
+    /**
+    * @brief 创建同步对象（信号量和栅栏）
+    */
     void Application::createSyncObjects()
     {
+        // 每帧需要三个同步对象
         for (int i = 0; i < mSwapChain->getImageCount(); ++i)
         {
+            // 图像可用信号量（表示交换链图像已准备就绪）
             auto imageSemaphore = Wrapper::Semaphore::create(mDevice);
             mImageAvailableSemaphores.push_back(imageSemaphore);
 
+            // 渲染完成信号量（表示渲染已完成）
             auto renderSemaphore = Wrapper::Semaphore::create(mDevice);
             mRenderFinishedSemaphores.push_back(renderSemaphore);
 
+            // 命令缓冲区执行完成栅栏（避免命令缓冲区重写）
             auto fence = Wrapper::Fence::create(mDevice);
             mFences.push_back(fence);
         }
     }
 
+    /**
+    * @brief 重建交换链（窗口大小改变时调用）
+    */
     void Application::recreateSwapChain()
     {
+        // 获取窗口实际尺寸
         int width = 0, height = 0;
         glfwGetFramebufferSize(mWindow->getWindow(), &width, &height);
+
+        // 等待窗口恢复有效大小
         while (width == 0 || height == 0)
         {
-            glfwWaitEvents();
+            glfwWaitEvents();  // 暂停直到窗口事件
             glfwGetFramebufferSize(mWindow->getWindow(), &width, &height);
         }
 
+        // 等待设备空闲（避免资源使用中）
         vkDeviceWaitIdle(mDevice->getDevice());
 
+        // 清理旧交换链相关资源
         cleanupSwapChain();
 
+        // 重建交换链（新尺寸）
         mSwapChain = Wrapper::SwapChain::create(mDevice, mWindow, mSurface);
         mWidth = mSwapChain->getExtent().width;
         mHeight = mSwapChain->getExtent().height;
 
+        // 重建渲染通道
         mRenderPass = Wrapper::RenderPass::create(mDevice);
         createRenderPass();
 
+        // 重建帧缓冲区
         mSwapChain->createFrameBuffers(mRenderPass);
 
+        // 重建图形管线（适配新尺寸）
         mPipeline = Wrapper::Pipeline::create(mDevice, mRenderPass);
         createPipeline();
 
+        // 重建命令缓冲区
         mCommandBuffers.resize(mSwapChain->getImageCount());
-
         createCommandBuffers();
 
+        // 重建同步对象
         createSyncObjects();
     }
 
+    /**
+    * @brief 清理交换链相关资源
+    */
     void Application::cleanupSwapChain()
     {
-        mSwapChain.reset();
-        mCommandBuffers.clear();
-        mPipeline.reset();
-        mRenderPass.reset();
-        mImageAvailableSemaphores.clear();
-        mRenderFinishedSemaphores.clear();
-        mFences.clear();
+        mSwapChain.reset();                 // 销毁交换链
+        mCommandBuffers.clear();            // 清空命令缓冲区
+        mPipeline.reset();                  // 销毁管线
+        mRenderPass.reset();                // 销毁渲染通道
+        mImageAvailableSemaphores.clear();  // 销毁信号量
+        mRenderFinishedSemaphores.clear();  
+        mFences.clear();                    // 销毁栅栏
     }
 
+    /**
+    * @brief 主渲染循环
+    */
     void Application::mainLoop()
     {
+        // 窗口未关闭时循环
         while (!mWindow->shouldClose())
         {
-            mWindow->pollEvents();
+            mWindow->pollEvents();  // 处理窗口事件
 
-            mModel->update();
+            mModel->update();       // 更新模型状态
 
+            // 更新Uniform数据（视图/投影矩阵 + 模型矩阵）
             mUniformManager->update(mVPMatrices, mModel->getUniform(), mCurrentFrame);
 
-            render();
+            render();               // 渲染一帧
         }
 
+        // 等待所有操作完成后再退出
         vkDeviceWaitIdle(mDevice->getDevice());
     }
 
+    /**
+    * @brief 渲染单帧
+    */
     void Application::render()
     {
-        //等待当前要提交的CommandBuffer执行完毕
+        // 等待当前要提交的CommandBuffer执行完毕
+        // 等待当前帧的栅栏（确保该帧的命令缓冲区已完成）
         mFences[mCurrentFrame]->block();
 
-        //获取交换链当中的下一帧
+        // 获取交换链当中的下一帧
         uint32_t imageIndex{ 0 };
         VkResult result = vkAcquireNextImageKHR(
             mDevice->getDevice(),
             mSwapChain->getSwapChain(),
-            UINT64_MAX,
+            UINT64_MAX,  // 无超时限制
             mImageAvailableSemaphores[mCurrentFrame]->getSemaphore(),
             VK_NULL_HANDLE,
-            &imageIndex);
+            &imageIndex
+        );
 
-        //窗体发生了尺寸变化
+        // 处理交换链失效情况（窗口大小变化）
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
             recreateSwapChain();
@@ -414,56 +453,66 @@ namespace LearnVulkan
             throw std::runtime_error("Error: failed to acquire next image");
         }
 
-        //构建提交信息
+        // 构建提交信息
+        // 配置命令缓冲区提交信息
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        //同步信息，渲染对于显示图像的依赖，显示完毕后，才能输出颜色
+        // 同步信息，渲染对于显示图像的依赖，显示完毕后，才能输出颜色
+        // 设置等待信号量（图像可用）
         VkSemaphore waitSemaphores[] = { mImageAvailableSemaphores[mCurrentFrame]->getSemaphore() };
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-
         submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
 
-        //指定提交哪些命令
+        // 指定提交哪些命令
+        // 指定要提交的命令缓冲区
         auto commandBuffer = mCommandBuffers[imageIndex]->getCommandBuffer();
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer;
 
+        // 设置完成信号量（渲染完成）
         VkSemaphore signalSemaphores[] = { mRenderFinishedSemaphores[mCurrentFrame]->getSemaphore() };
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
+        // 重置栅栏（准备新一轮提交）
         mFences[mCurrentFrame]->resetFence();
+
+        // 提交命令缓冲区到图形队列
         if (vkQueueSubmit(mDevice->getGraphicQueue(), 1, &submitInfo, mFences[mCurrentFrame]->getFence()) != VK_SUCCESS)
         {
             throw std::runtime_error("Error:failed to submit renderCommand");
         }
 
+        // 等待渲染完成信号量，准备呈现图像
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = signalSemaphores;
+        presentInfo.pWaitSemaphores = signalSemaphores;  // 等待渲染完成
 
         VkSwapchainKHR swapChains[] = { mSwapChain->getSwapChain() };
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
-
         presentInfo.pImageIndices = &imageIndex;
 
+        // 提交呈现请求
         result = vkQueuePresentKHR(mDevice->getPresentQueue(), &presentInfo);
 
-        //由于驱动程序不一定精准，所以我们还需要用自己的标志位判断
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || mWindow->mWindowResized) {
+        // 由于驱动程序不一定精准，所以我们还需要用自己的标志位判断
+        // 检查呈现结果（处理大小变化）
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || mWindow->mWindowResized)
+        {
             recreateSwapChain();
             mWindow->mWindowResized = false;
         }
-        else if (result != VK_SUCCESS) {
+        else if (result != VK_SUCCESS)
+        {
             throw std::runtime_error("Error: failed to present");
         }
 
+		// 更新当前帧索引（循环使用交换链图像）
         mCurrentFrame = (mCurrentFrame + 1) % mSwapChain->getImageCount();
     }
 
