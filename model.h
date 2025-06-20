@@ -49,7 +49,8 @@ namespace LearnVulkan
         */
         Model(const Wrapper::Device::Ptr &device)
         {
-            /*mDatas = {
+            /*mDatas =
+            {
                 {{0.0f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
                 {{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
                 {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
