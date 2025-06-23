@@ -264,10 +264,10 @@ namespace LearnVulkan
     private:
         // 原始模型数据
         // std::vector<Vertex> mDatas{};
-        std::vector<float> mPositions{};          // 顶点位置数据 (XYZ)
-        std::vector<float> mColors{};             // 顶点颜色数据 (RGB)
-        std::vector<unsigned int> mIndexDatas{};  // 索引数据 (uint32_t)
-        std::vector<float> mUVs{};                // 纹理UV坐标 (UV)
+        std::vector<float>        mPositions{};          // 顶点位置数据 (XYZ)
+        std::vector<float>        mColors{};             // 顶点颜色数据 (RGB)
+        std::vector<unsigned int> mIndexDatas{};         // 索引数据 (uint32_t)
+        std::vector<float>        mUVs{};                // 纹理UV坐标 (UV)
 
         // GPU缓冲区对象
         //Wrapper::Buffer::Ptr mVertexBuffer{ nullptr };  

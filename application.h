@@ -95,7 +95,7 @@ namespace LearnVulkan
 
         // 资源管理
         UniformManager::Ptr mUniformManager{ nullptr };  // 统一变量缓冲区管理
-        Model::Ptr mModel{ nullptr };                    // 渲染模型
-        VPMatrices mVPMatrices;                          // 视图/投影矩阵数据
+        Model::Ptr          mModel{ nullptr };           // 渲染模型
+        VPMatrices          mVPMatrices;                 // 视图/投影矩阵数据
     };
 }

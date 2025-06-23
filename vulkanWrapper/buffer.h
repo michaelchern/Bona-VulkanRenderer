@@ -29,7 +29,7 @@ namespace LearnVulkan::Wrapper
             VkBufferUsageFlags usage,
             VkMemoryPropertyFlags properties)
         {
-            return std::make_shared<Buffer>(device, size, usage, properties); 
+            return std::make_shared<Buffer>(device, size, usage, properties);
         }
 
     public:
@@ -37,24 +37,24 @@ namespace LearnVulkan::Wrapper
         /**
         * @brief 创建顶点缓冲区 (带初始数据)
         * @param device 关联设备
-        * @param size 数据大小
-        * @param pData 顶点数据指针
+        * @param size   数据大小
+        * @param pData  顶点数据指针
         */
         static Ptr createVertexBuffer(const Device::Ptr& device, VkDeviceSize size, void * pData);
 
         /**
         * @brief 创建索引缓冲区 (带初始数据)
         * @param device 关联设备
-        * @param size 数据大小
-        * @param pData 索引数据指针
+        * @param size   数据大小
+        * @param pData  索引数据指针
         */
         static Ptr createIndexBuffer(const Device::Ptr& device, VkDeviceSize size, void* pData);
 
         /**
         * @brief 创建统一变量缓冲区
         * @param device 关联设备
-        * @param size 缓冲区大小
-        * @param pData 初始数据(可选)
+        * @param size   缓冲区大小
+        * @param pData  初始数据(可选)
         *
         * 默认创建为HostVisible|HostCoherent内存
         */
@@ -63,8 +63,8 @@ namespace LearnVulkan::Wrapper
         /**
         * @brief 创建暂存缓冲区
         * @param device 关联设备
-        * @param size 缓冲区大小
-        * @param pData 初始数据(可选)
+        * @param size   缓冲区大小
+        * @param pData  初始数据(可选)
         *
         * 默认创建为HostVisible|HostCoherent内存
         */
@@ -75,9 +75,9 @@ namespace LearnVulkan::Wrapper
         /**
         * @brief 构造函数 - 创建Vulkan缓冲区
         *
-        * @param device 关联设备
-        * @param size 缓冲区大小
-        * @param usage 缓冲区用途标志
+        * @param device     关联设备
+        * @param size       缓冲区大小
+        * @param usage      缓冲区用途标志
         * @param properties 内存属性标志
         */
         Buffer(

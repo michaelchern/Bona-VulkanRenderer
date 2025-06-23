@@ -11,9 +11,9 @@ namespace LearnVulkan::Wrapper
     * 1. 创建设备本地(DEVICE_LOCAL)的顶点缓冲区
     * 2. 通过临时暂存缓冲区上传初始数据
     *
-    * @param device 关联设备
-    * @param size 数据大小(字节)
-    * @param pData 顶点数据指针
+    * @param device       关联设备
+    * @param size         数据大小(字节)
+    * @param pData        顶点数据指针
     * @return Buffer::Ptr 顶点缓冲区智能指针
     */
     Buffer::Ptr Buffer::createVertexBuffer(const Device::Ptr& device, VkDeviceSize size, void* pData)
@@ -23,7 +23,7 @@ namespace LearnVulkan::Wrapper
             device, size,
             VK_BUFFER_USAGE_TRANSFER_DST_BIT |   // 可作为传输目标
             VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,   // 顶点缓冲区用途
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT  // 设备本地内存(高性能)
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT  // 设备本地内存(高性能)，GPU本地才可读
         );
 
         // 通过暂存缓冲区上传数据
@@ -253,8 +253,8 @@ namespace LearnVulkan::Wrapper
             mDevice,
             size,
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT,      // 传输源用途
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |  
-            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT   
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |  //
+            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT   //
         );
 
         // 2. 将数据复制到暂存缓冲区
