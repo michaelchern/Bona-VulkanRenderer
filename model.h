@@ -136,11 +136,14 @@ namespace LearnVulkan
         std::vector<VkVertexInputBindingDescription> getVertexInputBindingDescriptions()
         {
             std::vector<VkVertexInputBindingDescription> bindingDes{};
-            /*bindingDes.resize(1);
+
+            /*
+            bindingDes.resize(1);
 
             bindingDes[0].binding = 0;
             bindingDes[0].stride = sizeof(Vertex);
-            bindingDes[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;*/
+            bindingDes[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+            */
 
             bindingDes.resize(3);
 
@@ -177,26 +180,26 @@ namespace LearnVulkan
             attributeDes.resize(3);
 
             // 位置属性 (绑定点0, 位置索引0)
-            attributeDes[0].binding = 0;
-            attributeDes[0].location = 0;  // 对应shader的layout(location = 0)
-            attributeDes[0].format = VK_FORMAT_R32G32B32_SFLOAT;  // XYZ
+            attributeDes[0].binding  = 0;
+            attributeDes[0].location = 0;                         // 对应shader的layout(location = 0)
+            attributeDes[0].format   = VK_FORMAT_R32G32B32_SFLOAT;  // XYZ
             //attributeDes[0].offset = offsetof(Vertex, mPosition);
-            attributeDes[0].offset = 0;  // 在缓冲区起始位置
+            attributeDes[0].offset   = 0;                           // 在缓冲区起始位置
 
             // 颜色属性 (绑定点1, 位置索引1)
-            //attributeDes[1].binding = 0;
-            attributeDes[1].binding = 1;
-            attributeDes[1].location = 1;  // 对应shader的layout(location = 1)
-            attributeDes[1].format = VK_FORMAT_R32G32B32_SFLOAT;  // RGB
+            // attributeDes[1].binding = 0;
+            attributeDes[1].binding  = 1;
+            attributeDes[1].location = 1;                         // 对应shader的layout(location = 1)
+            attributeDes[1].format   = VK_FORMAT_R32G32B32_SFLOAT;  // RGB
             //attributeDes[1].offset = offsetof(Vertex, mColor);
-            attributeDes[1].offset = 0;  // 在缓冲区起始位置
+            attributeDes[1].offset   = 0;                           // 在缓冲区起始位置
 
             // UV属性 (绑定点2, 位置索引2)
-            attributeDes[2].binding = 2;
-            attributeDes[2].location = 2;  // 对应shader的layout(location = 2)
-            attributeDes[2].format = VK_FORMAT_R32G32_SFLOAT;  // UV
+            attributeDes[2].binding  = 2;
+            attributeDes[2].location = 2;                         // 对应shader的layout(location = 2)
+            attributeDes[2].format   = VK_FORMAT_R32G32_SFLOAT;     // UV
             //attributeDes[0].offset = offsetof(Vertex, mPosition);
-            attributeDes[2].offset = 0;  // 在缓冲区起始位置
+            attributeDes[2].offset   = 0;                           // 在缓冲区起始位置
 
             return attributeDes;
         }
@@ -260,7 +263,7 @@ namespace LearnVulkan
         }
     private:
         // 原始模型数据
-        //std::vector<Vertex> mDatas{};
+        // std::vector<Vertex> mDatas{};
         std::vector<float> mPositions{};          // 顶点位置数据 (XYZ)
         std::vector<float> mColors{};             // 顶点颜色数据 (RGB)
         std::vector<unsigned int> mIndexDatas{};  // 索引数据 (uint32_t)

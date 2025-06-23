@@ -135,10 +135,10 @@ namespace LearnVulkan::Wrapper
         createInfo.usage = usage;                                 // 用途标志
         createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;       // 独占访问模式
 
-        // 创建Vulkan缓冲区对象
+		// 创建 Vulkan 缓冲区对象，一般在 CPU 端进行内存的创建，创建的对象是 CPU 端的描述符，是一个描述对象，没有在 GPU 上创建实际的内存对象
         if (vkCreateBuffer(mDevice->getDevice(), &createInfo, nullptr, &mBuffer) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error:failed to create buffer");
+            throw std::runtime_error("Error: Failed to create buffer!");
         }
 
         // 获取内存需求（类型/大小/对齐等）
@@ -150,7 +150,7 @@ namespace LearnVulkan::Wrapper
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memReq.size;  // 所需内存大小
 
-        // 符合我上述buffer需求的内存类型的ID们！0x001 0x010
+        // 符合我上述 buffer 需求的内存类型的 ID 们！0x001 0x010
         // 查找符合要求的内存类型索引
         allocInfo.memoryTypeIndex = findMemoryType(memReq.memoryTypeBits, properties);
 
@@ -209,7 +209,7 @@ namespace LearnVulkan::Wrapper
             }
         }
 
-        throw std::runtime_error("Error: cannot find the property memory type!");
+        throw std::runtime_error("Error: Cannot find the property memory type!");
     }
 
     /**

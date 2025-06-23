@@ -90,8 +90,8 @@ namespace LearnVulkan::Wrapper
         /// 析构函数 - 自动释放缓冲区资源
         ~Buffer();
 
-        // 1 通过内存Mapping的形式，直接对内存进行更改，适用于HostVisible类型的内存
-        // 2 如果本内存是LocalOptimal，那么就必须创建中间的StageBuffer，先复制到StageBuffer，再拷贝入目标Buffer
+        // 1 通过内存 Mapping 的形式，直接对内存进行更改，适用于 HostVisible 类型的内存
+        // 2 如果本内存是 LocalOptimal，那么就必须创建中间的 StageBuffer，先复制到 StageBuffer，再拷贝入目标 Buffer
 
         /**
         * @brief 通过内存映射更新缓冲区数据
@@ -100,6 +100,7 @@ namespace LearnVulkan::Wrapper
         * @param size 数据大小
         *
         * 要求内存具有VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT属性
+		* 如果 Buffer 被频繁更改，建议使用此方法。
         */
         void updateBufferByMap(void *data, size_t size);
 
