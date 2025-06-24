@@ -130,8 +130,8 @@ namespace LearnVulkan::Wrapper
         [[nodiscard]] auto getCommandBuffer() const { return mCommandBuffer; }
 
     private:
-        VkCommandBuffer mCommandBuffer{ VK_NULL_HANDLE };  // Vulkan命令缓冲区句柄
-        Device::Ptr mDevice{ nullptr };                    // 关联设备
-        CommandPool::Ptr mCommandPool{ nullptr };          // 来源命令池
+        VkCommandBuffer  mCommandBuffer{ VK_NULL_HANDLE };  // Vulkan命令缓冲区句柄
+        Device::Ptr      mDevice{ nullptr };                // 关联设备
+        CommandPool::Ptr mCommandPool{ nullptr };           // 来源命令池
     };
 }

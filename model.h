@@ -276,7 +276,7 @@ namespace LearnVulkan
         Wrapper::Buffer::Ptr mUVBuffer{ nullptr };        // UV数据缓冲区
         Wrapper::Buffer::Ptr mIndexBuffer{ nullptr };     // 索引数据缓冲区
 
-        ObjectUniform mUniform;  // 模型统一变量
-        float mAngle{ 0.0f };    // 当前旋转角度（度）
+        ObjectUniform        mUniform;                    // 模型统一变量
+        float                mAngle{ 0.0f };              // 当前旋转角度（度）
     };
 }

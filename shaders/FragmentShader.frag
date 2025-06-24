@@ -9,7 +9,8 @@ layout(location = 0) out vec4 outColor;
 
 layout(binding = 2) uniform sampler2D texSampler;
 
-void main() {
+void main()
+{
     //outColor = vec4(inColor, 1.0);
     outColor = texture(texSampler, inUV);
 }
