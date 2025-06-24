@@ -75,18 +75,18 @@ namespace LearnVulkan
 
     private:
         // Vulkan核心对象
-        int mCurrentFrame{ 0 };// 当前帧索引（用于多帧同步）
-        Wrapper::Window::Ptr mWindow{ nullptr };// GLFW窗口管理
-        Wrapper::Instance::Ptr mInstance{ nullptr };// Vulkan实例
-        Wrapper::Device::Ptr mDevice{ nullptr };// 逻辑设备
-        Wrapper::WindowSurface::Ptr mSurface{ nullptr };// 窗口表面
-        Wrapper::SwapChain::Ptr mSwapChain{ nullptr };// 交换链管理
-        Wrapper::Pipeline::Ptr mPipeline{ nullptr };// 图形管线
-        Wrapper::RenderPass::Ptr mRenderPass{ nullptr };// 渲染通道
+        int                         mCurrentFrame{ 0 };      // 当前帧索引（用于多帧同步）
+        Wrapper::Window::Ptr        mWindow{ nullptr };      // GLFW窗口管理
+        Wrapper::Instance::Ptr      mInstance{ nullptr };    // Vulkan实例
+        Wrapper::Device::Ptr        mDevice{ nullptr };      // 逻辑设备
+        Wrapper::WindowSurface::Ptr mSurface{ nullptr };     // 窗口表面
+        Wrapper::SwapChain::Ptr     mSwapChain{ nullptr };   // 交换链管理
+        Wrapper::Pipeline::Ptr      mPipeline{ nullptr };    // 图形管线
+        Wrapper::RenderPass::Ptr    mRenderPass{ nullptr };  // 渲染通道
 
         // 命令管理
-        Wrapper::CommandPool::Ptr mCommandPool{ nullptr };           // 命令池
-        std::vector<Wrapper::CommandBuffer::Ptr> mCommandBuffers{};  // 每帧命令缓冲区
+        Wrapper::CommandPool::Ptr                mCommandPool{ nullptr };  // 命令池
+        std::vector<Wrapper::CommandBuffer::Ptr> mCommandBuffers{};        // 每帧命令缓冲区
 
         // 同步对象（多帧并发）
 		std::vector<Wrapper::Semaphore::Ptr> mImageAvailableSemaphores{};  // 图像可用信号量，图片显示完毕后才允许渲染

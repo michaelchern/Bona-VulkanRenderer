@@ -57,5 +57,4 @@ namespace LearnVulkan::Wrapper
             throw std::runtime_error("Error: failed to create descriptor set layout");
         }
     }
-
 }
