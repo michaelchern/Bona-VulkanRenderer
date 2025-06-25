@@ -8,7 +8,7 @@ namespace LearnVulkan::Wrapper
 {
     /*
     * 分析：如果我们需要做一张被用于纹理采样的图片，那么我们首先
-    * 需要从undefinedLayout变换成为TransferDst， 然后在数据拷贝
+    * 需要从 undefinedLayout 变换成为 TransferDst，然后在数据拷贝
     * 完毕之后，再转换称为ShaderReadOnly
     */
 
@@ -76,8 +76,8 @@ namespace LearnVulkan::Wrapper
         //   subresrouceRange：图像子资源范围（层级、层次等）
         //   commandPool：命令池（用于创建一次性的命令缓冲区）
         void setImageLayout(
-            VkImageLayout newLayout, 
-            VkPipelineStageFlags srcStageMask, 
+            VkImageLayout newLayout,
+            VkPipelineStageFlags srcStageMask,
             VkPipelineStageFlags dstStageMask,
             VkImageSubresourceRange subresrouceRange,
             const CommandPool::Ptr & commandPool
