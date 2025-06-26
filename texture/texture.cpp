@@ -30,7 +30,7 @@ namespace LearnVulkan
         stbi_uc* pixels = stbi_load(
             imageFilePath.c_str(),  // 文件路径
             &texWidth,              // 输出宽度
-			&texHeight,             // 输出高度
+            &texHeight,             // 输出高度
             &texChannles,           // 输出通道数（不使用）
             STBI_rgb_alpha          // 强制4通道
         );
