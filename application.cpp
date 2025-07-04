@@ -229,7 +229,7 @@ namespace LearnVulkan
         attachmentDes.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;               // 加载时清空
         attachmentDes.storeOp = VK_ATTACHMENT_STORE_OP_STORE;             // 存储渲染结果
         attachmentDes.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;    // 不关心模板加载
-		attachmentDes.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;  // 不关心模板存储
+        attachmentDes.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;  // 不关心模板存储
         attachmentDes.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;          // 初始布局
         attachmentDes.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;      // 最终布局为显示源
 
@@ -512,7 +512,7 @@ namespace LearnVulkan
             throw std::runtime_error("Error: failed to present");
         }
 
-		// 更新当前帧索引（循环使用交换链图像）
+        // 更新当前帧索引（循环使用交换链图像）
         mCurrentFrame = (mCurrentFrame + 1) % mSwapChain->getImageCount();
     }
 
