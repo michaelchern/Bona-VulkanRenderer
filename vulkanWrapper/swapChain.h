@@ -62,11 +62,10 @@ namespace LearnVulkan::Wrapper
 
     private:
         // 创建图像视图（用于访问图像）
-        VkImageView createImageView(
-            VkImage image,
-            VkFormat format,
-            VkImageAspectFlags aspectFlags,
-            uint32_t mipLevels = 1);
+        VkImageView createImageView(VkImage image,
+                                    VkFormat format,
+                                    VkImageAspectFlags aspectFlags,
+                                    uint32_t mipLevels = 1);
 
     private:
         
