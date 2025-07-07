@@ -71,9 +71,9 @@ namespace LearnVulkan::Wrapper
         
         VkSwapchainKHR mSwapChain{ VK_NULL_HANDLE };          // Vulkan交换链对象句柄
 
-        VkFormat  mSwapChainFormat;                           // 交换链图像格式（如RGBA8）
+        VkFormat   mSwapChainFormat;                          // 交换链图像格式（如RGBA8）
         VkExtent2D mSwapChainExtent;                          // 交换链图像尺寸（宽度x高度）
-        uint32_t mImageCount{ 0 };                            // 交换链中的图像数量
+        uint32_t   mImageCount{ 0 };                          // 交换链中的图像数量
 
         // 由交换链管理的图像（不需要手动销毁）
         std::vector<VkImage> mSwapChainImages{};
