@@ -276,16 +276,16 @@ namespace LearnVulkan
 
             // 配置渲染通道开始信息
             VkRenderPassBeginInfo renderBeginInfo{};
-            renderBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderBeginInfo.renderPass = mRenderPass->getRenderPass();
-            renderBeginInfo.framebuffer = mSwapChain->getFrameBuffer(i);
+            renderBeginInfo.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderBeginInfo.renderPass        = mRenderPass->getRenderPass();
+            renderBeginInfo.framebuffer       = mSwapChain->getFrameBuffer(i);
             renderBeginInfo.renderArea.offset = { 0, 0 };
             renderBeginInfo.renderArea.extent = mSwapChain->getExtent();
 
             // 设置清屏颜色（黑色）
-            VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+            VkClearValue clearColor         = { 0.0f, 0.0f, 0.0f, 1.0f };
             renderBeginInfo.clearValueCount = 1;
-            renderBeginInfo.pClearValues = &clearColor;
+            renderBeginInfo.pClearValues    = &clearColor;
 
             // 开始渲染通道
             mCommandBuffers[i]->beginRenderPass(renderBeginInfo);

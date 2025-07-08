@@ -74,7 +74,7 @@ namespace LearnVulkan::Wrapper
     public:
         // === 访问方法 ===
         [[nodiscard]] auto getPipeline() const { return mPipeline; }                // 获取VkPipeline管线对象
-        [[nodiscard]] auto getLayout() const { return mLayout; }                    // 获取VkPipelineLayout布局对象
+        [[nodiscard]] auto getLayout()   const { return mLayout; }                  // 获取VkPipelineLayout布局对象
 
     private:
         VkPipeline mPipeline{ VK_NULL_HANDLE };      // Vulkan 管线对象句柄
