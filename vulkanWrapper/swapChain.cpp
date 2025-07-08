@@ -68,7 +68,7 @@ namespace LearnVulkan::Wrapper
         // 10. 创建交换链
         if (vkCreateSwapchainKHR(mDevice->getDevice(), &createInfo, nullptr, &mSwapChain) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error: failed to create swapChain");
+            throw std::runtime_error("Error: failed to create swapChain!");
         }
 
         // 11. 保存关键参数
@@ -84,12 +84,10 @@ namespace LearnVulkan::Wrapper
         mSwapChainImageViews.resize(mImageCount);
         for (int i = 0; i < mImageCount; ++i)
         {
-            mSwapChainImageViews[i] = createImageView(
-                mSwapChainImages[i],
-                mSwapChainFormat,
-                VK_IMAGE_ASPECT_COLOR_BIT,  // 作为颜色附件
-                1                           // Mip层级数（1表示无Mipmapping）
-            );
+            mSwapChainImageViews[i] = createImageView(mSwapChainImages[i],
+                                                      mSwapChainFormat,
+                                                      VK_IMAGE_ASPECT_COLOR_BIT,  // 作为颜色附件
+                                                      1);                         // Mip层级数（1表示无Mipmapping）
         }
     }
 
@@ -107,17 +105,18 @@ namespace LearnVulkan::Wrapper
             std::array<VkImageView, 1> attachments = { mSwapChainImageViews[i] };
 
             VkFramebufferCreateInfo frameBufferCreateInfo{};
-            frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            frameBufferCreateInfo.renderPass = renderPass->getRenderPass();                     // 绑定渲染通道
-            frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());  
-            frameBufferCreateInfo.pAttachments = attachments.data();                            // 附件列表
-            frameBufferCreateInfo.width = mSwapChainExtent.width;                               // 宽度
-            frameBufferCreateInfo.height = mSwapChainExtent.height;                             // 高度
-            frameBufferCreateInfo.layers = 1;                                                   // 层数
+            frameBufferCreateInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            frameBufferCreateInfo.renderPass      = renderPass->getRenderPass();                // 绑定渲染通道
+            frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+            frameBufferCreateInfo.pAttachments    = attachments.data();                         // 附件列表
+            frameBufferCreateInfo.width           = mSwapChainExtent.width;                     // 宽度
+            frameBufferCreateInfo.height          = mSwapChainExtent.height;                    // 高度
+            frameBufferCreateInfo.layers          = 1;                                          // 层数
 
             // 创建帧缓冲区
-            if (vkCreateFramebuffer(mDevice->getDevice(), &frameBufferCreateInfo, nullptr, &mSwapChainFrameBuffers[i]) != VK_SUCCESS) {
-                throw std::runtime_error("Error:Failed to create frameBuffer");
+            if (vkCreateFramebuffer(mDevice->getDevice(), &frameBufferCreateInfo, nullptr, &mSwapChainFrameBuffers[i]) != VK_SUCCESS)
+            {
+                throw std::runtime_error("Error:Failed to create frameBuffer!");
             }
         }
     }
