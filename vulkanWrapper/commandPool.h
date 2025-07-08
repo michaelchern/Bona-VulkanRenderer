@@ -19,9 +19,9 @@ namespace LearnVulkan::Wrapper
         /**
          * @brief 创建命令池的工厂方法
          *
-         * @param device 关联的逻辑设备封装对象（Device）
-         * @param flag 创建标志（默认可重置命令缓冲区）
-         * @return Ptr 返回命令池的共享智能指针
+         * @param  device 关联的逻辑设备封装对象（Device）
+         * @param  flag   创建标志（默认可重置命令缓冲区）
+         * @return Ptr    返回命令池的共享智能指针
          */
         static Ptr create(const Device::Ptr& device, VkCommandPoolCreateFlagBits flag = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
         {
@@ -32,7 +32,7 @@ namespace LearnVulkan::Wrapper
          * @brief 构造函数（需在.cpp实现中创建底层VkCommandPool）
          *
          * @param device 关联的逻辑设备
-         * @param flag 控制命令池行为的标志（见Vulkan规范）
+         * @param flag   控制命令池行为的标志（见Vulkan规范）
          */
         CommandPool(const Device::Ptr &device, VkCommandPoolCreateFlagBits flag = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
@@ -44,6 +44,6 @@ namespace LearnVulkan::Wrapper
 
     private:
         VkCommandPool mCommandPool{ VK_NULL_HANDLE };  // 底层Vulkan命令池对象
-        Device::Ptr mDevice{ nullptr };                // 关联的逻辑设备（智能指针管理生命周期）
+        Device::Ptr   mDevice{ nullptr };              // 关联的逻辑设备（智能指针管理生命周期）
     };
 }

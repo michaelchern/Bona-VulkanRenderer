@@ -137,7 +137,7 @@ namespace LearnVulkan::Wrapper
 		// 安全校验：必须至少有一个子通道、一个附件描述和一个依赖关系
         if (mSubPasses.empty() || mAttachmentDescriptions.empty() || mDependencies.empty())
         {
-            throw std::runtime_error("Error: not enough elements to build renderPass");
+            throw std::runtime_error("Error: not enough elements to build renderPass!");
         }
 
         // 解包子通道描述（转换为VkSubpassDescription数组）
