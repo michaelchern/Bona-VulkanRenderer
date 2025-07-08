@@ -12,14 +12,14 @@ namespace LearnVulkan::Wrapper
      */
     CommandBuffer::CommandBuffer(const Device::Ptr& device, const CommandPool::Ptr& commandPool, bool asSecondary)
     {
-        mDevice = device;            // 存储设备对象
+        mDevice      = device;       // 存储设备对象
         mCommandPool = commandPool;  // 存储命令池对象
 
         // 配置命令缓冲区分配信息
         VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandBufferCount = 1;                                  // 分配1个命令缓冲区
-        allocInfo.commandPool = mCommandPool->getCommandPool();            // 指定命令池
+        allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.commandBufferCount = 1;                               // 分配1个命令缓冲区
+        allocInfo.commandPool        = mCommandPool->getCommandPool();  // 指定命令池
 
         // 设置命令缓冲级别：主/二级
         allocInfo.level = asSecondary ? VK_COMMAND_BUFFER_LEVEL_SECONDARY
@@ -50,21 +50,21 @@ namespace LearnVulkan::Wrapper
      * @brief 开始命令记录
      *
      * @param flag 使用标志：
-     *   - VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT: 一次性使用
-     *   - VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT: 二级缓冲区
-     *   - VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT: 可重复提交
+     *    - VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT:      一次性使用
+     *    - VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT: 二级缓冲区
+     *    - VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT:     可重复提交
      * @param inheritance 二级缓冲继承信息（仅当flag包含RENDER_PASS_CONTINUE时有效）
      */
     void CommandBuffer::begin(VkCommandBufferUsageFlags flag, const VkCommandBufferInheritanceInfo& inheritance)
     {
         VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = flag;                                         // 设置使用标志
-        beginInfo.pInheritanceInfo = &inheritance;                      // 继承信息（二级缓冲区）
+        beginInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags            = flag;          // 设置使用标志
+        beginInfo.pInheritanceInfo = &inheritance;  // 继承信息（二级缓冲区）
 
         if (vkBeginCommandBuffer(mCommandBuffer, &beginInfo) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error:failed to begin commandBuffer");
+            throw std::runtime_error("Error:failed to begin commandBuffer!");
         }
     }
 
@@ -73,7 +73,7 @@ namespace LearnVulkan::Wrapper
      *
      * @param renderPassBeginInfo 渲染通道起始信息
      * @param subPassContents 子通道内容类型：
-     *   - VK_SUBPASS_CONTENTS_INLINE: 主缓冲区直接记录命令
+     *   - VK_SUBPASS_CONTENTS_INLINE:                    主缓冲区直接记录命令
      *   - VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS: 使用二级缓冲区
      */
     void CommandBuffer::beginRenderPass(const VkRenderPassBeginInfo& renderPassBeginInfo, const VkSubpassContents& subPassContents)
@@ -104,41 +104,35 @@ namespace LearnVulkan::Wrapper
     /// @brief 绑定描述符集（着色器资源）
     void CommandBuffer::bindDescriptorSet(const VkPipelineLayout layout, const VkDescriptorSet &descriptorSet)
     {
-        vkCmdBindDescriptorSets(
-            mCommandBuffer,
-            VK_PIPELINE_BIND_POINT_GRAPHICS,
-            layout,
-            0,       // 第一个描述符集
-            1,       // 描述符集数量
-            &descriptorSet,
-            0,       // 动态偏移量数量
-            nullptr  // 动态偏移数组
-        );
+        vkCmdBindDescriptorSets(mCommandBuffer,
+                                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                layout,
+                                0,               // 第一个描述符集
+                                1,               // 描述符集数量
+                                &descriptorSet,  
+                                0,               // 动态偏移量数量
+                                nullptr);        // 动态偏移数组
     }
 
     /// @brief 绘制非索引几何体（直接绘制顶点）
     void CommandBuffer::draw(size_t vertexCount)
     {
-        vkCmdDraw(
-            mCommandBuffer,
-            vertexCount,     // 顶点数量
-            1,               // 实例数量
-            0,               // 首个顶点索引
-            0                // 首个实例索引
-        );
+        vkCmdDraw(mCommandBuffer,
+                  vertexCount,  // 顶点数量
+                  1,            // 实例数量
+                  0,            // 首个顶点索引
+                  0);           // 首个实例索引
     }
 
     /// @brief 索引绘制（使用绑定的索引缓冲区）
     void CommandBuffer::drawIndex(size_t indexCount)
     {
-        vkCmdDrawIndexed(
-            mCommandBuffer,
-            indexCount,      // 索引数量
-            1,               // 实例数量
-            0,               // 首个索引偏移
-            0,               // 顶点偏移
-            0                // 首个实例索引
-        );
+        vkCmdDrawIndexed(mCommandBuffer,
+                         indexCount,  // 索引数量
+                         1,           // 实例数量
+                         0,           // 首个索引偏移
+                         0,           // 顶点偏移
+                         0);          // 首个实例索引
     }
 
     /// @brief 结束渲染通道
@@ -152,7 +146,7 @@ namespace LearnVulkan::Wrapper
     {
         if (vkEndCommandBuffer(mCommandBuffer) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error:failed to end Command Buffer");
+            throw std::runtime_error("Error:failed to end Command Buffer!");
         }
     }
 
