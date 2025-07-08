@@ -430,14 +430,12 @@ namespace LearnVulkan
 
         // 获取交换链当中的下一帧
         uint32_t imageIndex{ 0 };
-        VkResult result = vkAcquireNextImageKHR(
-            mDevice->getDevice(),
-            mSwapChain->getSwapChain(),
-            UINT64_MAX,  // 无超时限制
-            mImageAvailableSemaphores[mCurrentFrame]->getSemaphore(),
-            VK_NULL_HANDLE,
-            &imageIndex
-        );
+        VkResult result = vkAcquireNextImageKHR(mDevice->getDevice(),
+                                                mSwapChain->getSwapChain(),
+                                                UINT64_MAX,  // 无超时限制
+                                                mImageAvailableSemaphores[mCurrentFrame]->getSemaphore(),
+                                                VK_NULL_HANDLE,
+                                                &imageIndex);
 
         // 处理交换链失效情况（窗口大小变化）
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -447,7 +445,7 @@ namespace LearnVulkan
         }//VK_SUBOPTIMAL_KHR得到了一张认为可用的图像，但是表面格式不一定匹配
         else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
         {
-            throw std::runtime_error("Error: failed to acquire next image");
+            throw std::runtime_error("Error: failed to acquire next image!");
         }
 
         // 构建提交信息
@@ -457,22 +455,22 @@ namespace LearnVulkan
 
         // 同步信息，渲染对于显示图像的依赖，显示完毕后，才能输出颜色
         // 设置等待信号量（图像可用）
-        VkSemaphore waitSemaphores[] = { mImageAvailableSemaphores[mCurrentFrame]->getSemaphore() };
+        VkSemaphore waitSemaphores[]      = { mImageAvailableSemaphores[mCurrentFrame]->getSemaphore() };
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = waitSemaphores;
-        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.waitSemaphoreCount     = 1;
+        submitInfo.pWaitSemaphores        = waitSemaphores;
+        submitInfo.pWaitDstStageMask      = waitStages;
 
         // 指定提交哪些命令
         // 指定要提交的命令缓冲区
-        auto commandBuffer = mCommandBuffers[imageIndex]->getCommandBuffer();
+        auto commandBuffer            = mCommandBuffers[imageIndex]->getCommandBuffer();
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer;
+        submitInfo.pCommandBuffers    = &commandBuffer;
 
         // 设置完成信号量（渲染完成）
-        VkSemaphore signalSemaphores[] = { mRenderFinishedSemaphores[mCurrentFrame]->getSemaphore() };
+        VkSemaphore signalSemaphores[]  = { mRenderFinishedSemaphores[mCurrentFrame]->getSemaphore() };
         submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = signalSemaphores;
+        submitInfo.pSignalSemaphores    = signalSemaphores;
 
         // 重置栅栏（准备新一轮提交）
         mFences[mCurrentFrame]->resetFence();
@@ -480,19 +478,19 @@ namespace LearnVulkan
         // 提交命令缓冲区到图形队列
         if (vkQueueSubmit(mDevice->getGraphicQueue(), 1, &submitInfo, mFences[mCurrentFrame]->getFence()) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error:failed to submit renderCommand");
+            throw std::runtime_error("Error:failed to submit renderCommand!");
         }
 
         // 等待渲染完成信号量，准备呈现图像
         VkPresentInfoKHR presentInfo{};
-        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = signalSemaphores;  // 等待渲染完成
+        presentInfo.pWaitSemaphores    = signalSemaphores;  // 等待渲染完成
 
         VkSwapchainKHR swapChains[] = { mSwapChain->getSwapChain() };
-        presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = swapChains;
-        presentInfo.pImageIndices = &imageIndex;
+        presentInfo.swapchainCount  = 1;
+        presentInfo.pSwapchains     = swapChains;
+        presentInfo.pImageIndices   = &imageIndex;
 
         // 提交呈现请求
         result = vkQueuePresentKHR(mDevice->getPresentQueue(), &presentInfo);
