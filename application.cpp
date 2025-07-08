@@ -90,19 +90,19 @@ namespace LearnVulkan
     }
 
     /**
-    * @brief 配置并创建图形管线
-    *
-    * 配置内容：
-    *  1. 视口设置（翻转Y轴）
-    *  2. 裁剪区域
-    *  3. 着色器
-    *  4. 顶点输入格式
-    *  5. 图元装配方式
-    *  6. 光栅化设置
-    *  7. 多重采样
-    *  8. 颜色混合
-    *  9. Uniform布局
-    */
+     * @brief 配置并创建图形管线
+     *
+     * 配置内容：
+     *  1. 视口设置（翻转Y轴）
+     *  2. 裁剪区域
+     *  3. 着色器
+     *  4. 顶点输入格式
+     *  5. 图元装配方式
+     *  6. 光栅化设置
+     *  7. 多重采样
+     *  8. 颜色混合
+     *  9. Uniform布局
+     */
     void Application::createPipeline()
     {
         // 设置视口（翻转Y轴使坐标原点在左上角）
@@ -217,27 +217,27 @@ namespace LearnVulkan
     }
 
     /**
-    * @brief 创建渲染通道
-    */
+     * @brief 创建渲染通道
+     */
     void Application::createRenderPass()
     {
         // 配置颜色附件描述
         VkAttachmentDescription attachmentDes{};
-        attachmentDes.format = mSwapChain->getFormat();                   // 使用交换链格式
-        attachmentDes.samples = VK_SAMPLE_COUNT_1_BIT;                    // 单采样
-        attachmentDes.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;               // 加载时清空
-        attachmentDes.storeOp = VK_ATTACHMENT_STORE_OP_STORE;             // 存储渲染结果
-        attachmentDes.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;    // 不关心模板加载
+        attachmentDes.format         = mSwapChain->getFormat();           // 使用交换链格式
+        attachmentDes.samples        = VK_SAMPLE_COUNT_1_BIT;             // 单采样
+        attachmentDes.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;       // 加载时清空
+        attachmentDes.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;      // 存储渲染结果
+        attachmentDes.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;   // 不关心模板加载
         attachmentDes.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;  // 不关心模板存储
-        attachmentDes.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;          // 初始布局
-        attachmentDes.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;      // 最终布局为显示源
+        attachmentDes.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;         // 初始布局
+        attachmentDes.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;   // 最终布局为显示源
 
         mRenderPass->addAttachment(attachmentDes);
 
         // 配置附件引用（指向第一个附件）
         VkAttachmentReference attachmentRef{};
         attachmentRef.attachment = 0;
-        attachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        attachmentRef.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         // 创建子通道
         Wrapper::SubPass subPass{};
@@ -248,18 +248,16 @@ namespace LearnVulkan
 
         // 配置子通道依赖关系
         VkSubpassDependency dependency{};
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;                              // 外部依赖
-        dependency.dstSubpass = 0;                                                // 依赖我们的子通道
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;  // 输出阶段
+        dependency.srcSubpass    = VK_SUBPASS_EXTERNAL;                            // 外部依赖
+        dependency.dstSubpass    = 0;                                              // 依赖我们的子通道
+        dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;  // 输出阶段
         dependency.srcAccessMask = 0;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;  // 相同阶段
-        dependency.dstAccessMask =                                                // 读写访问权限
-            VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
-            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependency.dstStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;  // 相同阶段
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |           // 读写访问权限
+                                   VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        mRenderPass->addDependency(dependency);                                    // 添加依赖
 
-        mRenderPass->addDependency(dependency);  // 添加依赖
-
-        mRenderPass->buildRenderPass();          // 构建渲染通道
+        mRenderPass->buildRenderPass();  // 构建渲染通道
     }
 
     /**

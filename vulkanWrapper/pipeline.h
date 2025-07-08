@@ -8,26 +8,26 @@
 namespace LearnVulkan::Wrapper
 {
     /**
-    * @class Pipeline
-    * @brief Vulkan 图形管线管理类（封装完整的图形管线生命周期）
-    *
-    * 核心功能：
-    *  1. 配置和管理图形管线的所有状态（顶点输入/图元装配/着色器等）
-    *  2. 简化复杂管线创建流程
-    *  3. 自动管理管线对象和管线布局的生命周期
-    *  4. 支持多视口、多裁剪区域等高级特性
-    */
+     * @class Pipeline
+     * @brief Vulkan 图形管线管理类（封装完整的图形管线生命周期）
+     *
+     * 核心功能：
+     *  1. 配置和管理图形管线的所有状态（顶点输入/图元装配/着色器等）
+     *  2. 简化复杂管线创建流程
+     *  3. 自动管理管线对象和管线布局的生命周期
+     *  4. 支持多视口、多裁剪区域等高级特性
+     */
     class Pipeline
     {
     public:
         using Ptr = std::shared_ptr<Pipeline>;
 
         /**
-        * @brief 创建Pipeline对象的工厂方法
-        * @param device 关联的Vulkan逻辑设备
-        * @param renderPass 管线要使用的渲染通道
-        * @return 指向新Pipeline对象的共享指针
-        */
+         * @brief 创建Pipeline对象的工厂方法
+         * @param device 关联的Vulkan逻辑设备
+         * @param renderPass 管线要使用的渲染通道
+         * @return 指向新Pipeline对象的共享指针
+         */
         static Ptr create(const Device::Ptr& device, const RenderPass::Ptr& renderPass)
         {
             return std::make_shared<Pipeline>(device, renderPass);
