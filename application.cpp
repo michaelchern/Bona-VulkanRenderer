@@ -4,14 +4,14 @@
 namespace LearnVulkan
 {
     /**
-    * @brief 应用程序主循环
-    *
-    * 执行顺序：
-    *  1. 初始化窗口
-    *  2. 初始化Vulkan
-    *  3. 进入渲染主循环
-    *  4. 清理资源
-    */
+     * @brief 应用程序主循环
+     *
+     * 执行顺序：
+     *  1. 初始化窗口
+     *  2. 初始化Vulkan
+     *  3. 进入渲染主循环
+     *  4. 清理资源
+     */
     void Application::run()
     {
         initWindow();  // 创建GLFW窗口
@@ -21,22 +21,22 @@ namespace LearnVulkan
     }
 
     /**
-    * @brief 初始化Vulkan组件
-    *
-    * 步骤说明：
-    *  1. 创建Vulkan实例
-    *  2. 创建窗口表面
-    *  3. 创建设备（物理设备+逻辑设备）
-    *  4. 创建交换链
-    *  5. 创建渲染通道
-    *  6. 创建帧缓冲区
-    *  7. 创建命令池
-    *  8. 初始化Uniform管理器
-    *  9. 加载模型
-    * 10. 创建图形管线
-    * 11. 创建命令缓冲区
-    * 12. 创建同步对象
-    */
+     * @brief 初始化Vulkan组件
+     *
+     * 步骤说明：
+     *  1. 创建Vulkan实例
+     *  2. 创建窗口表面
+     *  3. 创建设备（物理设备+逻辑设备）
+     *  4. 创建交换链
+     *  5. 创建渲染通道
+     *  6. 创建帧缓冲区
+     *  7. 创建命令池
+     *  8. 初始化Uniform管理器
+     *  9. 加载模型
+     * 10. 创建图形管线
+     * 11. 创建命令缓冲区
+     * 12. 创建同步对象
+     */
     void Application::initWindow()
     {
         mWindow = Wrapper::Window::create(mWidth, mHeight);  // 创建指定大小的窗口
@@ -263,8 +263,8 @@ namespace LearnVulkan
     }
 
     /**
-    * @brief 创建命令缓冲区（记录渲染命令）
-    */
+     * @brief 创建命令缓冲区（记录渲染命令）
+     */
     void Application::createCommandBuffers()
     {
         // 为每个交换链图像创建命令缓冲区
@@ -318,8 +318,8 @@ namespace LearnVulkan
     }
 
     /**
-    * @brief 创建同步对象（信号量和栅栏）
-    */
+     * @brief 创建同步对象（信号量和栅栏）
+     */
     void Application::createSyncObjects()
     {
         // 每帧需要三个同步对象
@@ -340,8 +340,8 @@ namespace LearnVulkan
     }
 
     /**
-    * @brief 重建交换链（窗口大小改变时调用）
-    */
+     * @brief 重建交换链（窗口大小改变时调用）
+     */
     void Application::recreateSwapChain()
     {
         // 获取窗口实际尺寸
@@ -386,8 +386,8 @@ namespace LearnVulkan
     }
 
     /**
-    * @brief 清理交换链相关资源
-    */
+     * @brief 清理交换链相关资源
+     */
     void Application::cleanupSwapChain()
     {
         mSwapChain.reset();                 // 销毁交换链
@@ -400,8 +400,8 @@ namespace LearnVulkan
     }
 
     /**
-    * @brief 主渲染循环
-    */
+     * @brief 主渲染循环
+     */
     void Application::mainLoop()
     {
         // 窗口未关闭时循环
@@ -422,8 +422,8 @@ namespace LearnVulkan
     }
 
     /**
-    * @brief 渲染单帧
-    */
+     * @brief 渲染单帧
+     */
     void Application::render()
     {
         // 等待当前要提交的CommandBuffer执行完毕
@@ -516,10 +516,10 @@ namespace LearnVulkan
     }
 
     /**
-    * @brief 清理所有资源
-    *
-    * 注意：按创建顺序逆序销毁
-    */
+     * @brief 清理所有资源
+     *
+     * 注意：按创建顺序逆序销毁
+     */
     void Application::cleanUp()
     {
         // 销毁Vulkan对象
