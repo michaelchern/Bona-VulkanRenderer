@@ -140,10 +140,10 @@ namespace LearnVulkan
         auto vertexBindingDes = mModel->getVertexInputBindingDescriptions();
         auto attributeDes = mModel->getAttributeDescriptions();
 
-        mPipeline->mVertexInputState.vertexBindingDescriptionCount = vertexBindingDes.size();
-        mPipeline->mVertexInputState.pVertexBindingDescriptions = vertexBindingDes.data();
+        mPipeline->mVertexInputState.vertexBindingDescriptionCount   = vertexBindingDes.size();
+        mPipeline->mVertexInputState.pVertexBindingDescriptions      = vertexBindingDes.data();
         mPipeline->mVertexInputState.vertexAttributeDescriptionCount = attributeDes.size();
-        mPipeline->mVertexInputState.pVertexAttributeDescriptions = attributeDes.data();
+        mPipeline->mVertexInputState.pVertexAttributeDescriptions    = attributeDes.data();
 
         // 配置图元装配方式
         mPipeline->mAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -158,37 +158,36 @@ namespace LearnVulkan
         mPipeline->mRasterState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;  // 逆时针为正面
 
         // 禁用深度偏移
-        mPipeline->mRasterState.depthBiasEnable = VK_FALSE;
+        mPipeline->mRasterState.depthBiasEnable         = VK_FALSE;
         mPipeline->mRasterState.depthBiasConstantFactor = 0.0f;
-        mPipeline->mRasterState.depthBiasClamp = 0.0f;
-        mPipeline->mRasterState.depthBiasSlopeFactor = 0.0f;
+        mPipeline->mRasterState.depthBiasClamp          = 0.0f;
+        mPipeline->mRasterState.depthBiasSlopeFactor    = 0.0f;
 
         // 配置多重采样（当前禁用）
-        mPipeline->mSampleState.sampleShadingEnable = VK_FALSE;
-        mPipeline->mSampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-        mPipeline->mSampleState.minSampleShading = 1.0f;
-        mPipeline->mSampleState.pSampleMask = nullptr;
+        mPipeline->mSampleState.sampleShadingEnable   = VK_FALSE;
+        mPipeline->mSampleState.rasterizationSamples  = VK_SAMPLE_COUNT_1_BIT;
+        mPipeline->mSampleState.minSampleShading      = 1.0f;
+        mPipeline->mSampleState.pSampleMask           = nullptr;
         mPipeline->mSampleState.alphaToCoverageEnable = VK_FALSE;
-        mPipeline->mSampleState.alphaToOneEnable = VK_FALSE;
+        mPipeline->mSampleState.alphaToOneEnable      = VK_FALSE;
         // 其他采样参数保持默认
 
          // 配置颜色混合状态
         VkPipelineColorBlendAttachmentState blendAttachment{};
         // 启用所有颜色通道
-        blendAttachment.colorWriteMask =
-            VK_COLOR_COMPONENT_R_BIT |
-            VK_COLOR_COMPONENT_G_BIT |
-            VK_COLOR_COMPONENT_B_BIT |
-            VK_COLOR_COMPONENT_A_BIT;
+        blendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+                                         VK_COLOR_COMPONENT_G_BIT |
+                                         VK_COLOR_COMPONENT_B_BIT |
+                                         VK_COLOR_COMPONENT_A_BIT;
         // 禁用混合
-        blendAttachment.blendEnable = VK_FALSE;
+        blendAttachment.blendEnable         = VK_FALSE;
         blendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
         blendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-        blendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+        blendAttachment.colorBlendOp        = VK_BLEND_OP_ADD;
 
         blendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
         blendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-        blendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+        blendAttachment.alphaBlendOp        = VK_BLEND_OP_ADD;
 
         mPipeline->pushBlendAttachment(blendAttachment);
 
