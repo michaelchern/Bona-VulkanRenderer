@@ -37,7 +37,7 @@ namespace LearnVulkan::Wrapper
          * @brief 构造函数 - 创建Vulkan栅栏
          *
          * @param device 关联的逻辑设备
-         * @param signaled 初始状态 (true=创建即为激发态)
+         * @param signaled 初始状态 (true = 创建即为激发态)
          */
         Fence(const Device::Ptr& device, bool signaled = true);
 
