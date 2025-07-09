@@ -3,25 +3,19 @@
 
 namespace LearnVulkan::Wrapper
 {
-    // 构造函数：接收Vulkan设备指针
     DescriptorPool::DescriptorPool(const Device::Ptr &device)
     {
-        mDevice = device;  // 存储Vulkan逻辑设备引用
+        mDevice = device;
     }
 
-    // 析构函数：自动销毁Vulkan描述符池
     DescriptorPool::~DescriptorPool()
     {
-        if (mPool != VK_NULL_HANDLE)  // 检查池对象是否有效
+        if (mPool != VK_NULL_HANDLE)
         {
             vkDestroyDescriptorPool(mDevice->getDevice(), mPool, nullptr);
         }
     } 
 
-    // 构建描述符池
-    // 参数：
-    //   params     - Uniform参数列表，描述要绑定的资源类型
-    //   frameCount - 帧缓冲数量（用于多帧渲染）
     void DescriptorPool::build(std::vector<UniformParameter::Ptr>& params, const int& frameCount)
     {
         // decriptor
@@ -76,5 +70,4 @@ namespace LearnVulkan::Wrapper
             throw std::runtime_error("Error: failed to create Descriptor pool");
         }
     }
-
 }

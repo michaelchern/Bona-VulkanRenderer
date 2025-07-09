@@ -52,7 +52,7 @@ namespace LearnVulkan::Wrapper
         * @param size   缓冲区大小
         * @param pData  初始数据(可选)
         *
-        * 默认创建为HostVisible|HostCoherent内存
+        * 默认创建为 HostVisible | HostCoherent内存
         */
         static Ptr createUniformBuffer(const Device::Ptr& device, VkDeviceSize size, void* pData = nullptr);
 
@@ -62,7 +62,7 @@ namespace LearnVulkan::Wrapper
         * @param size   缓冲区大小
         * @param pData  初始数据(可选)
         *
-        * 默认创建为HostVisible|HostCoherent内存
+        * 默认创建为 HostVisible | HostCoherent内存
         */
         static Ptr createStageBuffer(const Device::Ptr& device, VkDeviceSize size, void* pData = nullptr);
 

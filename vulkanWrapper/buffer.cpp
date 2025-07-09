@@ -44,12 +44,10 @@ namespace LearnVulkan::Wrapper
     Buffer::Ptr Buffer::createUniformBuffer(const Device::Ptr& device, VkDeviceSize size, void* pData)
     {
         // 创建主机可见/一致的缓冲区
-        auto buffer = Buffer::create(
-            device, size,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,    // 统一变量缓冲区用途
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |  // CPU可访问
-            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT   // 自动保持CPU/GPU内存一致性
-        );
+        auto buffer = Buffer::create(device,
+                                     size,
+                                     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
         // 如果有初始数据，直接映射上传
         if (pData != nullptr)
