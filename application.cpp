@@ -444,7 +444,7 @@ namespace LearnVulkan
         }//VK_SUBOPTIMAL_KHR得到了一张认为可用的图像，但是表面格式不一定匹配
         else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
         {
-            throw std::runtime_error("Error: failed to acquire next image!");
+            throw std::runtime_error("Error: Failed to acquire next image!");
         }
 
         // 构建提交信息

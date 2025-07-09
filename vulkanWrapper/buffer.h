@@ -6,28 +6,24 @@
 namespace LearnVulkan::Wrapper
 {
     /**
-    * @class Buffer
-    * @brief Vulkan缓冲区资源封装类
-    *
-    * 提供统一的缓冲区管理接口，支持：
-    * - 顶点缓冲区
-    * - 索引缓冲区
-    * - 统一变量缓冲区
-    * - 暂存缓冲区
-    * 并实现两种数据更新机制：
-    * 1. 直接内存映射 (HostVisible)
-    * 2. 暂存缓冲区复制 (DeviceLocal)
+     * @class Buffer
+     * @brief Vulkan缓冲区资源封装类
+     *
+     * 提供统一的缓冲区管理接口，支持：
+     * - 顶点缓冲区
+     * - 索引缓冲区
+     * - 统一变量缓冲区
+     * - 暂存缓冲区
+     * 并实现两种数据更新机制：
+     * 1. 直接内存映射   (HostVisible)
+     * 2. 暂存缓冲区复制 (DeviceLocal)
     */
     class Buffer
     {
     
     public:
         using Ptr = std::shared_ptr<Buffer>;
-        static Ptr create(
-            const Device::Ptr& device,
-            VkDeviceSize size,
-            VkBufferUsageFlags usage,
-            VkMemoryPropertyFlags properties)
+        static Ptr create(const Device::Ptr& device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
         {
             return std::make_shared<Buffer>(device, size, usage, properties);
         }
@@ -80,12 +76,7 @@ namespace LearnVulkan::Wrapper
         * @param usage      缓冲区用途标志
         * @param properties 内存属性标志
         */
-        Buffer(
-            const Device::Ptr &device,
-            VkDeviceSize size,
-            VkBufferUsageFlags usage,
-            VkMemoryPropertyFlags properties
-        );
+        Buffer(const Device::Ptr &device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 
         /// 析构函数 - 自动释放缓冲区资源
         ~Buffer();
@@ -99,7 +90,7 @@ namespace LearnVulkan::Wrapper
         * @param data 源数据指针
         * @param size 数据大小
         *
-        * 要求内存具有VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT属性
+        * 要求内存具有 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT 属性
 		* 如果 Buffer 被频繁更改，建议使用此方法。
         */
         void updateBufferByMap(void *data, size_t size);
@@ -123,7 +114,7 @@ namespace LearnVulkan::Wrapper
         *
         * @param srcBuffer 源缓冲区
         * @param dstBuffer 目标缓冲区
-        * @param size 复制数据大小
+        * @param size      复制数据大小
         */
         void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, VkDeviceSize size);
 
@@ -139,14 +130,14 @@ namespace LearnVulkan::Wrapper
         *
         * @param typeFilter 内存类型筛选位
         * @param properties 需要的内存属性
-        * @return uint32_t 内存类型索引
+        * @return uint32_t  内存类型索引
         */
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
     private:
-        VkBuffer mBuffer{ VK_NULL_HANDLE };              // Vulkan缓冲区句柄
-        VkDeviceMemory mBufferMemory{ VK_NULL_HANDLE };  // 缓冲区内存对象
-        Device::Ptr mDevice{ nullptr };                  // 关联设备
-        VkDescriptorBufferInfo mBufferInfo{};            // 描述符绑定信息
+        VkBuffer               mBuffer{ VK_NULL_HANDLE };        // Vulkan缓冲区句柄
+        VkDeviceMemory         mBufferMemory{ VK_NULL_HANDLE };  // 缓冲区内存对象
+        Device::Ptr            mDevice{ nullptr };               // 关联设备
+        VkDescriptorBufferInfo mBufferInfo{};                    // 描述符绑定信息
     };
 }

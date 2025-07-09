@@ -16,53 +16,26 @@ namespace LearnVulkan
         glm::vec3 mColor;     // 顶点颜色 (rgb)
     };
 
-    /**
-    * @class Model
-    * @brief 3D模型资源封装类
-    *
-    * 管理模型的顶点/索引数据及其缓冲区，包含：
-    * - 顶点位置数据
-    * - 顶点颜色数据
-    * - 纹理UV坐标数据
-    * - 索引数据
-    * - 模型变换矩阵（支持动态更新）
-    */
     class Model
     {
     public:
         using Ptr = std::shared_ptr<Model>;
+
         static Ptr create(const Wrapper::Device::Ptr& device)
         {
             return std::make_shared<Model>(device);
         }
 
-        /**
-        * @brief 构造函数 - 初始化模型数据并创建缓冲区
-        * @param device 关联的Vulkan设备
-        *
-        * 创建默认四边形模型（两个三角形组成）：
-        *  1. 定义顶点位置数据
-        *  2. 定义顶点颜色数据
-        *  3. 定义纹理UV坐标数据
-        *  4. 定义索引数据（三角形组成）
-        *  5. 创建对应的GPU缓冲区
-        */
         Model(const Wrapper::Device::Ptr &device)
         {
-            /*mDatas =
-            {
-                {{0.0f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-                {{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-                {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-            };*/
-
+           
             // 四边形顶点位置 (四个顶点)
             mPositions =
             {
                 0.0f, 0.5f, 0.0f,
                 0.5f, 0.0f, 0.0f,
-                -0.5f, 0.0f, 0.0f,
-                0.0f, -0.5f, 0.0f
+               -0.5f, 0.0f, 0.0f,
+                0.0f,-0.5f, 0.0f
             };
 
             // 每个顶点的颜色 (RGBA)
@@ -89,33 +62,24 @@ namespace LearnVulkan
             //mVertexBuffer = Wrapper::Buffer::createVertexBuffer(device, mDatas.size() * sizeof(Vertex), mDatas.data());
 
             // 创建GPU顶点缓冲区 (位置数据)
-            mPositionBuffer = Wrapper::Buffer::createVertexBuffer(
-                device,
-                mPositions.size() * sizeof(float),
-                mPositions.data()
-            );
+            mPositionBuffer = Wrapper::Buffer::createVertexBuffer(device,
+                                                                  mPositions.size() * sizeof(float),
+                                                                  mPositions.data());
 
             // 创建GPU顶点缓冲区 (颜色数据)
-            mColorBuffer = Wrapper::Buffer::createVertexBuffer(
-                device,
-                mColors.size() * sizeof(float),
-                mColors.data()
-            );
+            mColorBuffer = Wrapper::Buffer::createVertexBuffer(device,
+                                                               mColors.size() * sizeof(float),
+                                                               mColors.data());
 
             // 创建GPU顶点缓冲区 (UV坐标数据)
-            mUVBuffer = Wrapper::Buffer::createVertexBuffer(
-                device,
-                mUVs.size() * sizeof(float),
-                mUVs.data()
-            );
+            mUVBuffer = Wrapper::Buffer::createVertexBuffer(device,
+                                                            mUVs.size() * sizeof(float),
+                                                            mUVs.data());
 
             // 创建GPU索引缓冲区
-            mIndexBuffer = Wrapper::Buffer::createIndexBuffer(
-                device,
-                mIndexDatas.size() * sizeof(float),
-                mIndexDatas.data()
-            );
-
+            mIndexBuffer = Wrapper::Buffer::createIndexBuffer(device,
+                                                              mIndexDatas.size() * sizeof(float),
+                                                              mIndexDatas.data());
         }
 
         ~Model() {}
@@ -124,27 +88,9 @@ namespace LearnVulkan
         // 顶点输入状态描述
         // ==================================================================
 
-        /**
-        * @brief 获取顶点输入绑定描述
-        * @return 绑定描述数组
-        *
-        * 描述每个顶点属性绑定的步幅和行为：
-        * - 位置属性: 绑定点0, 步幅=3个float
-        * - 颜色属性: 绑定点1, 步幅=3个float
-        * - UV属性:   绑定点2, 步幅=2个float
-        */
         std::vector<VkVertexInputBindingDescription> getVertexInputBindingDescriptions()
         {
             std::vector<VkVertexInputBindingDescription> bindingDes{};
-
-            /*
-            bindingDes.resize(1);
-
-            bindingDes[0].binding = 0;
-            bindingDes[0].stride = sizeof(Vertex);
-            bindingDes[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-            */
-
             bindingDes.resize(3);
 
             // 位置属性绑定 (绑定点0)
@@ -165,15 +111,6 @@ namespace LearnVulkan
             return bindingDes;
         }
 
-        /**
-        * @brief 获取顶点属性描述，Attribute相关信息，与VertexShader里面的location相关
-        * @return 属性描述数组
-        *
-        * 描述每个顶点属性的位置和格式：
-        * - 位置: 位置索引0, 格式=R32G32B32_SFLOAT
-        * - 颜色: 位置索引1, 格式=R32G32B32_SFLOAT
-        * - UV: 位置索引2, 格式=R32G32_SFLOAT
-        */
         std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions()
         {
             std::vector<VkVertexInputAttributeDescription> attributeDes{};
@@ -181,7 +118,7 @@ namespace LearnVulkan
 
             // 位置属性 (绑定点0, 位置索引0)
             attributeDes[0].binding  = 0;
-            attributeDes[0].location = 0;                         // 对应shader的layout(location = 0)
+            attributeDes[0].location = 0;                           // 对应shader的layout(location = 0)
             attributeDes[0].format   = VK_FORMAT_R32G32B32_SFLOAT;  // XYZ
             //attributeDes[0].offset = offsetof(Vertex, mPosition);
             attributeDes[0].offset   = 0;                           // 在缓冲区起始位置
@@ -189,14 +126,14 @@ namespace LearnVulkan
             // 颜色属性 (绑定点1, 位置索引1)
             // attributeDes[1].binding = 0;
             attributeDes[1].binding  = 1;
-            attributeDes[1].location = 1;                         // 对应shader的layout(location = 1)
+            attributeDes[1].location = 1;                           // 对应shader的layout(location = 1)
             attributeDes[1].format   = VK_FORMAT_R32G32B32_SFLOAT;  // RGB
             //attributeDes[1].offset = offsetof(Vertex, mColor);
             attributeDes[1].offset   = 0;                           // 在缓冲区起始位置
 
             // UV属性 (绑定点2, 位置索引2)
             attributeDes[2].binding  = 2;
-            attributeDes[2].location = 2;                         // 对应shader的layout(location = 2)
+            attributeDes[2].location = 2;                           // 对应shader的layout(location = 2)
             attributeDes[2].format   = VK_FORMAT_R32G32_SFLOAT;     // UV
             //attributeDes[0].offset = offsetof(Vertex, mPosition);
             attributeDes[2].offset   = 0;                           // 在缓冲区起始位置
@@ -219,6 +156,7 @@ namespace LearnVulkan
                 mColorBuffer->getBuffer(),
                 mUVBuffer->getBuffer()
             };
+
             return buffers;
         }
 
@@ -251,11 +189,10 @@ namespace LearnVulkan
         {
             // 创建旋转矩阵（绕Z轴旋转）
             glm::mat4 rotateMatrix = glm::mat4(1.0f);
-            rotateMatrix = glm::rotate(
-                rotateMatrix,
-                glm::radians(mAngle),        // 角度转换
-                glm::vec3(0.0f, 0.0f, 1.0f)  // 旋转轴(Z)
-            );
+            rotateMatrix = glm::rotate(rotateMatrix,
+                                       glm::radians(mAngle),          // 角度转换
+                                       glm::vec3(0.0f, 0.0f, 1.0f));  // 旋转轴(Z)
+            
             mUniform.mModelMatrix = rotateMatrix;
 
             // 更新旋转角度（简单动画）
@@ -270,7 +207,7 @@ namespace LearnVulkan
         std::vector<float>        mUVs{};                // 纹理UV坐标 (UV)
 
         // GPU缓冲区对象
-        //Wrapper::Buffer::Ptr mVertexBuffer{ nullptr };  
+        //Wrapper::Buffer::Ptr mVertexBuffer{ nullptr };
         Wrapper::Buffer::Ptr mPositionBuffer{ nullptr };  // 位置数据缓冲区
         Wrapper::Buffer::Ptr mColorBuffer{ nullptr };     // 颜色数据缓冲区
         Wrapper::Buffer::Ptr mUVBuffer{ nullptr };        // UV数据缓冲区

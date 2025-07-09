@@ -130,10 +130,10 @@ namespace LearnVulkan::Wrapper
 
         // 配置缓冲区创建信息
         VkBufferCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        createInfo.size = size;                                   // 缓冲区大小
-        createInfo.usage = usage;                                 // 用途标志
-        createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;       // 独占访问模式
+        createInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        createInfo.size        = size;                       // 缓冲区大小
+        createInfo.usage       = usage;                      // 用途标志
+        createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;  // 独占访问模式
 
 		// 创建 Vulkan 缓冲区对象，一般在 CPU 端进行内存的创建，创建的对象是 CPU 端的描述符，是一个描述对象，没有在 GPU 上创建实际的内存对象
         if (vkCreateBuffer(mDevice->getDevice(), &createInfo, nullptr, &mBuffer) != VK_SUCCESS)
@@ -147,8 +147,8 @@ namespace LearnVulkan::Wrapper
 
         // 配置内存分配信息
         VkMemoryAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        allocInfo.allocationSize = memReq.size;  // 所需内存大小
+        allocInfo.sType          = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocInfo.allocationSize = memReq.size;
 
         // 符合我上述 buffer 需求的内存类型的 ID 们！0x001 0x010
         // 查找符合要求的内存类型索引
@@ -164,12 +164,11 @@ namespace LearnVulkan::Wrapper
         vkBindBufferMemory(mDevice->getDevice(), mBuffer, mBufferMemory, 0);
 
         // 初始化描述符缓冲区信息
-        mBufferInfo.buffer = mBuffer;  
-        mBufferInfo.offset = 0;        
-        mBufferInfo.range = size;      // 整个缓冲区范围
+        mBufferInfo.buffer = mBuffer;
+        mBufferInfo.offset = 0;
+        mBufferInfo.range  = size;
     }
 
-    /// 析构函数 - 销毁缓冲区并释放内存
     Buffer::~Buffer()
     {
         if (mBuffer != VK_NULL_HANDLE)
@@ -190,7 +189,7 @@ namespace LearnVulkan::Wrapper
     *
     * @param typeFilter 内存类型筛选位掩码
     * @param properties 需要的内存属性标志
-    * @return uint32_t 找到的内存类型索引
+    * @return uint32_t  找到的内存类型索引
     */
     uint32_t Buffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
     {
@@ -249,13 +248,10 @@ namespace LearnVulkan::Wrapper
     void Buffer::updateBufferByStage(void* data, size_t size)
     {
         // 1. 创建主机可见的暂存缓冲区
-        auto stageBuffer = Buffer::create(
-            mDevice,
-            size,
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,      // 传输源用途
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |  //
-            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT   //
-        );
+        auto stageBuffer = Buffer::create(mDevice,
+                                          size,
+                                          VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
         // 2. 将数据复制到暂存缓冲区
         stageBuffer->updateBufferByMap(data, size);
@@ -273,12 +269,12 @@ namespace LearnVulkan::Wrapper
     *
     * @param srcBuffer 源缓冲区句柄
     * @param dstBuffer 目标缓冲区句柄
-    * @param size 复制数据大小
+    * @param size      复制数据大小
     */
     void Buffer::copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, VkDeviceSize size)
     {
         // 创建临时命令池和命令缓冲区
-        auto commandPool = CommandPool::create(mDevice);
+        auto commandPool   = CommandPool::create(mDevice);
         auto commandBuffer = CommandBuffer::create(mDevice, commandPool);
 
         // 开始记录一次性命令
@@ -289,12 +285,10 @@ namespace LearnVulkan::Wrapper
         copyInfo.size = size;
         
         // 添加复制命令
-        commandBuffer->copyBufferToBuffer(
-            srcBuffer,
-            dstBuffer,
-            1,            // 复制操作数量
-            { copyInfo }  // 复制区域数组
-        );
+        commandBuffer->copyBufferToBuffer(srcBuffer,
+                                          dstBuffer,
+                                          1,              // 复制操作数量
+                                          { copyInfo });  // 复制区域数组
 
         // 结束命令记录
         commandBuffer->end();
