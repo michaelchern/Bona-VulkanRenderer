@@ -320,7 +320,6 @@ namespace LearnVulkan
      */
     void Application::createSyncObjects()
     {
-        // 每帧需要三个同步对象
         for (int i = 0; i < mSwapChain->getImageCount(); ++i)
         {
             // 图像可用信号量（表示交换链图像已准备就绪）
@@ -454,7 +453,6 @@ namespace LearnVulkan
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
         // 同步信息，渲染对于显示图像的依赖，显示完毕后，才能输出颜色
-        // 设置等待信号量（图像可用）
         VkSemaphore waitSemaphores[]      = { mImageAvailableSemaphores[mCurrentFrame]->getSemaphore() };
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         submitInfo.waitSemaphoreCount     = 1;
@@ -504,7 +502,7 @@ namespace LearnVulkan
         }
         else if (result != VK_SUCCESS)
         {
-            throw std::runtime_error("Error: failed to present");
+            throw std::runtime_error("Error: failed to present!");
         }
 
         // 更新当前帧索引（循环使用交换链图像）

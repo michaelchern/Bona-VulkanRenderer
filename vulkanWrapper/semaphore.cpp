@@ -19,7 +19,7 @@ namespace LearnVulkan::Wrapper
         // 调用Vulkan API创建信号量
         if (vkCreateSemaphore(mDevice->getDevice(), &createInfo, nullptr, &mSemaphore) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error: failed to create Semaphore");
+            throw std::runtime_error("Error: failed to create Semaphore!");
         }
     }
 
