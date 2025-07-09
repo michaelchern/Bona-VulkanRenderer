@@ -387,13 +387,13 @@ namespace LearnVulkan
      */
     void Application::cleanupSwapChain()
     {
-        mSwapChain.reset();                 // 销毁交换链
-        mCommandBuffers.clear();            // 清空命令缓冲区
-        mPipeline.reset();                  // 销毁管线
-        mRenderPass.reset();                // 销毁渲染通道
-        mImageAvailableSemaphores.clear();  // 销毁信号量
-        mRenderFinishedSemaphores.clear();  
-        mFences.clear();                    // 销毁栅栏
+        mSwapChain.reset();
+        mCommandBuffers.clear();
+        mPipeline.reset();
+        mRenderPass.reset();
+        mImageAvailableSemaphores.clear();
+        mRenderFinishedSemaphores.clear();
+        mFences.clear();
     }
 
     /**

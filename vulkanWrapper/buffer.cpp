@@ -5,52 +5,27 @@
 
 namespace LearnVulkan::Wrapper
 {
-    /**
-    * @brief 创建顶点缓冲区（带初始数据）
-    *
-    * 1. 创建设备本地(DEVICE_LOCAL)的顶点缓冲区
-    * 2. 通过临时暂存缓冲区上传初始数据
-    *
-    * @param device       关联设备
-    * @param size         数据大小(字节)
-    * @param pData        顶点数据指针
-    * @return Buffer::Ptr 顶点缓冲区智能指针
-    */
     Buffer::Ptr Buffer::createVertexBuffer(const Device::Ptr& device, VkDeviceSize size, void* pData)
     {
         // 创建设备本地缓冲区 (GPU专用内存)
-        auto buffer = Buffer::create(
-            device, size,
-            VK_BUFFER_USAGE_TRANSFER_DST_BIT |   // 可作为传输目标
-            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,   // 顶点缓冲区用途
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT  // 设备本地内存(高性能)，GPU本地才可读
-        );
+        auto buffer = Buffer::create(device,
+                                     size,
+                                     VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);  // 设备本地内存(高性能)，GPU本地才可读
 
-        // 通过暂存缓冲区上传数据
         buffer->updateBufferByStage(pData, size);
 
         return buffer;
     }
 
-    /**
-    * @brief 创建索引缓冲区（带初始数据）
-    *
-    * @param device 关联设备
-    * @param size 数据大小(字节)
-    * @param pData 索引数据指针
-    * @return Buffer::Ptr 索引缓冲区智能指针
-    */
     Buffer::Ptr Buffer::createIndexBuffer(const Device::Ptr& device, VkDeviceSize size, void* pData)
     {
         // 创建设备本地缓冲区
-        auto buffer = Buffer::create(
-            device, size,
-            VK_BUFFER_USAGE_TRANSFER_DST_BIT |   // 传输目标
-            VK_BUFFER_USAGE_INDEX_BUFFER_BIT,    // 索引缓冲区用途
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT  
-        );
+        auto buffer = Buffer::create(device,
+                                     size,
+                                     VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-        // 通过暂存缓冲区上传数据
         buffer->updateBufferByStage(pData, size);
 
         return buffer;

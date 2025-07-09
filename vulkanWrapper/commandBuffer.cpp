@@ -28,7 +28,7 @@ namespace LearnVulkan::Wrapper
         // 调用Vulkan API分配命令缓冲区
         if (vkAllocateCommandBuffers(mDevice->getDevice(), &allocInfo, &mCommandBuffer) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error: falied to create commandBuffer");
+            throw std::runtime_error("Error: Falied to create commandBuffer!");
         }
     }
 

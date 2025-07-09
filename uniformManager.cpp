@@ -57,8 +57,6 @@ void UniformManager::init(const Wrapper::Device::Ptr& device, const Wrapper::Com
     textureParam->mCount          = 1;
     textureParam->mDescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;  // 纹理采样器类型
     textureParam->mStage          = VK_SHADER_STAGE_FRAGMENT_BIT;               // 片段着色器可见
-
-    // 创建纹理对象（所有帧共享同一个纹理）
     textureParam->mTexture        = Texture::create(mDevice, commandPool, "assets/dragonBall.jpg");
     mUniformParams.push_back(textureParam);  // 添加到参数列表
 
