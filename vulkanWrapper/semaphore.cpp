@@ -4,10 +4,10 @@
 namespace LearnVulkan::Wrapper
 {
     /**
-    * @brief 构造函数 - 创建Vulkan信号量
-    *
-    * @param device 关联的逻辑设备对象（封装类）
-    */
+     * @brief 构造函数 - 创建Vulkan信号量
+     *
+     * @param device 关联的逻辑设备对象（封装类）
+     */
     Semaphore::Semaphore(const Device::Ptr& device)
     {
         mDevice = device;  // 存储关联的逻辑设备对象
@@ -24,11 +24,11 @@ namespace LearnVulkan::Wrapper
     }
 
     /**
-    * @brief 析构函数 - 销毁Vulkan信号量
-    *
-    * 遵循RAII原则，当对象超出作用域时自动清理资源
-    * 注意：关联的设备对象必须比信号量存活更久
-    */
+     * @brief 析构函数 - 销毁Vulkan信号量
+     *
+     * 遵循RAII原则，当对象超出作用域时自动清理资源
+     * 注意：关联的设备对象必须比信号量存活更久
+     */
     Semaphore::~Semaphore()
     {
         if (mSemaphore != VK_NULL_HANDLE)
