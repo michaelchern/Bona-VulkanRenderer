@@ -2,12 +2,10 @@
 
 namespace LearnVulkan::Wrapper
 {
-    // 构造函数：创建Vulkan采样器对象
     Sampler::Sampler(const Device::Ptr &device)
     {
-        mDevice = device;  // 保存逻辑设备引用，用于后续资源管理
+        mDevice = device;
 
-        // 配置采样器参数
         VkSamplerCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;  // 结构体类型标识
 
@@ -44,14 +42,12 @@ namespace LearnVulkan::Wrapper
 
         // 注意：实际应用中maxLod通常设为VK_LOD_CLAMP_NONE以使用所有可用mip级别
 
-        // 创建Vulkan采样器对象
         if (vkCreateSampler(mDevice->getDevice(), &createInfo, nullptr, &mSampler) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error: failed to create sampler");
+            throw std::runtime_error("Error: failed to create sampler!");
         }
     }
 
-    // 析构函数：销毁Vulkan采样器资源
     Sampler::~Sampler()
     {
         if(mSampler != VK_NULL_HANDLE)

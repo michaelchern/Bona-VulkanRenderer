@@ -3,140 +3,79 @@
 
 namespace LearnVulkan
 {
-    /**
-     * @brief 应用程序主循环
-     *
-     * 执行顺序：
-     *  1. 初始化窗口
-     *  2. 初始化Vulkan
-     *  3. 进入渲染主循环
-     *  4. 清理资源
-     */
     void Application::run()
     {
-        initWindow();  // 创建GLFW窗口
-        initVulkan();  // 初始化所有Vulkan资源
-        mainLoop();    // 主渲染循环
-        cleanUp();     // 清理所有资源
+        initWindow();
+        initVulkan();
+        mainLoop();
+        cleanUp();
     }
 
-    /**
-     * @brief 初始化Vulkan组件
-     *
-     * 步骤说明：
-     *  1. 创建Vulkan实例
-     *  2. 创建窗口表面
-     *  3. 创建设备（物理设备+逻辑设备）
-     *  4. 创建交换链
-     *  5. 创建渲染通道
-     *  6. 创建帧缓冲区
-     *  7. 创建命令池
-     *  8. 初始化Uniform管理器
-     *  9. 加载模型
-     * 10. 创建图形管线
-     * 11. 创建命令缓冲区
-     * 12. 创建同步对象
-     */
     void Application::initWindow()
     {
-        mWindow = Wrapper::Window::create(mWidth, mHeight);  // 创建指定大小的窗口
+        mWindow = Wrapper::Window::create(mWidth, mHeight);
     }
 
-    // 初始化Vulkan组件
     void Application::initVulkan()
     {
-        // 1. 创建Vulkan实例（启用验证层）
         mInstance = Wrapper::Instance::create(true);
 
-        // 2. 创建窗口表面（连接GLFW窗口和Vulkan）
         mSurface = Wrapper::WindowSurface::create(mInstance, mWindow);
 
-        // 3. 创建设备（选择物理设备并创建逻辑设备）
         mDevice = Wrapper::Device::create(mInstance, mSurface);
 
-        // 4. 创建交换链（管理图像缓冲区）
         mSwapChain = Wrapper::SwapChain::create(mDevice, mWindow, mSurface);
-        // 更新窗口实际尺寸（交换链可能调整了大小）
         mWidth = mSwapChain->getExtent().width;
         mHeight = mSwapChain->getExtent().height;
 
-        // 5. 创建渲染通道
         mRenderPass = Wrapper::RenderPass::create(mDevice);
-        createRenderPass();  // 自定义函数配置渲染通道
+        createRenderPass();
 
-        // 6. 为交换链创建帧缓冲区
         mSwapChain->createFrameBuffers(mRenderPass);
 
-        // 7. 创建命令池（用于分配命令缓冲区）
         mCommandPool = Wrapper::CommandPool::create(mDevice);
 
-        // 8. 初始化Uniform管理器（管理着色器常量）
         mUniformManager = UniformManager::create();
         mUniformManager->init(mDevice, mCommandPool, mSwapChain->getImageCount());
 
-        // 9. 创建模型（加载顶点/索引数据）
         mModel = Model::create(mDevice);
 
-        // 10. 创建图形管线
         mPipeline = Wrapper::Pipeline::create(mDevice, mRenderPass);
-        createPipeline();  // 自定义函数配置管线
+        createPipeline();
 
-        // 11. 创建命令缓冲区（每个交换链图像一个）
         mCommandBuffers.resize(mSwapChain->getImageCount());
-        createCommandBuffers();  // 自定义函数记录渲染命令
+        createCommandBuffers();
 
-        // 12. 创建同步对象（帧同步）
         createSyncObjects();
     }
 
-    /**
-     * @brief 配置并创建图形管线
-     *
-     * 配置内容：
-     *  1. 视口设置（翻转Y轴）
-     *  2. 裁剪区域
-     *  3. 着色器
-     *  4. 顶点输入格式
-     *  5. 图元装配方式
-     *  6. 光栅化设置
-     *  7. 多重采样
-     *  8. 颜色混合
-     *  9. Uniform布局
-     */
     void Application::createPipeline()
     {
-        // 设置视口（翻转Y轴使坐标原点在左上角）
         VkViewport viewport = {};
         viewport.x = 0.0f;
-        viewport.y = (float)mHeight;        // 从底部开始
+        viewport.y = (float)mHeight;
         viewport.width = (float)mWidth;
-        viewport.height = -(float)mHeight;  // 负值表示翻转Y轴
+        viewport.height = -(float)mHeight;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
 
-        // 设置裁剪区域（整个窗口）
         VkRect2D scissor = {};
         scissor.offset = { 0, 0 };
         scissor.extent = { mWidth, mHeight };
 
-        // 应用视口和裁剪配置
         mPipeline->setViewports({ viewport });
         mPipeline->setScissors({ scissor });
 
-        // 设置着色器
         std::vector<Wrapper::Shader::Ptr> shaderGroup{};
 
-        // 创建顶点着色器
         auto shaderVertex = Wrapper::Shader::create(mDevice, "shaders/vs.spv", VK_SHADER_STAGE_VERTEX_BIT, "main");
         shaderGroup.push_back(shaderVertex);
 
-        // 创建片段着色器
         auto shaderFragment = Wrapper::Shader::create(mDevice, "shaders/fs.spv", VK_SHADER_STAGE_FRAGMENT_BIT, "main");
         shaderGroup.push_back(shaderFragment);
 
         mPipeline->setShaderGroup(shaderGroup);
 
-        // 配置顶点输入格式
         auto vertexBindingDes = mModel->getVertexInputBindingDescriptions();
         auto attributeDes = mModel->getAttributeDescriptions();
 
@@ -145,41 +84,34 @@ namespace LearnVulkan
         mPipeline->mVertexInputState.vertexAttributeDescriptionCount = attributeDes.size();
         mPipeline->mVertexInputState.pVertexAttributeDescriptions    = attributeDes.data();
 
-        // 配置图元装配方式
         mPipeline->mAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        mPipeline->mAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;  // 三角形列表
-        mPipeline->mAssemblyState.primitiveRestartEnable = VK_FALSE;               // 禁用图元重启
+        mPipeline->mAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        mPipeline->mAssemblyState.primitiveRestartEnable = VK_FALSE;
 
-        // 配置光栅化
         mPipeline->mRasterState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-        mPipeline->mRasterState.polygonMode = VK_POLYGON_MODE_FILL;           // 实心填充
-        mPipeline->mRasterState.lineWidth = 1.0f;                             // 线宽1像素
-        mPipeline->mRasterState.cullMode = VK_CULL_MODE_BACK_BIT;             // 背面剔除
-        mPipeline->mRasterState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;  // 逆时针为正面
+        mPipeline->mRasterState.polygonMode = VK_POLYGON_MODE_FILL;           
+        mPipeline->mRasterState.lineWidth = 1.0f;                             
+        mPipeline->mRasterState.cullMode = VK_CULL_MODE_BACK_BIT;             
+        mPipeline->mRasterState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;  
 
-        // 禁用深度偏移
         mPipeline->mRasterState.depthBiasEnable         = VK_FALSE;
         mPipeline->mRasterState.depthBiasConstantFactor = 0.0f;
         mPipeline->mRasterState.depthBiasClamp          = 0.0f;
         mPipeline->mRasterState.depthBiasSlopeFactor    = 0.0f;
 
-        // 配置多重采样（当前禁用）
         mPipeline->mSampleState.sampleShadingEnable   = VK_FALSE;
         mPipeline->mSampleState.rasterizationSamples  = VK_SAMPLE_COUNT_1_BIT;
         mPipeline->mSampleState.minSampleShading      = 1.0f;
         mPipeline->mSampleState.pSampleMask           = nullptr;
         mPipeline->mSampleState.alphaToCoverageEnable = VK_FALSE;
         mPipeline->mSampleState.alphaToOneEnable      = VK_FALSE;
-        // 其他采样参数保持默认
 
-         // 配置颜色混合状态
         VkPipelineColorBlendAttachmentState blendAttachment{};
-        // 启用所有颜色通道
         blendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
                                          VK_COLOR_COMPONENT_G_BIT |
                                          VK_COLOR_COMPONENT_B_BIT |
                                          VK_COLOR_COMPONENT_A_BIT;
-        // 禁用混合
+
         blendAttachment.blendEnable         = VK_FALSE;
         blendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
         blendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
@@ -198,30 +130,23 @@ namespace LearnVulkan
         mPipeline->mBlendState.logicOpEnable = VK_FALSE;
         mPipeline->mBlendState.logicOp = VK_LOGIC_OP_COPY;
 
-        //配合blendAttachment的factor与operation
         mPipeline->mBlendState.blendConstants[0] = 0.0f;
         mPipeline->mBlendState.blendConstants[1] = 0.0f;
         mPipeline->mBlendState.blendConstants[2] = 0.0f;
         mPipeline->mBlendState.blendConstants[3] = 0.0f;
 
-        // 配置Uniform布局
         mPipeline->mLayoutState.setLayoutCount = 1;
         auto layout = mUniformManager->getDescriptorLayout()->getLayout();
         mPipeline->mLayoutState.pSetLayouts = &layout;
-        // 无推送常量
+
         mPipeline->mLayoutState.pushConstantRangeCount = 0;
         mPipeline->mLayoutState.pPushConstantRanges = nullptr;
 
-        // 构建管线
         mPipeline->build();
     }
 
-    /**
-     * @brief 创建渲染通道
-     */
     void Application::createRenderPass()
     {
-        // 配置颜色附件描述
         VkAttachmentDescription attachmentDes{};
         attachmentDes.format         = mSwapChain->getFormat();           // 使用交换链格式
         attachmentDes.samples        = VK_SAMPLE_COUNT_1_BIT;             // 单采样

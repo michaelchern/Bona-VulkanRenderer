@@ -16,11 +16,10 @@ namespace LearnVulkan::Wrapper
 
         ~Sampler();
 
-        // 获取底层VkSampler句柄（[[nodiscard]]强调需使用返回值）
         [[nodiscard]] auto getSampler() const { return mSampler; }
 
     private:
-        Device::Ptr mDevice{ nullptr };        // 持有Vulkan逻辑设备包装器的智能指针
-        VkSampler mSampler{ VK_NULL_HANDLE };  // Vulkan采样器句柄（初始化为空）
+        Device::Ptr mDevice{ nullptr };
+        VkSampler   mSampler{ VK_NULL_HANDLE };
     };
 }
