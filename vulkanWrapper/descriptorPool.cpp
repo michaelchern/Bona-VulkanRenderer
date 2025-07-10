@@ -48,7 +48,7 @@ namespace LearnVulkan::Wrapper
         // 配置UBO类型容量
         VkDescriptorPoolSize uniformBufferSize{};
         uniformBufferSize.type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        uniformBufferSize.descriptorCount = uniformBufferCount * frameCount;    // 总量 = 绑定点数 × 帧数
+        uniformBufferSize.descriptorCount = uniformBufferCount * frameCount;  // 总量 = 绑定点数 × 帧数
         poolSizes.push_back(uniformBufferSize);
 
         // 配置纹理采样器类型容量
@@ -60,14 +60,14 @@ namespace LearnVulkan::Wrapper
         // 3. 创建描述符池
         VkDescriptorPoolCreateInfo createInfo{};
         createInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        createInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());     // 容量类型数量
-        createInfo.pPoolSizes    = poolSizes.data();                            // 容量配置数组
-        createInfo.maxSets       = static_cast<uint32_t>(frameCount);           // 最大描述符集数量（等于帧数）
+        createInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());  // 容量类型数量
+        createInfo.pPoolSizes    = poolSizes.data();                         // 容量配置数组
+        createInfo.maxSets       = static_cast<uint32_t>(frameCount);        // 最大描述符集数量（等于帧数）
 
         // 调用Vulkan API创建描述符池
         if (vkCreateDescriptorPool(mDevice->getDevice(), &createInfo, nullptr, &mPool) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error: failed to create Descriptor pool");
+            throw std::runtime_error("Error: Failed to create Descriptor pool!");
         }
     }
 }

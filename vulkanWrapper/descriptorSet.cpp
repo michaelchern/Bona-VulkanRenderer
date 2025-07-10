@@ -4,25 +4,21 @@
 namespace LearnVulkan::Wrapper
 {
     // 描述符集构造函数：创建并配置多个描述符集
-    DescriptorSet::DescriptorSet(
-        const Device::Ptr& device,                        // Vulkan设备
-        const std::vector<UniformParameter::Ptr> params,  // 绑定资源参数列表
-        const DescriptorSetLayout::Ptr& layout,           // 描述符集布局
-        const DescriptorPool::Ptr& pool,                  // 描述符池
-        int frameCount)                                   // 帧缓冲数量
+    DescriptorSet::DescriptorSet(const Device::Ptr& device,                        // Vulkan设备
+                                 const std::vector<UniformParameter::Ptr> params,  // 绑定资源参数列表
+                                 const DescriptorSetLayout::Ptr& layout,           // 描述符集布局
+                                 const DescriptorPool::Ptr& pool,                  // 描述符池
+                                 int frameCount)                                   // 帧缓冲数量
     {
         mDevice = device;
 
-        // 1. 分配描述符集 ------------------------------------------------------
-        // 创建布局数组（每帧使用相同的布局）
         std::vector<VkDescriptorSetLayout> layouts(frameCount, layout->getLayout());
 
-        // 配置描述符集分配信息
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.descriptorPool     = pool->getPool();  // 分配来源池
-        allocInfo.descriptorSetCount = frameCount;       // 需要分配的集数量
-        allocInfo.pSetLayouts        = layouts.data();   // 布局数组（每帧相同）
+        allocInfo.descriptorPool     = pool->getPool();
+        allocInfo.descriptorSetCount = frameCount;
+        allocInfo.pSetLayouts        = layouts.data();
 
         // 分配描述符集存储空间
         mDescriptorSets.resize(frameCount);
@@ -30,7 +26,7 @@ namespace LearnVulkan::Wrapper
         // 调用Vulkan API分配描述符集
         if (vkAllocateDescriptorSets(mDevice->getDevice(), &allocInfo, &mDescriptorSets[0]) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error: failed to allocate descriptor sets");
+            throw std::runtime_error("Error: Failed to allocate descriptor sets!");
         }
 
         // 2. 配置每个描述符集的实际资源绑定 ----------------------------------------
@@ -80,6 +76,5 @@ namespace LearnVulkan::Wrapper
         }
     }
 
-    // 析构函数：描述符集由池统一管理，不需要单独释放
     DescriptorSet::~DescriptorSet() {}
 }

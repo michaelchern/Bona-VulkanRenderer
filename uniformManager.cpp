@@ -36,7 +36,7 @@ void UniformManager::init(const Wrapper::Device::Ptr& device, const Wrapper::Com
     mUniformParams.push_back(vpParam);  // 添加到参数列表
 
     // 2. 创建模型矩阵Uniform参数和缓冲区 ----------------------------
-    auto objectParam             = Wrapper::UniformParameter::create();  
+    auto objectParam             = Wrapper::UniformParameter::create();
     objectParam->mBinding        = 1;                                    // 绑定点1（对应shader中的binding=1）
     objectParam->mCount          = 1;
     objectParam->mDescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
