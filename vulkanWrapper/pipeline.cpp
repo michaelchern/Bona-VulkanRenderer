@@ -2,13 +2,6 @@
 
 namespace LearnVulkan::Wrapper
 {
-    /**
-     * @brief 管线构造函数
-     *
-     * 初始化：
-     *  1. 保存关联的逻辑设备和渲染通道
-     *  2. 设置所有状态结构体的 sType 字段（Vulkan API 要求）
-     */
     Pipeline::Pipeline(const Device::Ptr& device, const RenderPass::Ptr& renderPass)
     {
         mDevice     = device;      // 保存逻辑设备（智能指针）
@@ -25,13 +18,6 @@ namespace LearnVulkan::Wrapper
         mLayoutState.sType       = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     }
 
-    /**
-     * @brief 管线析构函数
-     *
-     * 遵循 RAII 原则释放资源：
-     *  1. 销毁管线布局（如果存在）
-     *  2. 销毁管线对象（如果存在）
-     */
     Pipeline::~Pipeline()
     {
         // 销毁管线布局（描述符集布局/推送常量的容器）
@@ -57,19 +43,6 @@ namespace LearnVulkan::Wrapper
         mShaders = shaderGroup;  // 保存着色器对象列表
     }
 
-    /**
-     * @brief 构建图形管线（核心函数）
-     *
-     * 执行步骤：
-     *  1. 准备着色器阶段信息
-     *  2. 配置视口和裁剪区域
-     *  3. 设置颜色混合状态
-     *  4. 创建/重建管线布局
-     *  5. 填写管线创建信息
-     *  6. 创建图形管线对象
-     *
-     * @throws std::runtime_error 创建失败时抛出异常
-     */
     void Pipeline::build()
     {
         // ===== 1. 准备着色器阶段创建信息 =====
@@ -125,7 +98,7 @@ namespace LearnVulkan::Wrapper
         pipelineCreateInfo.pViewportState = &mViewportState;           // 视口和裁剪区
         pipelineCreateInfo.pRasterizationState = &mRasterState;        // 光栅化设置
         pipelineCreateInfo.pMultisampleState = &mSampleState;          // 多重采样设置
-        pipelineCreateInfo.pDepthStencilState = nullptr;               // 深度模板（当前未实现）
+        pipelineCreateInfo.pDepthStencilState = &mDepthStencilState;   // 深度模板
         pipelineCreateInfo.pColorBlendState = &mBlendState;            // 颜色混合状态
         pipelineCreateInfo.pDynamicState = nullptr;                    // 动态状态（当前未实现）
 

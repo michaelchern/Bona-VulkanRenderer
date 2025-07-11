@@ -5,6 +5,8 @@
 #include "window.h"
 #include "windowSurface.h"
 #include "renderPass.h"
+#include "image.h"
+#include "commandPool.h"
 
 namespace LearnVulkan::Wrapper
 {
@@ -21,13 +23,18 @@ namespace LearnVulkan::Wrapper
     {
     public:
         using Ptr = std::shared_ptr<SwapChain>;
-        static Ptr create(const Device::Ptr& device, const Window::Ptr& window, const WindowSurface::Ptr& surface)
+        static Ptr create(const Device::Ptr& device,
+                          const Window::Ptr& window,
+                          const WindowSurface::Ptr& surface,
+                          const CommandPool::Ptr& commandPool)
         {
-            return std::make_shared<SwapChain>(device, window, surface);
+            return std::make_shared<SwapChain>(device, window, surface, commandPool);
         }
 
-        // 构造函数：创建交换链及相关资源
-        SwapChain(const Device::Ptr& device, const Window::Ptr& window, const WindowSurface::Ptr& surface);
+        SwapChain(const Device::Ptr& device, 
+                  const Window::Ptr& window, 
+                  const WindowSurface::Ptr& surface,
+                  const CommandPool::Ptr& commandPool);
 
         // 析构函数：销毁交换链资源
         ~SwapChain();
@@ -75,14 +82,10 @@ namespace LearnVulkan::Wrapper
         VkExtent2D mSwapChainExtent;                          // 交换链图像尺寸（宽度x高度）
         uint32_t   mImageCount{ 0 };                          // 交换链中的图像数量
 
-        // 由交换链管理的图像（不需要手动销毁）
-        std::vector<VkImage> mSwapChainImages{};
-
-        // 图像视图：提供对交换链图像的访问接口
-        std::vector<VkImageView> mSwapChainImageViews{};
-
-        // 帧缓冲区：连接渲染通道和图像视图
+        std::vector<VkImage>       mSwapChainImages{};
+        std::vector<VkImageView>   mSwapChainImageViews{};
         std::vector<VkFramebuffer> mSwapChainFrameBuffers{};
+        std::vector<Image::Ptr>    mDepthImages{};
 
         // 依赖资源
         Device::Ptr mDevice{ nullptr };                       // 逻辑设备引用

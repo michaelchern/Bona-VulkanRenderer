@@ -24,7 +24,9 @@ namespace LearnVulkan
 
         mDevice = Wrapper::Device::create(mInstance, mSurface);
 
-        mSwapChain = Wrapper::SwapChain::create(mDevice, mWindow, mSurface);
+        mCommandPool = Wrapper::CommandPool::create(mDevice);
+
+        mSwapChain = Wrapper::SwapChain::create(mDevice, mWindow, mSurface, mCommandPool);
         mWidth = mSwapChain->getExtent().width;
         mHeight = mSwapChain->getExtent().height;
 
@@ -32,8 +34,6 @@ namespace LearnVulkan
         createRenderPass();
 
         mSwapChain->createFrameBuffers(mRenderPass);
-
-        mCommandPool = Wrapper::CommandPool::create(mDevice);
 
         mUniformManager = UniformManager::create();
         mUniformManager->init(mDevice, mCommandPool, mSwapChain->getImageCount());
@@ -106,6 +106,10 @@ namespace LearnVulkan
         mPipeline->mSampleState.alphaToCoverageEnable = VK_FALSE;
         mPipeline->mSampleState.alphaToOneEnable      = VK_FALSE;
 
+        mPipeline->mDepthStencilState.depthTestEnable = VK_TRUE;
+        mPipeline->mDepthStencilState.depthWriteEnable = VK_TRUE;
+        mPipeline->mDepthStencilState.depthCompareOp = VK_COMPARE_OP_LESS;
+
         VkPipelineColorBlendAttachmentState blendAttachment{};
         blendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
                                          VK_COLOR_COMPONENT_G_BIT |
@@ -159,19 +163,34 @@ namespace LearnVulkan
 
         mRenderPass->addAttachment(attachmentDes);
 
-        // 配置附件引用（指向第一个附件）
+        VkAttachmentDescription depthAttachment{};
+        depthAttachment.format         = Wrapper::Image::findDepthFormat(mDevice);
+        depthAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
+        depthAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depthAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depthAttachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        depthAttachment.finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        mRenderPass->addAttachment(depthAttachment);
+
         VkAttachmentReference attachmentRef{};
         attachmentRef.attachment = 0;
         attachmentRef.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        // 创建子通道
+        VkAttachmentReference depthattachmentRef{};
+        depthattachmentRef.attachment = 1;
+        depthattachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
         Wrapper::SubPass subPass{};
-        subPass.addColorAttachmentReference(attachmentRef);  // 添加颜色附件引用
-        subPass.buildSubPassDescription();                   // 构建子通道描述
+        subPass.addColorAttachmentReference(attachmentRef);
+        subPass.setDepthStencilAttachmentReference(depthattachmentRef);
+        subPass.buildSubPassDescription();
 
-        mRenderPass->addSubPass(subPass);                    // 添加子通道到渲染通道
+        mRenderPass->addSubPass(subPass);
 
-        // 配置子通道依赖关系
+   
         VkSubpassDependency dependency{};
         dependency.srcSubpass    = VK_SUBPASS_EXTERNAL;                            // 外部依赖
         dependency.dstSubpass    = 0;                                              // 依赖我们的子通道
@@ -207,42 +226,38 @@ namespace LearnVulkan
             renderBeginInfo.renderArea.offset = { 0, 0 };
             renderBeginInfo.renderArea.extent = mSwapChain->getExtent();
 
-            // 设置清屏颜色（黑色）
-            VkClearValue clearColor         = { 0.0f, 0.0f, 0.0f, 1.0f };
-            renderBeginInfo.clearValueCount = 1;
-            renderBeginInfo.pClearValues    = &clearColor;
+            std::vector<VkClearValue> clearColors;
+            VkClearValue clearColor;
+            clearColor.color = { 0.0f, 0.0f, 0.0f, 1.0f };
+            clearColors.push_back(clearColor);
 
-            // 开始渲染通道
+            VkClearValue depthClearColor;
+            depthClearColor.depthStencil = { 1.0f, 0 };
+            clearColors.push_back(depthClearColor);
+
+            renderBeginInfo.clearValueCount = static_cast<uint32_t>(clearColors.size());
+            renderBeginInfo.pClearValues    = clearColors.data();
+
             mCommandBuffers[i]->beginRenderPass(renderBeginInfo);
 
-            // 绑定图形管线
             mCommandBuffers[i]->bindGraphicPipeline(mPipeline->getPipeline());
 
-            // 绑定Uniform描述符集
             mCommandBuffers[i]->bindDescriptorSet(mPipeline->getLayout(), mUniformManager->getDescriptorSet(mCurrentFrame));
 
             //mCommandBuffers[i]->bindVertexBuffer({ mModel->getVertexBuffer()->getBuffer() });
 
-            // 绑定顶点缓冲区
             mCommandBuffers[i]->bindVertexBuffer(mModel->getVertexBuffers());
 
-            // 绑定索引缓冲区
             mCommandBuffers[i]->bindIndexBuffer(mModel->getIndexBuffer()->getBuffer());
 
-            // 绘制索引模型
             mCommandBuffers[i]->drawIndex(mModel->getIndexCount());
 
-            // 结束渲染通道
             mCommandBuffers[i]->endRenderPass();
 
-            // 结束命令记录
             mCommandBuffers[i]->end();
         }
     }
 
-    /**
-     * @brief 创建同步对象（信号量和栅栏）
-     */
     void Application::createSyncObjects()
     {
         for (int i = 0; i < mSwapChain->getImageCount(); ++i)
@@ -261,9 +276,6 @@ namespace LearnVulkan
         }
     }
 
-    /**
-     * @brief 重建交换链（窗口大小改变时调用）
-     */
     void Application::recreateSwapChain()
     {
         // 获取窗口实际尺寸
@@ -284,7 +296,7 @@ namespace LearnVulkan
         cleanupSwapChain();
 
         // 重建交换链（新尺寸）
-        mSwapChain = Wrapper::SwapChain::create(mDevice, mWindow, mSurface);
+        mSwapChain = Wrapper::SwapChain::create(mDevice, mWindow, mSurface, mCommandPool);
         mWidth = mSwapChain->getExtent().width;
         mHeight = mSwapChain->getExtent().height;
 

@@ -1,4 +1,5 @@
 ﻿#include "device.h"
+#include "device.h"
 
 namespace LearnVulkan::Wrapper
 {
@@ -203,9 +204,49 @@ namespace LearnVulkan::Wrapper
         vkGetDeviceQueue(mDevice, mPresentQueueFamily.value(), 0, &mPresentQueue);
     }
 
-    // 检查队列族是否完整
     bool Device::isQueueFamilyComplete()
     {
         return mGraphicQueueFamily.has_value() && mPresentQueueFamily.has_value();
+    }
+
+    VkSampleCountFlags Device::getMaxUsableSampleCount()
+    {
+        VkPhysicalDeviceProperties props{};
+        vkGetPhysicalDeviceProperties(mPhysicalDevice, &props);
+
+        VkSampleCountFlags counts = std::min(props.limits.framebufferColorSampleCounts,
+                                             props.limits.framebufferDepthSampleCounts);
+
+        if (counts & VK_SAMPLE_COUNT_64_BIT)
+        {
+            return VK_SAMPLE_COUNT_64_BIT;
+        }
+
+        if (counts & VK_SAMPLE_COUNT_32_BIT)
+        {
+            return VK_SAMPLE_COUNT_32_BIT;
+        }
+
+        if (counts & VK_SAMPLE_COUNT_16_BIT)
+        {
+            return VK_SAMPLE_COUNT_16_BIT;
+        }
+
+        if (counts & VK_SAMPLE_COUNT_8_BIT)
+        {
+            return VK_SAMPLE_COUNT_8_BIT;
+        }
+
+        if (counts & VK_SAMPLE_COUNT_4_BIT)
+        {
+            return VK_SAMPLE_COUNT_4_BIT;
+        }
+
+        if (counts & VK_SAMPLE_COUNT_2_BIT)
+        {
+            return VK_SAMPLE_COUNT_2_BIT;
+        }
+
+        return VK_SAMPLE_COUNT_1_BIT;
     }
 }

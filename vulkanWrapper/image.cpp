@@ -1,10 +1,38 @@
-﻿
+﻿#include "image.h"
+#include "image.h"
+
 #include "image.h"
 #include "commandBuffer.h"
 #include "buffer.h"
 
 namespace LearnVulkan::Wrapper
 {
+    Image::Ptr Image::createDepthImage(const Device::Ptr& device, const int& width, const int& height)
+    {
+        std::vector<VkFormat> formats =
+        {
+            VK_FORMAT_D32_SFLOAT,
+            VK_FORMAT_D32_SFLOAT_S8_UINT,
+            VK_FORMAT_D24_UNORM_S8_UINT
+        };
+
+        VkFormat resultFormat = findSupportedFormat(device,
+            formats,
+            VK_IMAGE_TILING_OPTIMAL,
+            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+
+        return Image::create(device,
+            width,
+            height,
+            resultFormat,
+            VK_IMAGE_TYPE_2D,
+            VK_IMAGE_TILING_OPTIMAL,
+            VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+            VK_SAMPLE_COUNT_1_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+            VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+    }
+
     Image::Image(const Device::Ptr &device,
                  const int& width,
                  const int& height,
@@ -20,6 +48,7 @@ namespace LearnVulkan::Wrapper
         mLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         mWidth = width;
         mHeight = height;
+        mFormat = format;
 
         VkImageCreateInfo imageCreateInfo{};
         imageCreateInfo.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -110,6 +139,50 @@ namespace LearnVulkan::Wrapper
         throw std::runtime_error("Error: cannot find the property memory type!");
     }
 
+    VkFormat Image::findDepthFormat(const Device::Ptr& device)
+    {
+        std::vector<VkFormat> formats =
+        {
+            VK_FORMAT_D32_SFLOAT,
+            VK_FORMAT_D32_SFLOAT_S8_UINT,
+            VK_FORMAT_D24_UNORM_S8_UINT
+        };
+
+        VkFormat resultFormat = findSupportedFormat(device,
+                                                    formats,
+                                                    VK_IMAGE_TILING_OPTIMAL,
+                                                    VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+
+        return resultFormat;
+    }
+
+    VkFormat Image::findSupportedFormat(const Device::Ptr& device,
+                                       const std::vector<VkFormat>& candidates,
+                                       VkImageTiling tiling,
+                                       VkFormatFeatureFlags features)
+    {
+        for (const auto& format : candidates)
+        {
+            VkFormatProperties formatProps;
+            vkGetPhysicalDeviceFormatProperties(device->getPhysicalDevice(), format, &formatProps);
+            if (tiling == VK_IMAGE_TILING_LINEAR && (formatProps.linearTilingFeatures & features) == features)
+            {
+                return format;
+            }
+            else if (tiling == VK_IMAGE_TILING_OPTIMAL && (formatProps.optimalTilingFeatures & features) == features)
+            {
+                return format;
+            }
+        }
+        throw std::runtime_error("Error: cannot find a supported image format!");
+    }
+
+    bool Image::hasStencilComponent(VkFormat format) const
+    {
+        return format == VK_FORMAT_D32_SFLOAT_S8_UINT ||
+               format == VK_FORMAT_D24_UNORM_S8_UINT;
+    }
+
     void Image::setImageLayout(VkImageLayout newLayout,
                                VkPipelineStageFlags srcStageMask,
                                VkPipelineStageFlags dstStageMask,
@@ -127,32 +200,31 @@ namespace LearnVulkan::Wrapper
 
         switch (mLayout)
         {
-            // 如果是无定义layout，说明图片刚被创建，上方一定没有任何操作，所以上方是一个虚拟的依赖
-            // 所以不关心上一个阶段的任何操作
         case VK_IMAGE_LAYOUT_UNDEFINED:
             imageMemoryBarrier.srcAccessMask = 0;
             break;
         case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-            // 当前是传输目标：确保之前的写入完成
             imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
             break;
-        // 可扩展其他布局情况...
         default:
             break;
         }
 
-        // 目标访问掩码：基于目标布局确定后续需要什么操作权限
         switch (newLayout)
         {
-            // 如果目标是，将图片转换成为一83个复制操作的目标图片/内存，那么被阻塞的操作一定是写入操作
         case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-            // 目标是传输目标：准备接收写入操作
             imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
             break;
-            //如果目标是，将图片转换成为一个适合被作为纹理的格式，那么被阻塞的操作一定是，读取
+
         case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
-            // 目标是着色器只读：后续需要读权限
+            if (imageMemoryBarrier.srcAccessMask == 0)
+            {
+                imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+            }
             imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+            break;
+        case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+            imageMemoryBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
             break;
         default:
             break;

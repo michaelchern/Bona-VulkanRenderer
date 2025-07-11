@@ -16,6 +16,13 @@ namespace LearnVulkan::Wrapper
     {
     public:
         using Ptr = std::shared_ptr<Image>;
+
+        static Image::Ptr createDepthImage(const Device::Ptr& device,
+                                           const int& width,
+                                           const int& height);
+
+    public:
+        
         static Ptr create(const Device::Ptr& device,
                           const int& width,
                           const int& height,
@@ -36,8 +43,7 @@ namespace LearnVulkan::Wrapper
                                            usage,
                                            sample,
                                            properties,
-                                           aspectFlags
-            );
+                                           aspectFlags);
         }
 
         Image(const Device::Ptr &device,
@@ -67,8 +73,21 @@ namespace LearnVulkan::Wrapper
         [[nodiscard]] auto getHeight()    const { return mHeight; }
         [[nodiscard]] auto getImageView() const { return mImageView; }
 
+    public:
+
+        static VkFormat findDepthFormat(const Device::Ptr& device);
+
+        static VkFormat findSupportedFormat(const Device::Ptr& device,
+            const std::vector<VkFormat>& candidates,
+            VkImageTiling tiling,
+            VkFormatFeatureFlags features);
+
+        bool hasStencilComponent(VkFormat format) const;
+
     private:
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+        
 
     private:
         size_t         mWidth{ 0 };
@@ -77,6 +96,7 @@ namespace LearnVulkan::Wrapper
         VkImage        mImage{ VK_NULL_HANDLE };
         VkDeviceMemory mImageMemory{ VK_NULL_HANDLE };
         VkImageView    mImageView{ VK_NULL_HANDLE };
+        VkFormat	   mFormat{ VK_FORMAT_UNDEFINED };
         VkImageLayout  mLayout{ VK_IMAGE_LAYOUT_UNDEFINED };
     };
 }

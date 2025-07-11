@@ -4,9 +4,12 @@
 namespace LearnVulkan::Wrapper
 {
     // 构造函数：创建交换链及相关资源
-    SwapChain::SwapChain(const Device::Ptr& device, const Window::Ptr& window, const WindowSurface::Ptr& surface)
+    SwapChain::SwapChain(const Device::Ptr& device, 
+                         const Window::Ptr& window, 
+                         const WindowSurface::Ptr& surface,
+                         const CommandPool::Ptr& commandPool)
     {
-        mDevice = device;    // 保存逻辑设备引用
+        mDevice = device;
         mWindow = window;    // 保存窗口引用
         mSurface = surface;  // 保存表面引用
 
@@ -89,6 +92,25 @@ namespace LearnVulkan::Wrapper
                                                       VK_IMAGE_ASPECT_COLOR_BIT,  // 作为颜色附件
                                                       1);                         // Mip层级数（1表示无Mipmapping）
         }
+
+        mDepthImages.resize(mImageCount);
+
+        VkImageSubresourceRange region{};
+        region.aspectMask     = VK_IMAGE_ASPECT_DEPTH_BIT;
+        region.baseMipLevel   = 0;
+        region.levelCount     = 1;
+        region.baseArrayLayer = 0;
+        region.layerCount     = 1;
+
+        for (int i = 0; i < mImageCount; ++i)
+        {
+            mDepthImages[i] = Image::createDepthImage(mDevice, mSwapChainExtent.width, mSwapChainExtent.height);
+            mDepthImages[i]->setImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                                            region,
+                                            commandPool);
+        }
     }
 
     // 创建帧缓冲区（需要渲染通道对象）
@@ -102,16 +124,16 @@ namespace LearnVulkan::Wrapper
         {
             //FrameBuffer 里面为一帧的数据，比如有n个ColorAttachment 1个DepthStencilAttachment，
             //这些东西的集合为一个FrameBuffer，送入管线，就会形成一个GPU的集合，由上方的Attachments构成
-            std::array<VkImageView, 1> attachments = { mSwapChainImageViews[i] };
+            std::array<VkImageView, 2> attachments = { mSwapChainImageViews[i] ,mDepthImages[i]->getImageView() };
 
             VkFramebufferCreateInfo frameBufferCreateInfo{};
             frameBufferCreateInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            frameBufferCreateInfo.renderPass      = renderPass->getRenderPass();                // 绑定渲染通道
+            frameBufferCreateInfo.renderPass      = renderPass->getRenderPass();                
             frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-            frameBufferCreateInfo.pAttachments    = attachments.data();                         // 附件列表
-            frameBufferCreateInfo.width           = mSwapChainExtent.width;                     // 宽度
-            frameBufferCreateInfo.height          = mSwapChainExtent.height;                    // 高度
-            frameBufferCreateInfo.layers          = 1;                                          // 层数
+            frameBufferCreateInfo.pAttachments    = attachments.data();                         
+            frameBufferCreateInfo.width           = mSwapChainExtent.width;                     
+            frameBufferCreateInfo.height          = mSwapChainExtent.height;
+            frameBufferCreateInfo.layers          = 1;
 
             // 创建帧缓冲区
             if (vkCreateFramebuffer(mDevice->getDevice(), &frameBufferCreateInfo, nullptr, &mSwapChainFrameBuffers[i]) != VK_SUCCESS)
