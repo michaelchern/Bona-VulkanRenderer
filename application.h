@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-
 #include "vulkanWrapper/base.h"                 
 #include "vulkanWrapper/instance.h"             
 #include "vulkanWrapper/device.h"               
@@ -55,7 +54,7 @@ namespace LearnVulkan
         void cleanUp();
 
     private:
-        unsigned int mWidth{ 800 };
+        unsigned int mWidth{ 1000 };
         unsigned int mHeight{ 600 };
 
     private:

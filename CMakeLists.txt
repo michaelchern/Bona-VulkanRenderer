@@ -28,7 +28,6 @@ aux_source_directory (. DIRSRCS)
 add_subdirectory(vulkanWrapper)
 add_subdirectory(texture)
 
-# 将源代码添加到此项目的可执行文件。
 add_executable (LearnVulkan ${DIRSRCS})
 
 target_link_libraries(LearnVulkan vulkanLib textureLib vulkan-1.lib glfw3.lib)
