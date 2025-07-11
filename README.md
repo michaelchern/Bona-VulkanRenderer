@@ -22,11 +22,9 @@
 
 ## 渲染器启动
 
-主要需要两步操作:
+**主要需要两步操作:**
 
-去Vulkan官网下载SDK，看自己电脑是否能够支持Vulkan API运行。
-
-本项目是在VS中用Cmake创建的，右键点击工程目录，最好使用VS打开，如图所示：
+去Vulkan官网下载SDK，看自己电脑是否能够支持Vulkan API运行。本项目是在VS中用Cmake创建的，右键点击工程目录，最好使用VS打开，如图所示：
 
 ![](https://github.com/michaelchern/Bona-VulkanRenderer/blob/main/README_IMG/example1.png)
 
@@ -36,6 +34,6 @@
 
 ## 什么是Vulkan
 
-啃了差不多一个月，总算有点眉目了，准备写文章记录一下。去知乎、Github逛了一下，发现大佬已经把文章写好了，那我写啥？大佬都把图画好了，给跪了，这里偷一张图。
+啃了差不多一个月，总算有点眉目了，准备写文章记录一下。去知乎、Github逛了一下，发现大佬已经把文章写好了，那我写啥？大佬都把图画好了，给跪了，这里偷一张图，一图解千言：
 
 ![](https://github.com/michaelchern/Bona-VulkanRenderer/blob/main/README_IMG/Vulkan-MindMap.jpg)
