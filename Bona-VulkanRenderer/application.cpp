@@ -27,7 +27,7 @@ namespace LearnVulkan
         mCommandPool = Wrapper::CommandPool::create(mDevice);
 
         mSwapChain = Wrapper::SwapChain::create(mDevice, mWindow, mSurface, mCommandPool);
-        mWidth = mSwapChain->getExtent().width;
+        mWidth  = mSwapChain->getExtent().width;
         mHeight = mSwapChain->getExtent().height;
 
         mRenderPass = Wrapper::RenderPass::create(mDevice);
