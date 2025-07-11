@@ -1,0 +1,9 @@
+C:/Users/12168/Documents/GitHub/Bona-VulkanRenderer/Bona-VulkanRenderer/out/build/x64-debug/CMakeFiles/Bona.dir
+C:/Users/12168/Documents/GitHub/Bona-VulkanRenderer/Bona-VulkanRenderer/out/build/x64-debug/CMakeFiles/edit_cache.dir
+C:/Users/12168/Documents/GitHub/Bona-VulkanRenderer/Bona-VulkanRenderer/out/build/x64-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/12168/Documents/GitHub/Bona-VulkanRenderer/Bona-VulkanRenderer/out/build/x64-debug/vulkanWrapper/CMakeFiles/vulkanLib.dir
+C:/Users/12168/Documents/GitHub/Bona-VulkanRenderer/Bona-VulkanRenderer/out/build/x64-debug/vulkanWrapper/CMakeFiles/edit_cache.dir
+C:/Users/12168/Documents/GitHub/Bona-VulkanRenderer/Bona-VulkanRenderer/out/build/x64-debug/vulkanWrapper/CMakeFiles/rebuild_cache.dir
+C:/Users/12168/Documents/GitHub/Bona-VulkanRenderer/Bona-VulkanRenderer/out/build/x64-debug/texture/CMakeFiles/textureLib.dir
+C:/Users/12168/Documents/GitHub/Bona-VulkanRenderer/Bona-VulkanRenderer/out/build/x64-debug/texture/CMakeFiles/edit_cache.dir
+C:/Users/12168/Documents/GitHub/Bona-VulkanRenderer/Bona-VulkanRenderer/out/build/x64-debug/texture/CMakeFiles/rebuild_cache.dir

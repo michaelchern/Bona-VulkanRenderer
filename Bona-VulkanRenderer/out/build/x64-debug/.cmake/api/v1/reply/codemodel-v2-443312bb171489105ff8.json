@@ -1,0 +1,113 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "vulkanWrapper",
+					"jsonFile" : "directory-vulkanWrapper-Debug-d56a645eb8cfb81bf611.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "vulkanWrapper",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "texture",
+					"jsonFile" : "directory-texture-Debug-f99f97d141f0f51e690d.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "texture",
+					"targetIndexes" : 
+					[
+						1
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2
+					],
+					"name" : "Bona",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Bona::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Bona-Debug-80290fa559c967613d6a.json",
+					"name" : "Bona",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "textureLib::@0ce9fcebade5c774587a",
+					"jsonFile" : "target-textureLib-Debug-d7877abd0c05fd95d358.json",
+					"name" : "textureLib",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "vulkanLib::@bae46c50c73266557b9b",
+					"jsonFile" : "target-vulkanLib-Debug-d4e3216c16e6f0d28a84.json",
+					"name" : "vulkanLib",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/12168/Documents/GitHub/Bona-VulkanRenderer/Bona-VulkanRenderer/out/build/x64-debug",
+		"source" : "C:/Users/12168/Documents/GitHub/Bona-VulkanRenderer/Bona-VulkanRenderer"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 8
+	}
+}
