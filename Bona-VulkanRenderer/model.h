@@ -1,5 +1,4 @@
-﻿
-#pragma once
+﻿#pragma once
 
 #include "vulkanWrapper/base.h"
 #include "vulkanWrapper/buffer.h"

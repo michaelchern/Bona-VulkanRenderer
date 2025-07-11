@@ -262,15 +262,12 @@ namespace LearnVulkan
     {
         for (int i = 0; i < mSwapChain->getImageCount(); ++i)
         {
-            // 图像可用信号量（表示交换链图像已准备就绪）
             auto imageSemaphore = Wrapper::Semaphore::create(mDevice);
             mImageAvailableSemaphores.push_back(imageSemaphore);
 
-            // 渲染完成信号量（表示渲染已完成）
             auto renderSemaphore = Wrapper::Semaphore::create(mDevice);
             mRenderFinishedSemaphores.push_back(renderSemaphore);
 
-            // 命令缓冲区执行完成栅栏（避免命令缓冲区重写）
             auto fence = Wrapper::Fence::create(mDevice);
             mFences.push_back(fence);
         }

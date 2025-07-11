@@ -1,15 +1,11 @@
-﻿
-#include "uniformManager.h"
+﻿#include "uniformManager.h"
 
 UniformManager::UniformManager()
 {
-
 }
-
 
 UniformManager::~UniformManager()
 {
-
 }
 
 void UniformManager::init(const Wrapper::Device::Ptr& device, const Wrapper::CommandPool::Ptr& commandPool, int frameCount)
@@ -63,17 +59,11 @@ void UniformManager::init(const Wrapper::Device::Ptr& device, const Wrapper::Com
 
 void UniformManager::update(const VPMatrices& vpMatrices, const ObjectUniform& objectUniform, const int& frameCount)
 {
-    mUniformParams[0]->mBuffers[frameCount]->updateBufferByMap(
-        (void*)(&vpMatrices),  // 数据源指针
-        sizeof(VPMatrices)     // 数据大小
-    );
+    mUniformParams[0]->mBuffers[frameCount]->updateBufferByMap((void*)(&vpMatrices),
+                                                                sizeof(VPMatrices));
 
-    // 2. 更新当前帧的模型矩阵缓冲区
-    //   mUniformParams[1] - 模型矩阵参数
-    mUniformParams[1]->mBuffers[frameCount]->updateBufferByMap(
-        (void*)(&objectUniform),  // 数据源指针
-        sizeof(ObjectUniform)     // 数据大小
-    );
+    mUniformParams[1]->mBuffers[frameCount]->updateBufferByMap((void*)(&objectUniform),
+                                                                sizeof(ObjectUniform));
 
     // 注意：纹理不需要每帧更新，初始设置后即保持
 }
