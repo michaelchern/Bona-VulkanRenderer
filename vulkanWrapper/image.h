@@ -53,9 +53,6 @@ namespace LearnVulkan::Wrapper
 
         ~Image();
 
-        //此处属于便捷写法，封装性比较好，但是可以独立作为一个工具函数
-        //写到Tool的类里面
-
         void setImageLayout(VkImageLayout newLayout,
                             VkPipelineStageFlags srcStageMask,
                             VkPipelineStageFlags dstStageMask,

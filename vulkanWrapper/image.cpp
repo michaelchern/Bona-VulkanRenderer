@@ -161,18 +161,15 @@ namespace LearnVulkan::Wrapper
         // 更新当前布局状态
         mLayout = newLayout;
 
-        // 创建一次性命令缓冲区执行布局转换
         auto commandBuffer = CommandBuffer::create(mDevice, commandPool);
-        commandBuffer->begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);  // 一次性使用标志
-        // 记录布局转换命令
+        commandBuffer->begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
         commandBuffer->transferImageLayout(imageMemoryBarrier, srcStageMask, dstStageMask);
         commandBuffer->end();
 
-        // 提交到图形队列并等待完成（同步操作）
         commandBuffer->submitSync(mDevice->getGraphicQueue());
     }
 
-	// 填充图像数据（从主机到设备的内存传输）
     void Image::fillImageData(size_t size,
                               void* pData,
                               const CommandPool::Ptr& commandPool)
