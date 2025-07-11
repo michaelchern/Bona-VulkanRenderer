@@ -5,7 +5,6 @@
 
 namespace LearnVulkan::Wrapper
 {
-    // Vulkan采样器封装类（负责配置纹理采样参数）
     class Sampler
     {
     public:

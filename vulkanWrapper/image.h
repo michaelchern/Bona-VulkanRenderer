@@ -7,17 +7,10 @@
 namespace LearnVulkan::Wrapper
 {
     /*
-    * 分析：如果我们需要做一张被用于纹理采样的图片，那么我们首先
-    * 需要从 undefinedLayout 变换成为 TransferDst，然后在数据拷贝
-    * 完毕之后，再转换称为ShaderReadOnly
-    */
-
-    /*
-    * 分析：纹理图片处理流程通常需要分阶段转换图像布局：
-    * 1. 初始布局: VK_IMAGE_LAYOUT_UNDEFINED
-    * 2. 转换为传输目标布局: VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL (用于数据拷贝)
-    * 3. 数据拷贝完成后转换为着色器只读布局: VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL (用于采样)
-    */
+     * 分析：如果我们需要做一张被用于纹理采样的图片，那么我们首先
+     * 需要从 undefinedLayout 变换成为 TransferDst，然后在数据拷贝
+     * 完毕之后，再转换称为ShaderReadOnly
+     */
 
     class Image
     {
@@ -63,13 +56,6 @@ namespace LearnVulkan::Wrapper
         //此处属于便捷写法，封装性比较好，但是可以独立作为一个工具函数
         //写到Tool的类里面
 
-        // 图像布局转换方法（便捷功能）
-        // 参数说明：
-        //   newLayout：目标布局
-        //   srcStageMask：源管线阶段（屏障起始点）
-        //   dstStageMask：目标管线阶段（屏障结束点）
-        //   subresrouceRange：图像子资源范围（层级、层次等）
-        //   commandPool：命令池（用于创建一次性的命令缓冲区）
         void setImageLayout(VkImageLayout newLayout,
                             VkPipelineStageFlags srcStageMask,
                             VkPipelineStageFlags dstStageMask,
