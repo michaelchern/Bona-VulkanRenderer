@@ -20,10 +20,10 @@ namespace LearnVulkan::Wrapper
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-        mWindow = glfwCreateWindow(mWidth, mHeight, "vulkan window", nullptr, nullptr);
+        mWindow = glfwCreateWindow(mWidth, mHeight, "Bona-VulkanRenderer", nullptr, nullptr);
         if (!mWindow)
         {
-            std::cerr << "Error: failed to create window" << std::endl;
+            std::cerr << "Error: failed to create window!" << std::endl;
         }
 
         glfwSetWindowUserPointer(mWindow, this);
