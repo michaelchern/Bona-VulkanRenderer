@@ -12,11 +12,11 @@ namespace LearnVulkan::Wrapper
 
         ~SubPass();
 
-        void addColorAttachmentReference(const VkAttachmentReference& ref);
+        void addColorAttachmentReference(const VkAttachmentReference &ref);
 
-        void addInputAttachmentReference(const VkAttachmentReference& ref);
+        void addInputAttachmentReference(const VkAttachmentReference &ref);
 
-        void setDepthStencilAttachmentReference(const VkAttachmentReference& ref);
+        void setDepthStencilAttachmentReference(const VkAttachmentReference &ref);
 
         void buildSubPassDescription();
 
@@ -34,17 +34,17 @@ namespace LearnVulkan::Wrapper
     public:
         using Ptr = std::shared_ptr<RenderPass>;
 
-        static Ptr create(const Device::Ptr& device) { return std::make_shared<RenderPass>(device); }
+        static Ptr create(const Device::Ptr &device) { return std::make_shared<RenderPass>(device); }
 
-        RenderPass(const Device::Ptr& device);
+        RenderPass(const Device::Ptr &device);
 
         ~RenderPass();
 
-        void addSubPass(const SubPass& subpass);
+        void addSubPass(const SubPass &subpass);
 
-        void addDependency(const VkSubpassDependency& dependency);
+        void addDependency(const VkSubpassDependency &dependency);
 
-        void addAttachment(const VkAttachmentDescription& attachmentDes);
+        void addAttachment(const VkAttachmentDescription &attachmentDes);
 
         void buildRenderPass();
 

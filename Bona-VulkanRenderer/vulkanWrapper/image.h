@@ -16,7 +16,6 @@ namespace LearnVulkan::Wrapper
                                            const int& height);
 
     public:
-        
         static Ptr create(const Device::Ptr& device,
                           const int& width,
                           const int& height,
@@ -68,20 +67,17 @@ namespace LearnVulkan::Wrapper
         [[nodiscard]] auto getImageView() const { return mImageView; }
 
     public:
-
         static VkFormat findDepthFormat(const Device::Ptr& device);
 
         static VkFormat findSupportedFormat(const Device::Ptr& device,
-            const std::vector<VkFormat>& candidates,
-            VkImageTiling tiling,
-            VkFormatFeatureFlags features);
+                                            const std::vector<VkFormat>& candidates,
+                                            VkImageTiling tiling,
+                                            VkFormatFeatureFlags features);
 
         bool hasStencilComponent(VkFormat format) const;
 
     private:
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-
-        
 
     private:
         size_t         mWidth{ 0 };

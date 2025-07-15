@@ -5,23 +5,20 @@ namespace LearnVulkan::Wrapper
 {
     CommandBuffer::CommandBuffer(const Device::Ptr& device, const CommandPool::Ptr& commandPool, bool asSecondary)
     {
-        mDevice      = device;       // 存储设备对象
-        mCommandPool = commandPool;  // 存储命令池对象
+        mDevice      = device;
+        mCommandPool = commandPool;
 
-        // 配置命令缓冲区分配信息
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandBufferCount = 1;                               // 分配1个命令缓冲区
-        allocInfo.commandPool        = mCommandPool->getCommandPool();  // 指定命令池
+        allocInfo.commandBufferCount = 1;                               
+        allocInfo.commandPool        = mCommandPool->getCommandPool();  
 
-        // 设置命令缓冲级别：主/二级
         allocInfo.level = asSecondary ? VK_COMMAND_BUFFER_LEVEL_SECONDARY
                                       : VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 
-        // 调用Vulkan API分配命令缓冲区
         if (vkAllocateCommandBuffers(mDevice->getDevice(), &allocInfo, &mCommandBuffer) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error: Falied to create commandBuffer!");
+            throw std::runtime_error("Error: falied to create commandBuffer!");
         }
     }
 
@@ -33,32 +30,32 @@ namespace LearnVulkan::Wrapper
         }
     }
 
-    void CommandBuffer::begin(VkCommandBufferUsageFlags flag, const VkCommandBufferInheritanceInfo& inheritance)
+    void CommandBuffer::begin(VkCommandBufferUsageFlags flag, const VkCommandBufferInheritanceInfo &inheritance)
     {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags            = flag;          // 设置使用标志
-        beginInfo.pInheritanceInfo = &inheritance;  // 继承信息（二级缓冲区）
+        beginInfo.flags            = flag;
+        beginInfo.pInheritanceInfo = &inheritance;
 
         if (vkBeginCommandBuffer(mCommandBuffer, &beginInfo) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error:failed to begin commandBuffer!");
+            throw std::runtime_error("Error: failed to begin commandBuffer!");
         }
     }
 
-    void CommandBuffer::beginRenderPass(const VkRenderPassBeginInfo& renderPassBeginInfo, const VkSubpassContents& subPassContents)
+    void CommandBuffer::beginRenderPass(const VkRenderPassBeginInfo &renderPassBeginInfo, const VkSubpassContents &subPassContents)
     {
         vkCmdBeginRenderPass(mCommandBuffer, &renderPassBeginInfo, subPassContents);
     }
 
-    void CommandBuffer::bindGraphicPipeline(const VkPipeline& pipeline)
+    void CommandBuffer::bindGraphicPipeline(const VkPipeline &pipeline)
     {
         vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     }
 
-    void CommandBuffer::bindVertexBuffer(const std::vector<VkBuffer>& buffers)
+    void CommandBuffer::bindVertexBuffer(const std::vector<VkBuffer> &buffers)
     {
-        std::vector<VkDeviceSize> offsets(buffers.size(), 0);  // 所有缓冲区偏移设为0
+        std::vector<VkDeviceSize> offsets(buffers.size(), 0);
 
         vkCmdBindVertexBuffers(mCommandBuffer, 0, static_cast<uint32_t>(buffers.size()), buffers.data(), offsets.data());
     }
@@ -83,10 +80,10 @@ namespace LearnVulkan::Wrapper
     void CommandBuffer::draw(size_t vertexCount)
     {
         vkCmdDraw(mCommandBuffer,
-                  vertexCount,  // 顶点数量
-                  1,            // 实例数量
-                  0,            // 首个顶点索引
-                  0);           // 首个实例索引
+                  vertexCount,  
+                  1,            
+                  0,            
+                  0);           
     }
 
     void CommandBuffer::drawIndex(size_t indexCount)
@@ -108,7 +105,7 @@ namespace LearnVulkan::Wrapper
     {
         if (vkEndCommandBuffer(mCommandBuffer) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error:failed to end Command Buffer!");
+            throw std::runtime_error("Error: failed to end Command Buffer!");
         }
     }
 
@@ -134,47 +131,37 @@ namespace LearnVulkan::Wrapper
         region.imageOffset = {0, 0, 0};                                  // 起始坐标(x,y,z)
         region.imageExtent = {width, height, 1};                         // 复制区域大小
 
-        vkCmdCopyBufferToImage(
-            mCommandBuffer,
-            srcBuffer,
-            dstImage,
-            dstImageLayout,  // 图像当前布局
-            1,               // 区域数量
-            &region          // 复制区域描述
-        );
+        vkCmdCopyBufferToImage(mCommandBuffer,
+                               srcBuffer,
+                               dstImage,
+                               dstImageLayout,  
+                               1,               
+                               &region);
     }
 
-    /**
-     * @brief 图像布局转换（内存屏障）
-     *
-     * @param imageMemoryBarrier 图像内存屏障配置
-     * @param srcStageMask 源管线阶段
-     * @param dstStageMask 目标管线阶段
-     */
     void CommandBuffer::transferImageLayout(const VkImageMemoryBarrier &imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask)
     {
-        vkCmdPipelineBarrier(
-            mCommandBuffer, 
-            srcStageMask,           // 源管线阶段
-            dstStageMask,           // 目标管线阶段
-            0,                      // 依赖标志
-            0, nullptr,             // 内存屏障数组
-            0, nullptr,             // 缓冲区内存屏障数组
-            1, &imageMemoryBarrier  // 图像内存屏障数组
-        );
+        vkCmdPipelineBarrier(mCommandBuffer, 
+                             srcStageMask,           
+                             dstStageMask,           
+                             0,                      
+                             0, 
+                             nullptr,             
+                             0, 
+                             nullptr,             
+                             1, 
+                             &imageMemoryBarrier);
     }
 
     void CommandBuffer::submitSync(VkQueue queue, VkFence fence)
     {
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;                 // 提交1个命令缓冲区
-        submitInfo.pCommandBuffers = &mCommandBuffer;      // 指定命令缓冲区
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &mCommandBuffer;
 
-        // 提交到队列
         vkQueueSubmit(queue, 1, &submitInfo, fence);
 
-        // 阻塞等待队列空闲（实现CPU-GPU同步）
         vkQueueWaitIdle(queue);
     }
 }

@@ -155,7 +155,7 @@ namespace LearnVulkan::Wrapper
 
             if (vkCreateFramebuffer(mDevice->getDevice(), &frameBufferCreateInfo, nullptr, &mSwapChainFrameBuffers[i]) != VK_SUCCESS)
             {
-                throw std::runtime_error("Error:Failed to create frameBuffer!");
+                throw std::runtime_error("Error: failed to create frameBuffer!");
             }
         }
     }

@@ -42,12 +42,11 @@ namespace LearnVulkan::Wrapper
 
         [[nodiscard]] auto getDevice()             const { return mDevice; }
         [[nodiscard]] auto getPhysicalDevice()     const { return mPhysicalDevice; }
-
         [[nodiscard]] auto getGraphicQueueFamily() const { return mGraphicQueueFamily; }
         [[nodiscard]] auto getPresentQueueFamily() const { return mPresentQueueFamily; }
-
         [[nodiscard]] auto getGraphicQueue()       const { return mGraphicQueue; }
         [[nodiscard]] auto getPresentQueue()       const { return mPresentQueue; }
+
     private:
         VkPhysicalDevice   mPhysicalDevice{ VK_NULL_HANDLE };
         Instance::Ptr      mInstance{ nullptr };

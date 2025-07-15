@@ -4,7 +4,6 @@
 
 namespace LearnVulkan::Wrapper
 {
-
     class Window
     {
     public:

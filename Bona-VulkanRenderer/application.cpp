@@ -1,5 +1,4 @@
-﻿
-#include "application.h"
+﻿#include "application.h"
 
 namespace LearnVulkan
 {
@@ -52,16 +51,16 @@ namespace LearnVulkan
     void Application::createPipeline()
     {
         VkViewport viewport = {};
-        viewport.x = 0.0f;
-        viewport.y = (float)mHeight;
-        viewport.width = (float)mWidth;
-        viewport.height = -(float)mHeight;
+        viewport.x        = 0.0f;
+        viewport.y        = (float)mHeight;
+        viewport.width    = (float)mWidth;
+        viewport.height   = -(float)mHeight;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
 
         VkRect2D scissor = {};
-        scissor.offset = { 0, 0 };
-        scissor.extent = { mWidth, mHeight };
+        scissor.offset   = { 0, 0 };
+        scissor.extent   = { mWidth, mHeight };
 
         mPipeline->setViewports({ viewport });
         mPipeline->setScissors({ scissor });
@@ -76,13 +75,13 @@ namespace LearnVulkan
 
         mPipeline->setShaderGroup(shaderGroup);
 
-        auto vertexBindingDes = mModel->getVertexInputBindingDescriptions();
-        auto attributeDes = mModel->getAttributeDescriptions();
+        auto bindingDescription = mModel->getBindingDescription();
+        auto attributeDescriptions = mModel->getAttributeDescriptions();
 
-        mPipeline->mVertexInputState.vertexBindingDescriptionCount   = vertexBindingDes.size();
-        mPipeline->mVertexInputState.pVertexBindingDescriptions      = vertexBindingDes.data();
-        mPipeline->mVertexInputState.vertexAttributeDescriptionCount = attributeDes.size();
-        mPipeline->mVertexInputState.pVertexAttributeDescriptions    = attributeDes.data();
+        mPipeline->mVertexInputState.vertexBindingDescriptionCount   = 1;
+        mPipeline->mVertexInputState.pVertexBindingDescriptions      = &bindingDescription;
+        mPipeline->mVertexInputState.vertexAttributeDescriptionCount = attributeDescriptions.size();
+        mPipeline->mVertexInputState.pVertexAttributeDescriptions    = attributeDescriptions.data();
 
         mPipeline->mAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         mPipeline->mAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -127,10 +126,6 @@ namespace LearnVulkan
 
         mPipeline->pushBlendAttachment(blendAttachment);
 
-        //1 blend有两种计算方式，第一种如上所述，进行alpha为基础的计算，第二种进行位运算
-        //2 如果开启了logicOp，那么上方设置的alpha为基础的运算，失灵
-        //3 ColorWrite掩码，仍然有效，即便开启了logicOP
-        //4 因为，我们可能会有多个FrameBuffer输出，所以可能需要多个BlendAttachment
         mPipeline->mBlendState.logicOpEnable = VK_FALSE;
         mPipeline->mBlendState.logicOp = VK_LOGIC_OP_COPY;
 
@@ -152,14 +147,14 @@ namespace LearnVulkan
     void Application::createRenderPass()
     {
         VkAttachmentDescription attachmentDes{};
-        attachmentDes.format         = mSwapChain->getFormat();           // 使用交换链格式
-        attachmentDes.samples        = VK_SAMPLE_COUNT_1_BIT;             // 单采样
-        attachmentDes.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;       // 加载时清空
-        attachmentDes.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;      // 存储渲染结果
-        attachmentDes.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;   // 不关心模板加载
-        attachmentDes.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;  // 不关心模板存储
-        attachmentDes.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;         // 初始布局
-        attachmentDes.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;   // 最终布局为显示源
+        attachmentDes.format         = mSwapChain->getFormat();           
+        attachmentDes.samples        = VK_SAMPLE_COUNT_1_BIT;             
+        attachmentDes.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;       
+        attachmentDes.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;      
+        attachmentDes.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;   
+        attachmentDes.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        attachmentDes.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        attachmentDes.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
         mRenderPass->addAttachment(attachmentDes);
 
@@ -378,7 +373,7 @@ namespace LearnVulkan
         }//VK_SUBOPTIMAL_KHR得到了一张认为可用的图像，但是表面格式不一定匹配
         else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
         {
-            throw std::runtime_error("Error: Failed to acquire next image!");
+            throw std::runtime_error("Error: failed to acquire next image!");
         }
 
         // 构建提交信息
@@ -410,7 +405,7 @@ namespace LearnVulkan
         // 提交命令缓冲区到图形队列
         if (vkQueueSubmit(mDevice->getGraphicQueue(), 1, &submitInfo, mFences[mCurrentFrame]->getFence()) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error:failed to submit renderCommand!");
+            throw std::runtime_error("Error: failed to submit renderCommand!");
         }
 
         // 等待渲染完成信号量，准备呈现图像
@@ -443,15 +438,9 @@ namespace LearnVulkan
         mCurrentFrame = (mCurrentFrame + 1) % mSwapChain->getImageCount();
     }
 
-    /**
-     * @brief 清理所有资源
-     *
-     * 注意：按创建顺序逆序销毁
-     */
     void Application::cleanUp()
     {
-        // 销毁Vulkan对象
-        mPipeline.reset();    // 销毁管线
+        mPipeline.reset();
         mRenderPass.reset();  // 销毁渲染通道
         mSwapChain.reset();   // 销毁交换链
         mDevice.reset();      // 销毁设备

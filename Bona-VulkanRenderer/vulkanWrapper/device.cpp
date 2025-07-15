@@ -171,7 +171,7 @@ namespace LearnVulkan::Wrapper
         // 7. 创建逻辑设备
         if (vkCreateDevice(mPhysicalDevice, &deviceCreateInfo, nullptr, &mDevice) != VK_SUCCESS)
         {
-            throw std::runtime_error("Error:failed to create logical device");
+            throw std::runtime_error("Error: failed to create logical device!");
         }
 
         // 8. 获取队列句柄

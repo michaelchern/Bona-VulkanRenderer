@@ -8,11 +8,11 @@
 
 namespace LearnVulkan
 {
-    // 顶点数据结构定义
     struct Vertex
     {
-        glm::vec3 mPosition;  // 顶点位置 (xyz)
-        glm::vec3 mColor;     // 顶点颜色 (rgb)
+        glm::vec3 pos;
+        glm::vec3 color;
+        glm::vec2 texCoord;
     };
 
     class Model
@@ -27,58 +27,52 @@ namespace LearnVulkan
 
         Model(const Wrapper::Device::Ptr &device)
         {
-           
-            // 四边形顶点位置 (四个顶点)
-            mPositions =
+        }
+
+        void loadModel()
+        {
+            tinyobj::attrib_t attrib;
+            std::vector<tinyobj::shape_t> shapes;
+            std::vector<tinyobj::material_t> materials;
+            std::string err;
+
+            if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, MODEL_PATH.c_str()))
             {
-                0.0f, 0.5f, 0.0f,
-                0.5f, 0.0f, 0.0f,
-               -0.5f, 0.0f, 0.0f,
-                0.0f,-0.5f, 0.0f
-            };
+                throw std::runtime_error(err);
+            }
 
-            // 每个顶点的颜色 (RGBA)
-            mColors =
+            std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
+            for (const auto& shape : shapes)
             {
-                1.0f, 0.0f, 0.0f,
-                0.0f, 1.0f, 0.0f,
-                0.0f, 0.0f, 1.0f,
-                1.0f, 0.0f, 0.0f
-            };
+                for (const auto& index : shape.mesh.indices)
+                {
+                    Vertex vertex{};
 
-            // 纹理UV坐标 (纹理映射用)
-            mUVs =
-            {
-                0.0f, 1.0f,
-                0.0f, 0.0f,
-                1.0f, 1.0f,
-                1.0f, 0.0f
-            };
+                    vertex.pos =
+                    {
+                        attrib.vertices[3 * index.vertex_index + 0],
+                        attrib.vertices[3 * index.vertex_index + 1],
+                        attrib.vertices[3 * index.vertex_index + 2]
+                    };
 
-            // 索引数据 (两个三角形组成四边形: 0-2-1 和 1-2-3)
-            mIndexDatas = { 0, 2, 1, 1, 2, 3};
+                    vertex.texCoord =
+                    {
+                        attrib.texcoords[2 * index.texcoord_index + 0],
+                        1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+                    };
 
-            //mVertexBuffer = Wrapper::Buffer::createVertexBuffer(device, mDatas.size() * sizeof(Vertex), mDatas.data());
+                    vertex.color = { 1.0f, 1.0f, 1.0f };
 
-            // 创建GPU顶点缓冲区 (位置数据)
-            mPositionBuffer = Wrapper::Buffer::createVertexBuffer(device,
-                                                                  mPositions.size() * sizeof(float),
-                                                                  mPositions.data());
+                    if (uniqueVertices.count(vertex) == 0)
+                    {
+                        uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                        vertices.push_back(vertex);
+                    }
 
-            // 创建GPU顶点缓冲区 (颜色数据)
-            mColorBuffer = Wrapper::Buffer::createVertexBuffer(device,
-                                                               mColors.size() * sizeof(float),
-                                                               mColors.data());
-
-            // 创建GPU顶点缓冲区 (UV坐标数据)
-            mUVBuffer = Wrapper::Buffer::createVertexBuffer(device,
-                                                            mUVs.size() * sizeof(float),
-                                                            mUVs.data());
-
-            // 创建GPU索引缓冲区
-            mIndexBuffer = Wrapper::Buffer::createIndexBuffer(device,
-                                                              mIndexDatas.size() * sizeof(float),
-                                                              mIndexDatas.data());
+                    indices.push_back(uniqueVertices[vertex]);
+                }
+            }
         }
 
         ~Model() {}
@@ -87,57 +81,89 @@ namespace LearnVulkan
         // 顶点输入状态描述
         // ==================================================================
 
-        std::vector<VkVertexInputBindingDescription> getVertexInputBindingDescriptions()
+        //std::vector<VkVertexInputBindingDescription> getVertexInputBindingDescriptions()
+        //{
+        //    std::vector<VkVertexInputBindingDescription> bindingDes{};
+        //    bindingDes.resize(3);
+
+        //    // 位置属性绑定 (绑定点0)
+        //    bindingDes[0].binding = 0;
+        //    bindingDes[0].stride = sizeof(float) * 3;
+        //    bindingDes[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        //    // 颜色属性绑定 (绑定点1)
+        //    bindingDes[1].binding = 1;
+        //    bindingDes[1].stride = sizeof(float) * 3;
+        //    bindingDes[1].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        //    // UV属性绑定 (绑定点2)
+        //    bindingDes[2].binding = 2;
+        //    bindingDes[2].stride = sizeof(float) * 2;
+        //    bindingDes[2].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        //    return bindingDes;
+        //}
+
+        VkVertexInputBindingDescription getBindingDescription()
         {
-            std::vector<VkVertexInputBindingDescription> bindingDes{};
-            bindingDes.resize(3);
+            VkVertexInputBindingDescription bindingDescription{};
+            bindingDescription.binding   = 0;
+            bindingDescription.stride    = sizeof(Vertex);
+            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-            // 位置属性绑定 (绑定点0)
-            bindingDes[0].binding = 0;
-            bindingDes[0].stride = sizeof(float) * 3;  // XYZ = 3个float
-            bindingDes[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-            // 颜色属性绑定 (绑定点1)
-            bindingDes[1].binding = 1;
-            bindingDes[1].stride = sizeof(float) * 3;  // RGB = 3个float
-            bindingDes[1].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-            // UV属性绑定 (绑定点2)
-            bindingDes[2].binding = 2;
-            bindingDes[2].stride = sizeof(float) * 2;  // UV = 2个float
-            bindingDes[2].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-            return bindingDes;
+            return bindingDescription;
         }
 
-        std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions()
+        //std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions()
+        //{
+        //    std::vector<VkVertexInputAttributeDescription> attributeDes{};
+        //    attributeDes.resize(3);
+
+        //    // 位置属性 (绑定点0, 位置索引0)
+        //    attributeDes[0].binding  = 0;
+        //    attributeDes[0].location = 0;                           // 对应shader的layout(location = 0)
+        //    attributeDes[0].format   = VK_FORMAT_R32G32B32_SFLOAT;  // XYZ
+        //    //attributeDes[0].offset = offsetof(Vertex, mPosition);
+        //    attributeDes[0].offset   = 0;                           // 在缓冲区起始位置
+
+        //    // 颜色属性 (绑定点1, 位置索引1)
+        //    // attributeDes[1].binding = 0;
+        //    attributeDes[1].binding  = 1;
+        //    attributeDes[1].location = 1;                           // 对应shader的layout(location = 1)
+        //    attributeDes[1].format   = VK_FORMAT_R32G32B32_SFLOAT;  // RGB
+        //    //attributeDes[1].offset = offsetof(Vertex, mColor);
+        //    attributeDes[1].offset   = 0;                           // 在缓冲区起始位置
+
+        //    // UV属性 (绑定点2, 位置索引2)
+        //    attributeDes[2].binding  = 2;
+        //    attributeDes[2].location = 2;                           // 对应shader的layout(location = 2)
+        //    attributeDes[2].format   = VK_FORMAT_R32G32_SFLOAT;     // UV
+        //    //attributeDes[0].offset = offsetof(Vertex, mPosition);
+        //    attributeDes[2].offset   = 0;                           // 在缓冲区起始位置
+
+        //    return attributeDes;
+        //}
+
+        std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
         {
-            std::vector<VkVertexInputAttributeDescription> attributeDes{};
-            attributeDes.resize(3);
+            std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
 
-            // 位置属性 (绑定点0, 位置索引0)
-            attributeDes[0].binding  = 0;
-            attributeDes[0].location = 0;                           // 对应shader的layout(location = 0)
-            attributeDes[0].format   = VK_FORMAT_R32G32B32_SFLOAT;  // XYZ
-            //attributeDes[0].offset = offsetof(Vertex, mPosition);
-            attributeDes[0].offset   = 0;                           // 在缓冲区起始位置
+            attributeDescriptions[0].binding = 0;
+            attributeDescriptions[0].location = 0;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[0].offset = offsetof(Vertex, pos);
 
-            // 颜色属性 (绑定点1, 位置索引1)
-            // attributeDes[1].binding = 0;
-            attributeDes[1].binding  = 1;
-            attributeDes[1].location = 1;                           // 对应shader的layout(location = 1)
-            attributeDes[1].format   = VK_FORMAT_R32G32B32_SFLOAT;  // RGB
-            //attributeDes[1].offset = offsetof(Vertex, mColor);
-            attributeDes[1].offset   = 0;                           // 在缓冲区起始位置
+            attributeDescriptions[1].binding = 0;
+            attributeDescriptions[1].location = 1;
+            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[1].offset = offsetof(Vertex, color);
 
-            // UV属性 (绑定点2, 位置索引2)
-            attributeDes[2].binding  = 2;
-            attributeDes[2].location = 2;                           // 对应shader的layout(location = 2)
-            attributeDes[2].format   = VK_FORMAT_R32G32_SFLOAT;     // UV
-            //attributeDes[0].offset = offsetof(Vertex, mPosition);
-            attributeDes[2].offset   = 0;                           // 在缓冲区起始位置
+            attributeDescriptions[2].binding = 0;
+            attributeDescriptions[2].location = 2;
+            attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
 
-            return attributeDes;
+            return attributeDescriptions;
         }
 
         // ==================================================================
@@ -200,10 +226,12 @@ namespace LearnVulkan
     private:
         // 原始模型数据
         // std::vector<Vertex> mDatas{};
-        std::vector<float>        mPositions{};          // 顶点位置数据 (XYZ)
-        std::vector<float>        mColors{};             // 顶点颜色数据 (RGB)
-        std::vector<unsigned int> mIndexDatas{};         // 索引数据 (uint32_t)
-        std::vector<float>        mUVs{};                // 纹理UV坐标 (UV)
+        //std::vector<float>        mPositions{};          // 顶点位置数据 (XYZ)
+        //std::vector<float>        mColors{};             // 顶点颜色数据 (RGB)
+        //std::vector<unsigned int> mIndexDatas{};         // 索引数据 (uint32_t)
+        //std::vector<float>        mUVs{};                // 纹理UV坐标 (UV)
+        std::vector<Vertex> vertices;
+        std::vector<uint32_t> indices;
 
         // GPU缓冲区对象
         //Wrapper::Buffer::Ptr mVertexBuffer{ nullptr };
