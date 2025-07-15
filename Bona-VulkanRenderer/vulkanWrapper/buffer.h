@@ -7,7 +7,6 @@ namespace LearnVulkan::Wrapper
 {
     class Buffer
     {
-    
     public:
         using Ptr = std::shared_ptr<Buffer>;
         static Ptr create(const Device::Ptr& device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
@@ -16,7 +15,6 @@ namespace LearnVulkan::Wrapper
         }
 
     public:
-
         static Ptr createVertexBuffer(const Device::Ptr& device, VkDeviceSize size, void * pData);
 
         static Ptr createIndexBuffer(const Device::Ptr& device, VkDeviceSize size, void* pData);
@@ -26,7 +24,6 @@ namespace LearnVulkan::Wrapper
         static Ptr createStageBuffer(const Device::Ptr& device, VkDeviceSize size, void* pData = nullptr);
 
     public:
-
         Buffer(const Device::Ptr &device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 
         ~Buffer();

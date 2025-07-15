@@ -4,8 +4,8 @@ namespace LearnVulkan::Wrapper
 {
     Pipeline::Pipeline(const Device::Ptr& device, const RenderPass::Ptr& renderPass)
     {
-        mDevice     = device;      // 保存逻辑设备（智能指针）
-        mRenderPass = renderPass;  // 保存渲染通道（智能指针）
+        mDevice     = device;
+        mRenderPass = renderPass;
 
         // 为所有管线状态结构体设置标准类型标识符
         mVertexInputState.sType  = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -20,24 +20,17 @@ namespace LearnVulkan::Wrapper
 
     Pipeline::~Pipeline()
     {
-        // 销毁管线布局（描述符集布局/推送常量的容器）
         if (mLayout != VK_NULL_HANDLE)
         {
             vkDestroyPipelineLayout(mDevice->getDevice(), mLayout, nullptr);
         }
 
-        // 销毁图形管线对象
         if (mPipeline != VK_NULL_HANDLE)
         {
             vkDestroyPipeline(mDevice->getDevice(), mPipeline, nullptr);
         }
     }
 
-    /**
-     * @brief 设置着色器组
-     *
-     * @param shaderGroup 包含所有阶段着色器的向量（顶点/片段/几何等）
-     */
     void Pipeline::setShaderGroup(const std::vector<Shader::Ptr>& shaderGroup)
     {
         mShaders = shaderGroup;  // 保存着色器对象列表

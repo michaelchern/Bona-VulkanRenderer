@@ -6,12 +6,6 @@
 
 namespace LearnVulkan::Wrapper
 {
-    /*
-     * 分析：如果我们需要做一张被用于纹理采样的图片，那么我们首先
-     * 需要从 undefinedLayout 变换成为 TransferDst，然后在数据拷贝
-     * 完毕之后，再转换称为ShaderReadOnly
-     */
-
     class Image
     {
     public:

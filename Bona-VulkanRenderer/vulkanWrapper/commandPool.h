@@ -5,7 +5,6 @@
 
 namespace LearnVulkan::Wrapper
 {
-    
     class CommandPool
     {
     public:
