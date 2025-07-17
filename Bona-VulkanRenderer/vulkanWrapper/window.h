@@ -27,8 +27,8 @@ namespace LearnVulkan::Wrapper
         bool mWindowResized{ false };
 
     private:
-        int mWidth{ 0 };
-        int mHeight{ 0 };
+        int         mWidth{ 0 };
+        int         mHeight{ 0 };
         GLFWwindow* mWindow{ NULL };
     };
 }

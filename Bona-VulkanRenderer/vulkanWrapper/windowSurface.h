@@ -22,7 +22,7 @@ namespace LearnVulkan::Wrapper
         [[nodiscard]] auto getSurface() const { return mSurface; }
 
     private:
-        VkSurfaceKHR mSurface{ VK_NULL_HANDLE };
+        VkSurfaceKHR  mSurface{ VK_NULL_HANDLE };
         Instance::Ptr mInstance{ nullptr };
     };
 }

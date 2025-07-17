@@ -37,7 +37,7 @@ namespace LearnVulkan::Wrapper
         [[nodiscard]] auto getBuffer() const { return mBuffer; }
 
         [[nodiscard]] VkDescriptorBufferInfo& getBufferInfo() { return mBufferInfo; }
-        
+
     private:
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 

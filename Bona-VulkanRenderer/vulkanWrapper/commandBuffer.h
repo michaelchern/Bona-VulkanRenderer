@@ -43,7 +43,7 @@ namespace LearnVulkan::Wrapper
 
         void copyBufferToBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, uint32_t copyInfoCount, const std::vector<VkBufferCopy> &copyInfos);
 
-        void copyBufferToImage(VkBuffer srcBuffer,  VkImage dstImage, VkImageLayout dstImageLayout, uint32_t width, uint32_t height);
+        void copyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, VkImageLayout dstImageLayout, uint32_t width, uint32_t height);
 
         void transferImageLayout(const VkImageMemoryBarrier &imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask);
 

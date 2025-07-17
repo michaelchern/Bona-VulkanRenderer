@@ -157,10 +157,10 @@ namespace LearnVulkan::Wrapper
 
         VkBufferCopy copyInfo{};
         copyInfo.size = size;
-        
+
         commandBuffer->copyBufferToBuffer(srcBuffer,
                                           dstBuffer,
-                                          1,            
+                                          1,
                                           { copyInfo });
         commandBuffer->end();
 
