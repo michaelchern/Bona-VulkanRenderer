@@ -142,7 +142,7 @@ namespace LearnVulkan::Wrapper
         {
             //FrameBuffer 里面为一帧的数据，比如有n个ColorAttachment 1个DepthStencilAttachment，
             //这些东西的集合为一个FrameBuffer，送入管线，就会形成一个GPU的集合，由上方的Attachments构成
-            std::array<VkImageView, 2> attachments = { mSwapChainImageViews[i] ,mDepthImages[i]->getImageView() };
+            std::array<VkImageView, 1> attachments = { mSwapChainImageViews[i] };
 
             VkFramebufferCreateInfo frameBufferCreateInfo{};
             frameBufferCreateInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;

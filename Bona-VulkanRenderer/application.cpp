@@ -38,6 +38,7 @@ namespace LearnVulkan
         mUniformManager->init(mDevice, mCommandPool, mSwapChain->getImageCount());
 
         mModel = Model::create(mDevice);
+        mModel->loadModel("assets/diablo3_pose/diablo3_pose.obj", mDevice);
 
         mPipeline = Wrapper::Pipeline::create(mDevice, mRenderPass);
         createPipeline();
@@ -51,10 +52,10 @@ namespace LearnVulkan
     void Application::createPipeline()
     {
         VkViewport viewport = {};
-        viewport.x        = 0.0f;
-        viewport.y        = (float)mHeight;
-        viewport.width    = (float)mWidth;
-        viewport.height   = -(float)mHeight;
+        viewport.x = 0.0f;
+        viewport.y = (float)mHeight;
+        viewport.width = (float)mWidth;
+        viewport.height = -(float)mHeight;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
 
@@ -75,11 +76,11 @@ namespace LearnVulkan
 
         mPipeline->setShaderGroup(shaderGroup);
 
-        auto bindingDescription = mModel->getBindingDescription();
+        auto bindingDescription = mModel->getVertexInputBindingDescriptions();
         auto attributeDescriptions = mModel->getAttributeDescriptions();
 
-        mPipeline->mVertexInputState.vertexBindingDescriptionCount   = 1;
-        mPipeline->mVertexInputState.pVertexBindingDescriptions      = &bindingDescription;
+        mPipeline->mVertexInputState.vertexBindingDescriptionCount   = bindingDescription.size();
+        mPipeline->mVertexInputState.pVertexBindingDescriptions      = bindingDescription.data();
         mPipeline->mVertexInputState.vertexAttributeDescriptionCount = attributeDescriptions.size();
         mPipeline->mVertexInputState.pVertexAttributeDescriptions    = attributeDescriptions.data();
 
@@ -146,19 +147,19 @@ namespace LearnVulkan
 
     void Application::createRenderPass()
     {
-        VkAttachmentDescription attachmentDes{};
-        attachmentDes.format         = mSwapChain->getFormat();           
-        attachmentDes.samples        = VK_SAMPLE_COUNT_1_BIT;             
-        attachmentDes.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;       
-        attachmentDes.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;      
-        attachmentDes.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;   
-        attachmentDes.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        attachmentDes.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
-        attachmentDes.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        VkAttachmentDescription colorAttachment{};
+        colorAttachment.format         = mSwapChain->getFormat();
+        colorAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
+        colorAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorAttachment.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-        mRenderPass->addAttachment(attachmentDes);
+        mRenderPass->addAttachment(colorAttachment);
 
-        VkAttachmentDescription depthAttachment{};
+        /*VkAttachmentDescription depthAttachment{};
         depthAttachment.format         = Wrapper::Image::findDepthFormat(mDevice);
         depthAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
         depthAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -168,19 +169,19 @@ namespace LearnVulkan
         depthAttachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
         depthAttachment.finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-        mRenderPass->addAttachment(depthAttachment);
+        mRenderPass->addAttachment(depthAttachment);*/
 
-        VkAttachmentReference attachmentRef{};
-        attachmentRef.attachment = 0;
-        attachmentRef.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        VkAttachmentReference colorAttachmentRef{};
+        colorAttachmentRef.attachment = 0;
+        colorAttachmentRef.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        VkAttachmentReference depthattachmentRef{};
+        /*VkAttachmentReference depthattachmentRef{};
         depthattachmentRef.attachment = 1;
-        depthattachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        depthattachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;*/
 
         Wrapper::SubPass subPass{};
-        subPass.addColorAttachmentReference(attachmentRef);
-        subPass.setDepthStencilAttachmentReference(depthattachmentRef);
+        subPass.addColorAttachmentReference(colorAttachmentRef);
+        //subPass.setDepthStencilAttachmentReference(depthattachmentRef);
         subPass.buildSubPassDescription();
 
         mRenderPass->addSubPass(subPass);
@@ -317,9 +318,9 @@ namespace LearnVulkan
         {
             mWindow->pollEvents();
 
-            mModel->update();
+            mModel->update(mWidth, mHeight);
 
-            mUniformManager->update(mVPMatrices, mModel->getUniform(), mCurrentFrame);
+            mUniformManager->update(mModel->getVPUniform(), mModel->getUniform(), mCurrentFrame);
 
             render();
         }

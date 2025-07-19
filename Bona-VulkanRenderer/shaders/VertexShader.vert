@@ -6,11 +6,11 @@
 
 // ---- 输入顶点属性 ----
 layout(location = 0) in vec3 inPosition;  // 顶点位置（模型空间）
-layout(location = 1) in vec3 inColor;     // 顶点颜色（RGB）
-layout(location = 2) in vec2 inUV;        // 纹理坐标（UV）
+//layout(location = 1) in vec3 inColor;     // 顶点颜色（RGB）
+layout(location = 1) in vec2 inUV;        // 纹理坐标（UV）
 
 // ---- 输出到片段着色器的数据 ----
-layout(location = 0) out vec3 outColor;   // 传递顶点颜色
+//layout(location = 0) out vec3 outColor;   // 传递顶点颜色
 layout(location = 1) out vec2 outUV;      // 传递纹理坐标
 
 // ---- 统一缓冲区（Uniform Buffers）----
@@ -37,6 +37,6 @@ void main()
     gl_Position = vpUBO.mProjectionMatrix * vpUBO.mViewMatrix * objectUBO.mModelMatrix * vec4(inPosition, 1.0);
 
     // 传递颜色和纹理坐标到片段着色器
-    outColor = inColor;  // 输出原始顶点颜色
+    //outColor = inColor;  // 输出原始顶点颜色
     outUV = inUV;        // 输出原始UV坐标
 }
