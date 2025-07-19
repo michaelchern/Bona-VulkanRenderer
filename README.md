@@ -2,6 +2,8 @@
 
 **这是我基于Vulkan实现的渲染器Demo。**
 
+![](https://github.com/michaelchern/Bona-VulkanRenderer/blob/main/README_IMG/Bona-VulkanRenderer-screenshot.png)
+
 ## 渲染器介绍
 
 开发语言：C++
