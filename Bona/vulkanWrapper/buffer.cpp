@@ -45,11 +45,10 @@ namespace LearnVulkan::Wrapper
 
     Buffer::Ptr Buffer::createStageBuffer(const Device::Ptr& device, VkDeviceSize size, void* pData)
     {
-        auto buffer = Buffer::create(
-            device, size,
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,      
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |  
-            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT   );
+        auto buffer = Buffer::create(device,
+                                     size,
+                                     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
         if (pData != nullptr)
         {

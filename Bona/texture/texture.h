@@ -12,12 +12,12 @@ namespace LearnVulkan
     {
     public:
         using Ptr = std::shared_ptr<Texture>;
-        static Ptr create(const Wrapper::Device::Ptr& device, const Wrapper::CommandPool::Ptr &commandPool, const std::string& imageFilePath)
+        static Ptr create(const Wrapper::Device::Ptr& device, const Wrapper::CommandPool::Ptr& commandPool, const std::string& imageFilePath)
         {
             return std::make_shared<Texture>(device, commandPool, imageFilePath);
         }
 
-        Texture(const Wrapper::Device::Ptr &device, const Wrapper::CommandPool::Ptr& commandPool, const std::string &imageFilePath);
+        Texture(const Wrapper::Device::Ptr& device, const Wrapper::CommandPool::Ptr& commandPool, const std::string& imageFilePath);
 
         ~Texture();
 

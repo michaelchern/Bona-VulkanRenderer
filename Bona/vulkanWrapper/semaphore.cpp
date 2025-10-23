@@ -1,5 +1,4 @@
-﻿
-#include "semaphore.h"
+﻿#include "semaphore.h"
 
 namespace LearnVulkan::Wrapper
 {

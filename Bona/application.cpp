@@ -89,10 +89,10 @@ namespace LearnVulkan
         mPipeline->mAssemblyState.primitiveRestartEnable = VK_FALSE;
 
         mPipeline->mRasterState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-        mPipeline->mRasterState.polygonMode = VK_POLYGON_MODE_FILL;           
-        mPipeline->mRasterState.lineWidth = 1.0f;                             
-        mPipeline->mRasterState.cullMode = VK_CULL_MODE_BACK_BIT;             
-        mPipeline->mRasterState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;  
+        mPipeline->mRasterState.polygonMode = VK_POLYGON_MODE_FILL;
+        mPipeline->mRasterState.lineWidth = 1.0f;
+        mPipeline->mRasterState.cullMode = VK_CULL_MODE_BACK_BIT;
+        mPipeline->mRasterState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 
         mPipeline->mRasterState.depthBiasEnable         = VK_FALSE;
         mPipeline->mRasterState.depthBiasConstantFactor = 0.0f;
@@ -187,12 +187,12 @@ namespace LearnVulkan
         mRenderPass->addSubPass(subPass);
 
         VkSubpassDependency dependency{};
-        dependency.srcSubpass    = VK_SUBPASS_EXTERNAL;                            
-        dependency.dstSubpass    = 0;                                              
-        dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;  
+        dependency.srcSubpass    = VK_SUBPASS_EXTERNAL;
+        dependency.dstSubpass    = 0;
+        dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         dependency.srcAccessMask = 0;
-        dependency.dstStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;  
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |           
+        dependency.dstStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
                                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
         mRenderPass->addDependency(dependency);
 

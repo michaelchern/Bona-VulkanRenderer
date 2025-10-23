@@ -14,7 +14,7 @@ namespace LearnVulkan::Wrapper
         {
             vkDestroyDescriptorPool(mDevice->getDevice(), mPool, nullptr);
         }
-    } 
+    }
 
     void DescriptorPool::build(std::vector<UniformParameter::Ptr>& params, const int& frameCount)
     {

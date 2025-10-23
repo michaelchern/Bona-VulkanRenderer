@@ -160,15 +160,15 @@ namespace LearnVulkan::Wrapper
 
     void CommandBuffer::transferImageLayout(const VkImageMemoryBarrier &imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask)
     {
-        vkCmdPipelineBarrier(mCommandBuffer, 
-                             srcStageMask,           
-                             dstStageMask,           
-                             0,                      
-                             0, 
+        vkCmdPipelineBarrier(mCommandBuffer,
+                             srcStageMask,         
+                             dstStageMask,        
+                             0,                  
+                             0,
                              nullptr,             
-                             0, 
+                             0,
                              nullptr,             
-                             1, 
+                             1,
                              &imageMemoryBarrier);
     }
 

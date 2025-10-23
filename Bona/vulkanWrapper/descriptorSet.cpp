@@ -2,11 +2,11 @@
 
 namespace LearnVulkan::Wrapper
 {
-    DescriptorSet::DescriptorSet(const Device::Ptr& device,                        
-                                 const std::vector<UniformParameter::Ptr> params,  
-                                 const DescriptorSetLayout::Ptr& layout,           
-                                 const DescriptorPool::Ptr& pool,                  
-                                 int frameCount)                                   
+    DescriptorSet::DescriptorSet(const Device::Ptr& device,
+                                 const std::vector<UniformParameter::Ptr> params,
+                                 const DescriptorSetLayout::Ptr& layout,
+                                 const DescriptorPool::Ptr& pool,
+                                 int frameCount)
     {
         mDevice = device;
 
@@ -32,13 +32,13 @@ namespace LearnVulkan::Wrapper
             for (const auto& param : params)
             {
                 VkWriteDescriptorSet descriptorSetWrite{};
-                descriptorSetWrite.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;  
-                descriptorSetWrite.dstSet          = mDescriptorSets[i];                      
-                descriptorSetWrite.dstArrayElement = 0;                                       
-                descriptorSetWrite.descriptorType  = param->mDescriptorType;                  
-                descriptorSetWrite.descriptorCount = param->mCount;                           
-                descriptorSetWrite.dstBinding      = param->mBinding;                         
-                
+                descriptorSetWrite.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                descriptorSetWrite.dstSet          = mDescriptorSets[i];
+                descriptorSetWrite.dstArrayElement = 0;
+                descriptorSetWrite.descriptorType  = param->mDescriptorType;
+                descriptorSetWrite.descriptorCount = param->mCount;
+                descriptorSetWrite.dstBinding      = param->mBinding;
+
                 if (param->mDescriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
                 {
                     descriptorSetWrite.pBufferInfo = &param->mBuffers[i]->getBufferInfo();
@@ -53,10 +53,10 @@ namespace LearnVulkan::Wrapper
             }
 
             vkUpdateDescriptorSets(mDevice->getDevice(),
-                                   static_cast<uint32_t>(descriptorSetWrites.size()),  
-                                   descriptorSetWrites.data(),                         
-                                   0,                                                  
-                                   nullptr);                                           
+                                   static_cast<uint32_t>(descriptorSetWrites.size()),
+                                   descriptorSetWrites.data(),
+                                   0,
+                                   nullptr);
         }
     }
 

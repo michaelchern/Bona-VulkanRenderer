@@ -5,8 +5,7 @@
 
 namespace LearnVulkan
 {
-
-    Texture::Texture(const Wrapper::Device::Ptr& device, const Wrapper::CommandPool::Ptr & commandPool, const std::string& imageFilePath)
+    Texture::Texture(const Wrapper::Device::Ptr& device, const Wrapper::CommandPool::Ptr& commandPool, const std::string& imageFilePath)
     {
         mDevice = device;
 
@@ -72,10 +71,9 @@ namespace LearnVulkan
                                region,
                                commandPool);
 
-
         mImage->fillImageData(texSize,
-                       (void*)pixels,
-                              commandPool);
+                             (void*)pixels,
+                             commandPool);
 
         mImage->setImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                VK_PIPELINE_STAGE_TRANSFER_BIT,
