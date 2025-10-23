@@ -39,5 +39,4 @@ namespace LearnVulkan
 
         mIndexBuffer = Wrapper::Buffer::createIndexBuffer(device, mIndexDatas.size() * sizeof(float), mIndexDatas.data());
     }
-
 }

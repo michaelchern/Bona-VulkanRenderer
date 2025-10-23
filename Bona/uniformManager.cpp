@@ -45,7 +45,7 @@ void UniformManager::init(const Wrapper::Device::Ptr& device, const Wrapper::Com
     textureParam->mCount          = 1;
     textureParam->mDescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     textureParam->mStage          = VK_SHADER_STAGE_FRAGMENT_BIT;
-    textureParam->mTexture        = Texture::create(mDevice, commandPool, "assets/diablo3_pose/diablo3_pose_diffuse.tga");
+    textureParam->mTexture        = Texture::create(mDevice, commandPool, "assets/models/diablo3_pose/diablo3_pose_diffuse.tga");
     mUniformParams.push_back(textureParam);
 
     mDescriptorSetLayout = Wrapper::DescriptorSetLayout::create(device);

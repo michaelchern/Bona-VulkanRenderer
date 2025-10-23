@@ -38,7 +38,7 @@ namespace LearnVulkan
         mUniformManager->init(mDevice, mCommandPool, mSwapChain->getImageCount());
 
         mModel = Model::create(mDevice);
-        mModel->loadModel("assets/diablo3_pose/diablo3_pose.obj", mDevice);
+        mModel->loadModel("assets/models/diablo3_pose/diablo3_pose.obj", mDevice);
 
         mPipeline = Wrapper::Pipeline::create(mDevice, mRenderPass);
         createPipeline();
@@ -330,7 +330,7 @@ namespace LearnVulkan
 
     void Application::render()
     {
-        #pragma region 绘制
+        #pragma region Draw
 
         mFences[mCurrentFrame]->block();
 
@@ -378,7 +378,7 @@ namespace LearnVulkan
 
         #pragma endregion
 
-        #pragma region 显示
+        #pragma region Present
 
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
