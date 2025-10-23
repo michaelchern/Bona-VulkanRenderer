@@ -161,6 +161,5 @@ namespace LearnVulkan
         ObjectUniform        mUniform;                    // 模型统一变量
         VPMatrices           mVPUniform;                  // 视图投影矩阵统一变量
         float                mAngle{ 0.0f };              // 当前旋转角度（度）
-
     };
 }

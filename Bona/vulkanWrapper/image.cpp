@@ -144,7 +144,7 @@ namespace LearnVulkan::Wrapper
         {
             vkDestroyImage(mDevice->getDevice(), mImage, nullptr);
         }
-    } 
+    }
 
     uint32_t Image::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
     {
@@ -206,7 +206,6 @@ namespace LearnVulkan::Wrapper
                format == VK_FORMAT_D24_UNORM_S8_UINT;
     }
 
-    
     void Image::setImageLayout(VkImageLayout newLayout,
                                VkPipelineStageFlags srcStageMask,
                                VkPipelineStageFlags dstStageMask,

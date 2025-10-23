@@ -42,15 +42,10 @@ namespace LearnVulkan
         void createRenderPass();
         void createCommandBuffers();
         void createSyncObjects();
-
         void mainLoop();
-
         void render();
-
         void recreateSwapChain();
-
         void cleanupSwapChain();
-
         void cleanUp();
 
     private:

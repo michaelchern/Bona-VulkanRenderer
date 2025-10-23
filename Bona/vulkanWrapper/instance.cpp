@@ -2,7 +2,6 @@
 
 namespace LearnVulkan::Wrapper
 {
-    // 调试回调函数 - 处理 Vulkan 验证层输出的消息
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                         VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                         const VkDebugUtilsMessengerCallbackDataEXT* pMessageData,

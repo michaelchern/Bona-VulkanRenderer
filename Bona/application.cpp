@@ -186,7 +186,6 @@ namespace LearnVulkan
 
         mRenderPass->addSubPass(subPass);
 
-   
         VkSubpassDependency dependency{};
         dependency.srcSubpass    = VK_SUBPASS_EXTERNAL;                            
         dependency.dstSubpass    = 0;                                              
