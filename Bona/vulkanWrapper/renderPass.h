@@ -23,10 +23,10 @@ namespace LearnVulkan::Wrapper
         [[nodiscard]] auto getSubPassDescription() const { return mSubPassDescription; }
 
     private:
-        VkSubpassDescription               mSubPassDescription{};               
-        std::vector<VkAttachmentReference> mColorAttachmentReferences{};        
-        std::vector<VkAttachmentReference> mInputAttachmentReferences{};        
-        VkAttachmentReference              mDepthStencilAttachmentReference{};  
+        VkSubpassDescription               mSubPassDescription{};
+        std::vector<VkAttachmentReference> mColorAttachmentReferences{};
+        std::vector<VkAttachmentReference> mInputAttachmentReferences{};
+        VkAttachmentReference              mDepthStencilAttachmentReference{};
     };
 
     class RenderPass
@@ -51,8 +51,6 @@ namespace LearnVulkan::Wrapper
         [[nodiscard]] auto getRenderPass() const { return mRenderPass; }
 
     private:
-        
-
         std::vector<SubPass>                 mSubPasses{};
         std::vector<VkSubpassDependency>     mDependencies{};
         std::vector<VkAttachmentDescription> mAttachmentDescriptions{};

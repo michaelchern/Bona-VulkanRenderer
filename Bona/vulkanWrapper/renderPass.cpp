@@ -1,5 +1,4 @@
-﻿
-#include "renderPass.h"
+﻿#include "renderPass.h"
 
 namespace LearnVulkan::Wrapper
 {

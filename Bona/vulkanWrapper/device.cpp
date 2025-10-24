@@ -1,5 +1,4 @@
 ﻿#include "device.h"
-#include "device.h"
 
 namespace LearnVulkan::Wrapper
 {

@@ -1,5 +1,4 @@
-﻿
-#include "commandBuffer.h"
+﻿#include "commandBuffer.h"
 
 namespace LearnVulkan::Wrapper
 {
@@ -10,8 +9,8 @@ namespace LearnVulkan::Wrapper
 
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandBufferCount = 1;                               
-        allocInfo.commandPool        = mCommandPool->getCommandPool();  
+        allocInfo.commandBufferCount = 1;
+        allocInfo.commandPool        = mCommandPool->getCommandPool();
 
         allocInfo.level = asSecondary ? VK_COMMAND_BUFFER_LEVEL_SECONDARY
                                       : VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -43,17 +42,17 @@ namespace LearnVulkan::Wrapper
         }
     }
 
-    void CommandBuffer::beginRenderPass(const VkRenderPassBeginInfo &renderPassBeginInfo, const VkSubpassContents &subPassContents)
+    void CommandBuffer::beginRenderPass(const VkRenderPassBeginInfo& renderPassBeginInfo, const VkSubpassContents& subPassContents)
     {
         vkCmdBeginRenderPass(mCommandBuffer, &renderPassBeginInfo, subPassContents);
     }
 
-    void CommandBuffer::bindGraphicPipeline(const VkPipeline &pipeline)
+    void CommandBuffer::bindGraphicPipeline(const VkPipeline& pipeline)
     {
         vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     }
 
-    void CommandBuffer::bindVertexBuffer(const std::vector<VkBuffer> &buffers)
+    void CommandBuffer::bindVertexBuffer(const std::vector<VkBuffer>& buffers)
     {
         std::vector<VkDeviceSize> offsets(buffers.size(), 0);
 
@@ -65,14 +64,14 @@ namespace LearnVulkan::Wrapper
         vkCmdBindIndexBuffer(mCommandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
     }
 
-    void CommandBuffer::bindDescriptorSet(const VkPipelineLayout layout, const VkDescriptorSet &descriptorSet)
+    void CommandBuffer::bindDescriptorSet(const VkPipelineLayout layout, const VkDescriptorSet& descriptorSet)
     {
         vkCmdBindDescriptorSets(mCommandBuffer,
                                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                                 layout,
                                 0,               // 第一个描述符集
                                 1,               // 描述符集数量
-                                &descriptorSet,  
+                                &descriptorSet,
                                 0,               // 动态偏移量数量
                                 nullptr);        // 动态偏移数组
     }
@@ -80,10 +79,10 @@ namespace LearnVulkan::Wrapper
     void CommandBuffer::draw(size_t vertexCount)
     {
         vkCmdDraw(mCommandBuffer,
-                  vertexCount,  
-                  1,            
-                  0,            
-                  0);           
+                  vertexCount,
+                  1,
+                  0,
+                  0);
     }
 
     void CommandBuffer::drawIndex(size_t indexCount)
@@ -153,21 +152,21 @@ namespace LearnVulkan::Wrapper
         vkCmdCopyBufferToImage(mCommandBuffer,
                                srcBuffer,
                                dstImage,
-                               dstImageLayout,  
-                               1,               
+                               dstImageLayout,
+                               1,
                                &region);
     }
 
-    void CommandBuffer::transferImageLayout(const VkImageMemoryBarrier &imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask)
+    void CommandBuffer::transferImageLayout(const VkImageMemoryBarrier& imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask)
     {
         vkCmdPipelineBarrier(mCommandBuffer,
-                             srcStageMask,         
-                             dstStageMask,        
-                             0,                  
+                             srcStageMask,
+                             dstStageMask,
                              0,
-                             nullptr,             
                              0,
-                             nullptr,             
+                             nullptr,
+                             0,
+                             nullptr,
                              1,
                              &imageMemoryBarrier);
     }

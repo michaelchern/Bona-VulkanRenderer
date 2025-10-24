@@ -25,8 +25,8 @@ namespace LearnVulkan::Wrapper
 
     private:
         VkShaderModule        mShaderModule{ VK_NULL_HANDLE };
-        Device::Ptr           mDevice{ nullptr };                  
-        std::string           mEntryPoint;                         
+        Device::Ptr           mDevice{ nullptr };
+        std::string           mEntryPoint;
         VkShaderStageFlagBits mShaderStage;
     };
 }

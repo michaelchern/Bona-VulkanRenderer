@@ -24,15 +24,15 @@ namespace LearnVulkan::Wrapper
 
     Shader::Shader(const Device::Ptr& device, const std::string& fileName, VkShaderStageFlagBits shaderStage, const std::string& entryPoint)
     {
-        mDevice = device;            
-        mShaderStage = shaderStage;  
-        mEntryPoint = entryPoint;    
+        mDevice = device;
+        mShaderStage = shaderStage;
+        mEntryPoint = entryPoint;
 
         std::vector<char> codeBuffer = readBinary(fileName);
 
         VkShaderModuleCreateInfo shaderCreateInfo{};
-        shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;  
-        shaderCreateInfo.codeSize = codeBuffer.size();                         
+        shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+        shaderCreateInfo.codeSize = codeBuffer.size();
 
         shaderCreateInfo.pCode = reinterpret_cast<const uint32_t*>(codeBuffer.data());
 

@@ -42,22 +42,21 @@ namespace LearnVulkan::Wrapper
         {
             VkPipelineShaderStageCreateInfo shaderCreateInfo{};
             shaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-            shaderCreateInfo.stage = shader->getShaderStage();                             
-            shaderCreateInfo.pName = shader->getShaderEntryPoint().c_str();                
-            shaderCreateInfo.module = shader->getShaderModule();                          
+            shaderCreateInfo.stage = shader->getShaderStage();
+            shaderCreateInfo.pName = shader->getShaderEntryPoint().c_str();
+            shaderCreateInfo.module = shader->getShaderModule();
 
             shaderCreateInfos.push_back(shaderCreateInfo);
         }
 
         mViewportState.viewportCount = static_cast<uint32_t>(mViewports.size());
-        mViewportState.pViewports = mViewports.data();                            
-       
-        mViewportState.scissorCount = static_cast<uint32_t>(mScissors.size());
-        mViewportState.pScissors = mScissors.data();                             
+        mViewportState.pViewports = mViewports.data();
 
-      
-        mBlendState.attachmentCount = static_cast<uint32_t>(mBlendAttachmentStates.size());  
-        mBlendState.pAttachments = mBlendAttachmentStates.data();                            
+        mViewportState.scissorCount = static_cast<uint32_t>(mScissors.size());
+        mViewportState.pScissors = mScissors.data();
+
+        mBlendState.attachmentCount = static_cast<uint32_t>(mBlendAttachmentStates.size());
+        mBlendState.pAttachments = mBlendAttachmentStates.data();
 
         if (mLayout != VK_NULL_HANDLE)
         {
@@ -75,22 +74,22 @@ namespace LearnVulkan::Wrapper
         pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderCreateInfos.size());
         pipelineCreateInfo.pStages = shaderCreateInfos.data();
 
-        pipelineCreateInfo.pVertexInputState = &mVertexInputState;     
-        pipelineCreateInfo.pInputAssemblyState = &mAssemblyState;      
-        pipelineCreateInfo.pViewportState = &mViewportState;           
-        pipelineCreateInfo.pRasterizationState = &mRasterState;        
-        pipelineCreateInfo.pMultisampleState = &mSampleState;          
-        pipelineCreateInfo.pDepthStencilState = &mDepthStencilState;   
-        pipelineCreateInfo.pColorBlendState = &mBlendState;            
-        pipelineCreateInfo.pDynamicState = nullptr;                    
+        pipelineCreateInfo.pVertexInputState = &mVertexInputState;
+        pipelineCreateInfo.pInputAssemblyState = &mAssemblyState;
+        pipelineCreateInfo.pViewportState = &mViewportState;
+        pipelineCreateInfo.pRasterizationState = &mRasterState;
+        pipelineCreateInfo.pMultisampleState = &mSampleState;
+        pipelineCreateInfo.pDepthStencilState = &mDepthStencilState;
+        pipelineCreateInfo.pColorBlendState = &mBlendState;
+        pipelineCreateInfo.pDynamicState = nullptr;
 
-        pipelineCreateInfo.layout = mLayout;                           
+        pipelineCreateInfo.layout = mLayout;
 
-        pipelineCreateInfo.renderPass = mRenderPass->getRenderPass();  
-        pipelineCreateInfo.subpass = 0;                                
+        pipelineCreateInfo.renderPass = mRenderPass->getRenderPass();
+        pipelineCreateInfo.subpass = 0;
 
-        pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;        
-        pipelineCreateInfo.basePipelineIndex = -1;                     
+        pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
+        pipelineCreateInfo.basePipelineIndex = -1;
 
         if (mPipeline != VK_NULL_HANDLE)
         {

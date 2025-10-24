@@ -3,8 +3,8 @@
 
 namespace LearnVulkan::Wrapper
 {
-    SwapChain::SwapChain(const Device::Ptr& device, 
-                         const Window::Ptr& window, 
+    SwapChain::SwapChain(const Device::Ptr& device,
+                         const Window::Ptr& window,
                          const WindowSurface::Ptr& surface,
                          const CommandPool::Ptr& commandPool)
     {
@@ -40,7 +40,7 @@ namespace LearnVulkan::Wrapper
 
         // 步骤6：填充交换链创建信息结构体（VkSwapchainCreateInfoKHR）
         VkSwapchainCreateInfoKHR createInfo = {};
-        createInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;  
+        createInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
         createInfo.surface          = mSurface->getSurface();               // 关联的窗口表面
         createInfo.minImageCount    = mImageCount;                          // 交换链图像数量
         createInfo.imageFormat      = surfaceFormat.format;                 // 表面像素格式（如 B8G8R8A8）
@@ -146,10 +146,10 @@ namespace LearnVulkan::Wrapper
 
             VkFramebufferCreateInfo frameBufferCreateInfo{};
             frameBufferCreateInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            frameBufferCreateInfo.renderPass      = renderPass->getRenderPass();                
+            frameBufferCreateInfo.renderPass      = renderPass->getRenderPass();
             frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-            frameBufferCreateInfo.pAttachments    = attachments.data();                         
-            frameBufferCreateInfo.width           = mSwapChainExtent.width;                     
+            frameBufferCreateInfo.pAttachments    = attachments.data();
+            frameBufferCreateInfo.width           = mSwapChainExtent.width;
             frameBufferCreateInfo.height          = mSwapChainExtent.height;
             frameBufferCreateInfo.layers          = 1;
 

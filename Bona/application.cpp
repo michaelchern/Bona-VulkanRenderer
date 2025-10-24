@@ -150,10 +150,10 @@ namespace LearnVulkan
         VkAttachmentDescription colorAttachment{};
         colorAttachment.format         = mSwapChain->getFormat();
         colorAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;      // 每次渲染前清除颜色附件
+        colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;     // 渲染后存储颜色附件内容
+		colorAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;   // 不关心模板附件的加载操作
+		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE; // 不关心模板附件的存储操作
         colorAttachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
         colorAttachment.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
@@ -192,13 +192,11 @@ namespace LearnVulkan
         dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         dependency.srcAccessMask = 0;
         dependency.dstStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
-                                   VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
         mRenderPass->addDependency(dependency);
 
         mRenderPass->buildRenderPass();
     }
-
 
     void Application::createCommandBuffers()
     {
@@ -312,7 +310,6 @@ namespace LearnVulkan
 
     void Application::mainLoop()
     {
-
         while (!mWindow->shouldClose())
         {
             mWindow->pollEvents();
