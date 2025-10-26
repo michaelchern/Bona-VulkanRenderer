@@ -1,5 +1,4 @@
-﻿
-#include "fence.h"
+﻿#include "fence.h"
 
 namespace LearnVulkan::Wrapper
 {

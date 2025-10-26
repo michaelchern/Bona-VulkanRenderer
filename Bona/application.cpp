@@ -152,8 +152,8 @@ namespace LearnVulkan
         colorAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
         colorAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;      // 每次渲染前清除颜色附件
         colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;     // 渲染后存储颜色附件内容
-		colorAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;   // 不关心模板附件的加载操作
-		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE; // 不关心模板附件的存储操作
+        colorAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;  // 不关心模板附件的加载操作
+        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE; // 不关心模板附件的存储操作
         colorAttachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
         colorAttachment.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
@@ -264,6 +264,7 @@ namespace LearnVulkan
         }
     }
 
+    // 重建交换链：当窗口大小发生变化的时候，交换链需要被重建，Framebuffers、RenderPass、Pipeline等也需要重新创建
     void Application::recreateSwapChain()
     {
         int width = 0, height = 0;
